@@ -5,7 +5,8 @@
 - Embedded references: PC LAB 3D Product Design V2.0, Porsche-style configurator, NVIDIA future lab, Apple product presentation; execution references selected `gpt-tasteskill` + `apple` because the approved direction is cinematic, product-first, and mechanically precise.
 - Lazyweb: skipped because the user supplied a complete high-fidelity visual specification and requested implementation rather than renewed visual research.
 - Imagen drafts: skipped because the focal visual is a real-time Three.js assembly and the approved specification already defines its composition.
-- Scope: this document covers the Engine V1.0 viewer and controls only; commerce, price, AI, and account surfaces are outside this phase.
+- Scope: this document covers Engine V1.0 and Builder V1.0. Commerce feeds, AI chat,
+  accounts, and backend administration remain outside this phase.
 
 ## 1. Atmosphere & Identity
 
@@ -36,6 +37,9 @@ PC LAB 3D feels like a precision computing laboratory rather than a store. The s
 | Danger | `--color-danger` | `#ff6474` | Asset or action failure |
 | Focus | `--color-focus` | `#b7f3ff` | Keyboard focus |
 | Border | `--color-border` | `rgba(183, 243, 255, 0.14)` | Subtle separation |
+| Warning subtle | `--color-warning-subtle` | `rgba(255, 186, 92, 0.09)` | Advisory background |
+| Danger subtle | `--color-danger-subtle` | `rgba(255, 100, 116, 0.09)` | Blocking issue background |
+| AI subtle | `--color-ai-subtle` | `rgba(140, 123, 255, 0.10)` | Recommendation surface |
 
 ### Rules
 
@@ -108,15 +112,32 @@ All UI spacing derives from 4px.
 
 ### Component Rail
 
-- Structure: hardware category, hardware name, selection state.
-- States: default, hover, selected, replacing, unavailable.
+- Structure: eight category tabs, hardware visual, name, compact specification,
+  performance index, price, selection and compatibility state.
+- States: default, hover, selected, replacing, disabled, incompatible.
 - Accessibility: radio-like selected semantics and full keyboard reachability.
 
-### Telemetry Panel
+### Build Summary
 
-- Structure: selected component, viewer mode, model source, performance status.
-- States: ready, loading, placeholder, error.
-- Motion: values crossfade in 180ms.
+- Structure: machine identity, selected component rows, total price, system draw,
+  gaming/production/AI scores, compatibility results, save action.
+- States: ready, recalculating, success, warning, error, saved.
+- Motion: price and score values roll over 320ms; compatibility messages crossfade
+  in 180ms.
+
+### Smart Preset Dialog
+
+- Structure: budget input, gaming/productivity/AI intent tabs, recommendation
+  preview, reasons, apply action.
+- States: idle, calculated, over-budget, applying.
+- Accessibility: labelled dialog, trapped intent through native controls, close and
+  apply actions remain keyboard reachable.
+
+### Change Feedback
+
+- Structure: compact price and performance deltas attached to the active rail.
+- States: gain, loss, neutral, compatibility recalculation.
+- Motion: enter with an 8px vertical offset and fade; exit with opacity only.
 
 ### Loading Overlay
 
@@ -139,6 +160,9 @@ Rules:
 - Installation motion communicates physical order: float, align, insert, lock, glow.
 - Reduced motion uses direct placement plus a short opacity transition.
 - Every visible motion must correspond to selection, loading, replacement, or assembly state.
+- Numerical changes use tabular figures and never alter surrounding layout width.
+- A replacement that is incompatible remains selectable so users can understand
+  the rule, but its blocking reason is announced before save.
 
 ## 7. Depth & Surface
 
@@ -166,4 +190,5 @@ Strategy: mixed tonal shift plus restrained glass.
 |---|---|---|---|
 | Procedural placeholder geometry | Engine demo | The repository contains no licensed GLB assets | Replace per component when validated GLB packages arrive |
 | Procedural environment instead of production HDR | Lighting system | No licensed HDR has been supplied | Replace through the environment manifest without changing viewer APIs |
-
+| Internal demo prices | Builder data | Marketplace integrations are explicitly out of scope | Replace price source behind the hardware repository boundary |
+| Rule-based recommendations | Builder recommendation dialog | AI chat and RAG are outside Builder V1.0 | Upgrade the recommendation provider without changing the selection contract |
