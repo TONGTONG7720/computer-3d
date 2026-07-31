@@ -2,6 +2,7 @@
 
 import { Activity, Box, Focus, Layers3, Lightbulb, RotateCcw } from "lucide-react";
 import { type ComponentType, useEffect, useState } from "react";
+import { AiAssistant } from "@/features/ai/assistant/AiAssistant";
 import { BuildSummary } from "@/features/builder/components/BuildSummary";
 import { ComponentSelector } from "@/features/builder/components/ComponentSelector";
 import { PriceComparisonDialog } from "@/features/price/builder/PriceComparisonDialog";
@@ -145,6 +146,7 @@ export function EngineDemo() {
         </span>
       </div>
       <PriceComparisonDialog onClose={() => setPriceOpen(false)} open={priceOpen} />
+      <AiAssistant />
     </main>
   );
 }
