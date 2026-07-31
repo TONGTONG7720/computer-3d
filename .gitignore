@@ -14,3 +14,5 @@ Thumbs.db
 playwright-report/
 test-results/
 .qa/
+backend/target/
+backend/storage/

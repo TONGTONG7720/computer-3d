@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:pclab;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  cache:
+    type: simple
+  flyway:
+    enabled: false
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+app:
+  security:
+    admin-key: test-admin-key
