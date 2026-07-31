@@ -59,6 +59,23 @@ describe("ComponentReplacementManager", () => {
     expect(calls).toEqual(["load", "remove"]);
   });
 
+  it("supports every typed scene component slot", async () => {
+    // Given
+    const dependencies = createDependencies();
+    const manager = new ComponentReplacementManager(dependencies);
+
+    // When
+    const result = await manager.replace({
+      slot: "ram",
+      assetId: "ram-ddr5-64gb",
+      modelUrl: "/models/ram_ddr5_64gb.glb",
+    });
+
+    // Then
+    expect(result.kind).toBe("success");
+    expect(dependencies.install).toHaveBeenCalledWith("ram", expect.any(Group));
+  });
+
   it("preserves the current component when loading fails", async () => {
     const dependencies = createDependencies();
     vi.mocked(dependencies.acquireCached).mockReturnValue(undefined);

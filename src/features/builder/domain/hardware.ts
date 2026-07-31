@@ -148,6 +148,30 @@ export const replaceSelectedHardware = (
   }
 };
 
+export const getSelectedHardware = (
+  selection: SelectedComponents,
+  category: HardwareCategory,
+): Hardware | null => {
+  switch (category) {
+    case "cpu":
+      return selection.cpu;
+    case "gpu":
+      return selection.gpu;
+    case "motherboard":
+      return selection.motherboard;
+    case "ram":
+      return selection.ram;
+    case "storage":
+      return selection.storage;
+    case "cooling":
+      return selection.cooling;
+    case "power_supply":
+      return selection.power_supply;
+    case "case":
+      return selection.case;
+  }
+};
+
 export const toSelectedComponentIds = (selection: SelectedComponents): SelectedComponentIds => ({
   cpu: selection.cpu?.id ?? null,
   gpu: selection.gpu?.id ?? null,

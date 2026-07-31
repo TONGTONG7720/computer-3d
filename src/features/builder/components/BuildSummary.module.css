@@ -1,0 +1,332 @@
+.root {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: auto;
+  scrollbar-color: var(--color-border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 0.61rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+}
+
+.title {
+  display: flex;
+  margin-top: var(--space-2);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.title h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.22rem;
+  font-weight: 580;
+  letter-spacing: -0.02em;
+}
+
+.title span {
+  display: inline-flex;
+  min-height: 22px;
+  padding: 0 var(--space-2);
+  align-items: center;
+  border: 1px solid var(--color-success-border);
+  border-radius: 99px;
+  color: var(--color-success);
+  background: var(--color-success-subtle);
+  font-family: var(--font-display);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+}
+
+.components {
+  display: grid;
+  margin-top: var(--space-4);
+  gap: var(--space-1);
+}
+
+.componentRow {
+  display: grid;
+  min-height: 42px;
+  padding: 0 var(--space-2);
+  align-items: center;
+  grid-template-columns: 24px 34px 1fr;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.componentRow > span:first-child {
+  color: var(--color-primary);
+}
+
+.componentRow > span:nth-child(2) {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+}
+
+.componentRow strong {
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: 0.63rem;
+  font-weight: 560;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.priceBlock {
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-large);
+  background:
+    linear-gradient(145deg, var(--color-primary-subtle), transparent), var(--color-card-gradient);
+}
+
+.priceLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+}
+
+.priceLabel span:last-child {
+  color: var(--color-success);
+}
+
+.price {
+  display: flex;
+  margin-top: var(--space-2);
+  align-items: baseline;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+.price small {
+  margin-right: var(--space-1);
+  color: var(--color-primary);
+  font-size: 0.9rem;
+}
+
+.metricGrid {
+  display: grid;
+  margin-top: var(--space-3);
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+}
+
+.metric {
+  display: grid;
+  min-height: 62px;
+  padding: var(--space-3);
+  align-content: center;
+  gap: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-card-gradient);
+}
+
+.metric span {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 0.5rem;
+  letter-spacing: 0.09em;
+}
+
+.metric strong {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 580;
+}
+
+.scoreSection,
+.compatibility {
+  margin-top: var(--space-5);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 0.54rem;
+  letter-spacing: 0.1em;
+}
+
+.sectionTitle strong {
+  color: var(--color-text-secondary);
+  font-weight: 560;
+}
+
+.scoreList {
+  display: grid;
+  margin-top: var(--space-3);
+  gap: var(--space-3);
+}
+
+.scoreRow {
+  display: grid;
+  grid-template-columns: 64px 1fr 24px;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 0.57rem;
+}
+
+.scoreTrack {
+  height: 3px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--color-border);
+}
+
+.scoreTrack span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent-ai));
+  transform-origin: left;
+}
+
+.scoreRow strong {
+  color: var(--color-text-secondary);
+  font-size: 0.58rem;
+  text-align: right;
+}
+
+.compatibilityCard {
+  display: grid;
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  gap: var(--space-2);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-success-subtle);
+}
+
+.compatibilityCard[data-status="warning"] {
+  border-color: var(--color-warning-border);
+  background: var(--color-warning-subtle);
+}
+
+.compatibilityCard[data-status="error"] {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-subtle);
+}
+
+.rule {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-items: start;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: 0.61rem;
+  line-height: 1.45;
+}
+
+.rule[data-status="success"] svg {
+  color: var(--color-success);
+}
+
+.rule[data-status="warning"] svg {
+  color: var(--color-warning);
+}
+
+.rule[data-status="error"] svg {
+  color: var(--color-danger);
+}
+
+.saveButton {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  margin-top: var(--space-5);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-medium);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+}
+
+@media (max-width: 767px) {
+  .root {
+    overflow: hidden;
+  }
+
+  .eyebrow,
+  .components,
+  .scoreSection,
+  .compatibility,
+  .saveButton {
+    display: none;
+  }
+
+  .title {
+    margin-top: 0;
+  }
+
+  .title h2 {
+    font-size: 0.78rem;
+  }
+
+  .title span {
+    min-height: 18px;
+    font-size: 0.43rem;
+  }
+
+  .priceBlock {
+    margin-top: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .priceLabel {
+    font-size: 0.45rem;
+  }
+
+  .price {
+    font-size: 1.2rem;
+  }
+
+  .metricGrid {
+    margin-top: var(--space-2);
+  }
+
+  .metric {
+    min-height: 44px;
+    padding: var(--space-2);
+  }
+
+  .metric span {
+    font-size: 0.42rem;
+  }
+
+  .metric strong {
+    font-size: 0.68rem;
+  }
+}

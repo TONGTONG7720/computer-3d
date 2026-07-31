@@ -1,6 +1,7 @@
 import type { Group } from "three";
+import type { ComponentType } from "../models/modelManifest";
 
-export type ReplacementSlot = "cpu" | "gpu";
+export type ReplacementSlot = ComponentType;
 
 export type ReplacementRequest = {
   readonly slot: ReplacementSlot;

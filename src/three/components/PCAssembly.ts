@@ -20,12 +20,16 @@ const createComponent = (slot: ComponentType, variant = "default"): Group => {
       return createMotherboard();
     case "cpu":
       return createCPU({
-        accent: variant === "ultra-9-285k" ? materialTokens.copper : materialTokens.brushedAluminum,
+        accent: variant.startsWith("amd") ? materialTokens.copper : materialTokens.brushedAluminum,
       });
     case "gpu":
       return createGPU({
-        accent: variant === "aurora" ? materialTokens.magenta : materialTokens.cyan,
-        body: variant === "aurora" ? materialTokens.auroraBody : materialTokens.plasticBlack,
+        accent: variant.startsWith("rx")
+          ? materialTokens.magenta
+          : variant === "rtx5080"
+            ? materialTokens.violet
+            : materialTokens.cyan,
+        body: variant.startsWith("rx") ? materialTokens.auroraBody : materialTokens.plasticBlack,
       });
     case "ram":
       return createRAM();

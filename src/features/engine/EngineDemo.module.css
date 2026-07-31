@@ -103,6 +103,13 @@
   letter-spacing: 0.08em;
 }
 
+.engineStatus strong {
+  color: var(--color-primary);
+  font-size: 0.52rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+}
+
 .statusPulse {
   width: 7px;
   height: 7px;
@@ -143,7 +150,18 @@
 .componentPanel {
   left: var(--space-6);
   display: flex;
-  width: 308px;
+  width: 316px;
+  height: calc(100dvh - 196px);
+  max-height: calc(100dvh - 196px);
+  flex-direction: column;
+  padding: var(--space-5);
+}
+
+.summaryPanel {
+  right: var(--space-6);
+  display: flex;
+  width: 304px;
+  height: calc(100dvh - 196px);
   max-height: calc(100dvh - 196px);
   flex-direction: column;
   padding: var(--space-5);
@@ -637,7 +655,8 @@
     width: 278px;
   }
 
-  .telemetryPanel {
+  .telemetryPanel,
+  .summaryPanel {
     width: 244px;
   }
 
@@ -688,7 +707,8 @@
     bottom: 80px;
     left: var(--space-3);
     width: auto;
-    max-height: 198px;
+    height: 226px;
+    max-height: 226px;
     padding: var(--space-3);
   }
 
@@ -720,10 +740,14 @@
     min-height: 70px;
   }
 
-  .telemetryPanel {
+  .telemetryPanel,
+  .summaryPanel {
     top: 76px;
     right: var(--space-3);
+    left: auto;
     width: 158px;
+    height: 156px;
+    max-height: 156px;
     padding: var(--space-3);
   }
 

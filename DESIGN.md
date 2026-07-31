@@ -38,8 +38,12 @@ PC LAB 3D feels like a precision computing laboratory rather than a store. The s
 | Focus | `--color-focus` | `#b7f3ff` | Keyboard focus |
 | Border | `--color-border` | `rgba(183, 243, 255, 0.14)` | Subtle separation |
 | Warning subtle | `--color-warning-subtle` | `rgba(255, 186, 92, 0.09)` | Advisory background |
+| Warning border | `--color-warning-border` | `rgba(255, 186, 92, 0.28)` | Advisory boundary |
 | Danger subtle | `--color-danger-subtle` | `rgba(255, 100, 116, 0.09)` | Blocking issue background |
+| Danger border | `--color-danger-border` | `rgba(255, 100, 116, 0.30)` | Blocking issue boundary |
 | AI subtle | `--color-ai-subtle` | `rgba(140, 123, 255, 0.10)` | Recommendation surface |
+| AI border | `--color-ai-border` | `rgba(140, 123, 255, 0.28)` | Recommendation boundary |
+| Backdrop | `--color-backdrop` | `rgba(2, 5, 9, 0.76)` | Modal stage dimming |
 
 ### Rules
 

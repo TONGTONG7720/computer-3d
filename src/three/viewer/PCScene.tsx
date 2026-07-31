@@ -4,6 +4,8 @@ import { Sparkles } from "@react-three/drei";
 import { type ThreeEvent, useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Object3D, Vector3Tuple } from "three";
+import { getHardwareById } from "@/features/builder/data/mockHardware";
+import { createHardwareModelManifest } from "@/features/builder/sync/HardwareModelManifest";
 import { engineStore, useEngineStore } from "@/store/engineStore";
 import { playExplosionAnimation } from "../animation/ExplosionAnimation";
 import {
@@ -18,14 +20,11 @@ import {
 import { configureSceneLod } from "../core/LODSystem";
 import type { QualityProfile } from "../core/QualityManager";
 import { type SceneComponent, SceneManager } from "../core/SceneManager";
-import { demoCpuOptions, demoGpuOptions } from "../demo/demoHardware";
 import { resolveSelection, SelectionSystem } from "../interaction/SelectionSystem";
 import { materialTokens, setRgbColor } from "../materials/MaterialSystem";
 import { ModelCache } from "../models/ModelCache";
 import { disposeModelResources } from "../models/ModelLoader";
 import type { ModelManifest } from "../models/modelManifest";
-
-const demoOptions = [...demoCpuOptions, ...demoGpuOptions];
 
 type PCSceneProps = {
   readonly profile: QualityProfile;
@@ -50,11 +49,13 @@ const restoreTransform = (object: Object3D, transform: StoredComponentTransform)
   object.scale.set(...transform.scale);
 };
 
-const findManifest = (assetId: string): ModelManifest | undefined =>
-  demoOptions.find((option) => option.id === assetId)?.manifest;
+const findManifest = (assetId: string): ModelManifest | undefined => {
+  const hardware = getHardwareById(assetId);
+  return hardware === undefined ? undefined : createHardwareModelManifest(hardware);
+};
 
 const findVariant = (assetId: string): string =>
-  demoOptions.find((option) => option.id === assetId)?.variant ?? "default";
+  getHardwareById(assetId)?.modelVariant ?? "default";
 
 const waitForPlaceholderDecode = (): Promise<void> =>
   new Promise((resolve) => {

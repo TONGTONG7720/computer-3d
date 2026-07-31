@@ -23,10 +23,7 @@ export type ReplacementCommand = {
 
 type ReplacementCommandInput = Omit<ReplacementCommand, "requestId">;
 
-type SelectedHardware = {
-  readonly cpu: string;
-  readonly gpu: string;
-};
+type SelectedHardware = Readonly<Partial<Record<ComponentType, string>>>;
 
 type LoadingState = {
   readonly status: "idle" | "loading" | "ready" | "placeholder" | "error";
@@ -40,6 +37,7 @@ export type EngineStore = {
   readonly exploded: boolean;
   readonly rgbMode: RgbMode;
   readonly replacementRequest: ReplacementCommand | null;
+  readonly replacementQueue: readonly ReplacementCommand[];
   readonly replacementState: ReplacementState;
   readonly loading: LoadingState;
   readonly cameraRevision: number;
@@ -57,8 +55,15 @@ export type EngineStore = {
 };
 
 const initialHardware: SelectedHardware = {
+  case: "case-future-glass",
+  motherboard: "motherboard-z790-lab",
   cpu: "cpu-intel-i9-14900k",
   gpu: "gpu-nvidia-rtx5090",
+  ram: "ram-ddr5-64gb",
+  storage: "storage-nvme-4tb",
+  cooling: "cooling-aio-360",
+  fan: "fans-rgb-120-triple",
+  power_supply: "psu-1200w-platinum",
 };
 
 export const createEngineStore = (): StoreApi<EngineStore> => {
@@ -70,6 +75,7 @@ export const createEngineStore = (): StoreApi<EngineStore> => {
     exploded: false,
     rgbMode: "cyan",
     replacementRequest: null,
+    replacementQueue: [],
     replacementState: { phase: "idle" },
     loading: {
       status: "placeholder",
@@ -101,13 +107,19 @@ export const createEngineStore = (): StoreApi<EngineStore> => {
     requestReplacement: (command) => {
       const requestId = nextRequestId;
       nextRequestId += 1;
-      set({
+      const nextCommand = {
+        ...command,
+        requestId,
+      };
+      set((state) => ({
         exploded: false,
-        replacementRequest: {
-          ...command,
-          requestId,
-        },
-      });
+        replacementRequest:
+          state.replacementRequest === null ? nextCommand : state.replacementRequest,
+        replacementQueue:
+          state.replacementRequest === null
+            ? state.replacementQueue
+            : [...state.replacementQueue, nextCommand],
+      }));
     },
     setReplacementState: (state) => {
       set({ replacementState: state });
@@ -121,8 +133,13 @@ export const createEngineStore = (): StoreApi<EngineStore> => {
       }));
     },
     completeReplacement: (requestId) => {
-      if (get().replacementRequest?.requestId === requestId) {
-        set({ replacementRequest: null });
+      const state = get();
+      if (state.replacementRequest?.requestId === requestId) {
+        const [nextRequest, ...remainingQueue] = state.replacementQueue;
+        set({
+          replacementRequest: nextRequest ?? null,
+          replacementQueue: remainingQueue,
+        });
       }
     },
     setLoading: (loading) => {

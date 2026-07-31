@@ -5,9 +5,11 @@ describe("engineStore", () => {
   it("starts with the approved PC LAB demo hardware", () => {
     const store = createEngineStore();
 
-    expect(store.getState().selectedHardware).toEqual({
+    expect(store.getState().selectedHardware).toMatchObject({
       cpu: "cpu-intel-i9-14900k",
       gpu: "gpu-nvidia-rtx5090",
+      motherboard: "motherboard-z790-lab",
+      ram: "ram-ddr5-64gb",
     });
     expect(store.getState().exploded).toBe(false);
   });
@@ -27,6 +29,39 @@ describe("engineStore", () => {
       slot: "gpu",
       assetId: "gpu-nvidia-rtx5090-aurora",
     });
+  });
+
+  it("serializes multiple scene replacements through a queue", () => {
+    // Given
+    const store = createEngineStore();
+
+    // When
+    store.getState().requestReplacement({
+      slot: "cpu",
+      assetId: "cpu-amd-7800x3d",
+      modelUrl: "/models/cpu_ryzen_7800x3d.glb",
+      variant: "amd-7800x3d",
+    });
+    store.getState().requestReplacement({
+      slot: "motherboard",
+      assetId: "motherboard-b650-lab",
+      modelUrl: "/models/motherboard_b650m_lab.glb",
+      variant: "b650",
+    });
+    const activeRequest = store.getState().replacementRequest;
+
+    // Then
+    expect(activeRequest?.slot).toBe("cpu");
+    expect(store.getState().replacementQueue).toHaveLength(1);
+
+    // When
+    if (activeRequest !== null) {
+      store.getState().completeReplacement(activeRequest.requestId);
+    }
+
+    // Then
+    expect(store.getState().replacementRequest?.slot).toBe("motherboard");
+    expect(store.getState().replacementQueue).toHaveLength(0);
   });
 
   it("cycles the finite RGB modes and increments camera resets", () => {
