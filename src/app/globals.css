@@ -1,0 +1,98 @@
+:root {
+  --color-bg-canvas: #05070b;
+  --color-bg-stage: #070b12;
+  --color-surface-panel: #0b111b;
+  --color-surface-card: #101826;
+  --color-surface-elevated: #162235;
+  --color-surface-hover: #1a2940;
+  --color-text-primary: #f5f8fc;
+  --color-text-secondary: #a9b4c3;
+  --color-text-muted: #718095;
+  --color-primary: #65e6ff;
+  --color-primary-hover: #9af0ff;
+  --color-primary-pressed: #28d1f4;
+  --color-accent-ai: #8c7bff;
+  --color-accent-rgb: #ff4fc6;
+  --color-success: #5be6a8;
+  --color-warning: #ffba5c;
+  --color-danger: #ff6474;
+  --color-focus: #b7f3ff;
+  --color-border: rgba(183, 243, 255, 0.14);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius-small: 8px;
+  --radius-medium: 12px;
+  --radius-large: 16px;
+  --radius-panel: 20px;
+  --shadow-depth: 0 24px 80px rgba(0, 0, 0, 0.4);
+  --font-display: "Space Grotesk Variable", "Segoe UI", sans-serif;
+  --font-body: "Noto Sans SC Variable", "Microsoft YaHei", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--color-text-primary);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(22, 49, 66, 0.82), transparent 38%),
+    radial-gradient(circle at 72% 28%, rgba(140, 123, 255, 0.1), transparent 28%),
+    var(--color-bg-canvas);
+  font-family: var(--font-body);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.foundation-shell {
+  display: grid;
+  min-height: 100dvh;
+  place-content: center;
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.foundation-shell h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+.foundation-shell p {
+  margin: var(--space-4) 0 0;
+  color: var(--color-text-secondary);
+}
+
+.foundation-shell .foundation-kicker {
+  margin-bottom: var(--space-3);
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
