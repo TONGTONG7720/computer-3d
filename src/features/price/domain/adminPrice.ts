@@ -104,6 +104,10 @@ export type AdminDashboard = z.infer<typeof adminDashboardSchema>;
 export type MatchPreview = z.infer<typeof matchPreviewSchema>;
 export type AdminProductPage = z.infer<typeof adminProductPageSchema>;
 
+export const shopTypeSchema = z.enum(["SELF_OPERATED", "BRAND_STORE", "MARKETPLACE"]);
+export const stockStatusSchema = z.enum(["IN_STOCK", "OUT_OF_STOCK", "PREORDER"]);
+export const productStatusSchema = z.enum(["ACTIVE", "DRAFT", "DISABLED"]);
+
 export type UpsertProductInput = {
   readonly title: string;
   readonly brand: string;

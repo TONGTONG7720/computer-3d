@@ -5,9 +5,12 @@
 - Embedded references: PC LAB 3D Product Design V2.0, Porsche-style configurator, NVIDIA future lab, Apple product presentation; execution references selected `gpt-tasteskill` + `apple` because the approved direction is cinematic, product-first, and mechanically precise.
 - Lazyweb: skipped because the user supplied a complete high-fidelity visual specification and requested implementation rather than renewed visual research.
 - Imagen drafts: skipped because the focal visual is a real-time Three.js assembly and the approved specification already defines its composition.
-- Scope: this document covers Engine V1.0, Builder V1.0, and Hardware Platform
-  V1.0. Marketplace feeds, AI chat, accounts, and the Admin CMS frontend remain
-  outside this phase.
+- Scope: this document covers Engine V1.0, Builder V1.0, Hardware Platform
+  V1.0, and Price Intelligence V1.0. Live marketplace feeds, AI chat, accounts,
+  and community remain outside this phase.
+- Price Intelligence extension: the Admin workspace uses an operational,
+  Apple-commerce-inspired density while retaining PC LAB graphite materials.
+  Price data, provenance, and stale state stay visually stronger than chrome.
 
 ## 1. Atmosphere & Identity
 
@@ -150,6 +153,44 @@ All UI spacing derives from 4px.
 - States: loading, retrying, degraded, fatal.
 - Accessibility: polite live region; percentages exposed as progress values.
 
+### Price Admin Workspace
+
+- Structure: 64px utility header, five-metric telemetry strip, filter toolbar,
+  product list, and contextual editor drawer.
+- States: locked, loading, ready, filtered, empty, stale, saving, success, error.
+- Desktop: compact table with one selected product and a 420px contextual drawer.
+- Mobile: product cards with a full-screen editor; primary actions remain at
+  least 44px tall.
+- Security: Admin Key is session-scoped, masked by default, and never appears in
+  route state or persistent storage.
+
+### Product & Offer Editor
+
+- Structure: product identity, hardware match preview, confidence explanation,
+  offer terms, calculated final price, provenance, and save action.
+- States: create, edit, unmatched, review required, confirmed, optimistic
+  conflict, invalid, saving, saved.
+- Final price is always shown beside the raw price and promotion breakdown.
+- Destructive actions require a named text action and never depend on icon color.
+
+### Price Comparison Dialog
+
+- Structure: selected hardware header, lowest-price signal, reliable-merchant
+  recommendation, offer rows, 7/30-day trend, and manual-data disclosure.
+- States: loading, ready, no offers, stale data, history loading, history empty,
+  error.
+- Desktop: centered 1040px dialog with split comparison/history regions.
+- Mobile: full-height bottom sheet with a sticky close action.
+- Purchase links always target the internal tracked redirect endpoint.
+
+### Price Trend Chart
+
+- Structure: minimum-price line, date endpoints, low/high values, and percent
+  movement.
+- States: 7-day, 30-day, empty, loading.
+- The chart uses a semantic SVG title/description and retains a textual price
+  summary for non-visual access.
+
 ## 6. Motion & Interaction
 
 | Type | Duration | Easing | Usage |
@@ -195,5 +236,6 @@ Strategy: mixed tonal shift plus restrained glass.
 |---|---|---|---|
 | Procedural placeholder geometry | Engine demo | The repository contains no licensed GLB assets | Replace per component when validated GLB packages arrive |
 | Procedural environment instead of production HDR | Lighting system | No licensed HDR has been supplied | Replace through the environment manifest without changing viewer APIs |
-| Internal database prices | Hardware Platform | Marketplace integrations are explicitly out of scope | Add marketplace quote providers without changing the hardware API contract |
+| Internal reference prices | Hardware Platform | They remain the fallback when no reviewed offer exists | Keep them distinct from marketplace quotes in every UI |
+| Manual marketplace quotes | Price Intelligence | V1 intentionally uses reviewed Admin data and no crawler or live marketplace API | Replace each manual adapter with approved affiliate adapters while preserving the normalized offer contract |
 | Rule-based recommendations | Builder recommendation dialog | AI chat and RAG are outside Builder V1.0 | Upgrade the recommendation provider without changing the selection contract |
