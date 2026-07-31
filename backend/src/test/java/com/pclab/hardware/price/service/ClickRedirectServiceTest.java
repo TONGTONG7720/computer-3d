@@ -84,8 +84,8 @@ class ClickRedirectServiceTest {
                 priceMapper,
                 productMapper,
                 eventMapper,
-                properties,
-                new AnalyticsHasher(properties)
+                new AnalyticsHasher(properties),
+                new PriceLinkPolicy(properties)
         );
         return new Fixture(service, eventMapper);
     }

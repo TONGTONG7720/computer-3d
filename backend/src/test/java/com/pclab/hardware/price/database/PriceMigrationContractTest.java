@@ -47,11 +47,26 @@ class PriceMigrationContractTest {
         );
     }
 
+    @Test
+    void addsOptimisticVersionsForAdminPriceEditing() throws IOException {
+        String sql = migrationSql("db/migration/V4__add_price_admin_versions.sql");
+
+        assertThat(sql).contains(
+                "ALTER TABLE product",
+                "ADD COLUMN version",
+                "ALTER TABLE product_price"
+        );
+    }
+
     private static String migrationSql() throws IOException {
+        return migrationSql(MIGRATION);
+    }
+
+    private static String migrationSql(String resource) throws IOException {
         try (InputStream stream = PriceMigrationContractTest.class
                 .getClassLoader()
-                .getResourceAsStream(MIGRATION)) {
-            assertThat(stream).as("migration resource %s", MIGRATION).isNotNull();
+                .getResourceAsStream(resource)) {
+            assertThat(stream).as("migration resource %s", resource).isNotNull();
             return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
         }
     }

@@ -17,4 +17,14 @@ public interface ProductMapper extends BaseMapper<ProductEntity> {
             ORDER BY match_confidence DESC, id ASC
             """)
     List<ProductEntity> selectActiveByHardwareId(@Param("hardwareId") Long hardwareId);
+
+    @Select("""
+            SELECT COUNT(DISTINCT hardware_id)
+            FROM product
+            WHERE hardware_id IS NOT NULL
+              AND status = 'ACTIVE'
+              AND match_status = 'CONFIRMED'
+              AND deleted = 0
+            """)
+    long countCoveredHardware();
 }

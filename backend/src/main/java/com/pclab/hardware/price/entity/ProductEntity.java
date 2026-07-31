@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -27,6 +28,10 @@ public class ProductEntity {
     private BigDecimal matchConfidence;
     private String matchStatus;
     private String status;
+
+    @Version
+    private Integer version;
+
     private String recordSource;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

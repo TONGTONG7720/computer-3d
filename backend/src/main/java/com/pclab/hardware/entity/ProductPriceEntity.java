@@ -3,6 +3,7 @@ package com.pclab.hardware.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -35,6 +36,10 @@ public class ProductPriceEntity {
     private String recordSource;
     private Integer isEnabled;
     private Integer isReviewed;
+
+    @Version
+    private Integer version;
+
     private LocalDateTime checkedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -1,0 +1,5 @@
+ALTER TABLE product
+    ADD COLUMN version INT UNSIGNED NOT NULL DEFAULT 1 AFTER status;
+
+ALTER TABLE product_price
+    ADD COLUMN version INT UNSIGNED NOT NULL DEFAULT 1 AFTER is_reviewed;
