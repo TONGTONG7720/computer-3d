@@ -64,3 +64,9 @@ app:
   storage:
     model-root: ${PC_LAB_MODEL_ROOT:./storage/models}
     public-prefix: ${PC_LAB_MODEL_PUBLIC_PREFIX:/assets/models}
+  price:
+    mode: ${PC_LAB_PRICE_MODE:MANUAL}
+    manual-adapter-enabled: ${PC_LAB_MANUAL_ADAPTER_ENABLED:true}
+    scheduler-enabled: ${PC_LAB_PRICE_SCHEDULER_ENABLED:true}
+    hot-refresh-cron: ${PC_LAB_PRICE_HOT_CRON:0 15 * * * *}
+    normal-refresh-cron: ${PC_LAB_PRICE_NORMAL_CRON:0 30 3 * * *}

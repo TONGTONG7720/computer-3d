@@ -408,7 +408,10 @@ public class AdminHardwareService {
         @CacheEvict(cacheNames = "hardware-detail", allEntries = true),
         @CacheEvict(cacheNames = "categories", allEntries = true),
         @CacheEvict(cacheNames = "hardware-models", allEntries = true),
-        @CacheEvict(cacheNames = "prices", allEntries = true)
+        @CacheEvict(cacheNames = "prices", allEntries = true),
+        @CacheEvict(cacheNames = "price-comparison", allEntries = true),
+        @CacheEvict(cacheNames = "price-history", allEntries = true),
+        @CacheEvict(cacheNames = "price-build", allEntries = true)
     })
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)

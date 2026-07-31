@@ -37,13 +37,18 @@ public class RedisCacheConfig implements CachingConfigurer {
                 Duration.ofMinutes(5),
                 valueSerializer
         );
-        Map<String, RedisCacheConfiguration> configurations = Map.of(
-                "hardware-list", cacheConfiguration(Duration.ofMinutes(5), valueSerializer),
-                "hardware-detail", cacheConfiguration(Duration.ofMinutes(15), valueSerializer),
-                "categories", cacheConfiguration(Duration.ofHours(1), valueSerializer),
-                "hardware-models", cacheConfiguration(Duration.ofMinutes(30), valueSerializer),
-                "prices", cacheConfiguration(Duration.ofMinutes(2), valueSerializer),
-                "builds", cacheConfiguration(Duration.ofMinutes(30), valueSerializer)
+        Map<String, RedisCacheConfiguration> configurations = Map.ofEntries(
+                Map.entry("hardware-list", cacheConfiguration(Duration.ofMinutes(5), valueSerializer)),
+                Map.entry("hardware-detail", cacheConfiguration(Duration.ofMinutes(15), valueSerializer)),
+                Map.entry("categories", cacheConfiguration(Duration.ofHours(1), valueSerializer)),
+                Map.entry("hardware-models", cacheConfiguration(Duration.ofMinutes(30), valueSerializer)),
+                Map.entry("prices", cacheConfiguration(Duration.ofMinutes(2), valueSerializer)),
+                Map.entry("builds", cacheConfiguration(Duration.ofMinutes(30), valueSerializer)),
+                Map.entry("price-comparison", cacheConfiguration(Duration.ofMinutes(5), valueSerializer)),
+                Map.entry("price-history", cacheConfiguration(Duration.ofMinutes(15), valueSerializer)),
+                Map.entry("price-build", cacheConfiguration(Duration.ofMinutes(2), valueSerializer)),
+                Map.entry("price-hot", cacheConfiguration(Duration.ofMinutes(10), valueSerializer)),
+                Map.entry("price-admin", cacheConfiguration(Duration.ofMinutes(1), valueSerializer))
         );
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaults)
