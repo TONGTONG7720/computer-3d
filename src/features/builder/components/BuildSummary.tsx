@@ -29,6 +29,7 @@ export function BuildSummary() {
   const powerUsage = useBuilderStore((state) => state.powerUsage);
   const performance = useBuilderStore((state) => state.performanceScore);
   const compatibility = useBuilderStore((state) => state.compatibilityStatus);
+  const catalogueStatus = useBuilderStore((state) => state.catalogueStatus);
   const visibleRules = compatibility.results.filter((rule) => rule.status !== "success");
   const rules =
     visibleRules.length > 0 ? visibleRules.slice(0, 3) : compatibility.results.slice(0, 2);
@@ -151,6 +152,7 @@ export function BuildSummary() {
 
       <motion.button
         className={styles["saveButton"]}
+        disabled={catalogueStatus !== "ready"}
         onClick={() => setSaveOpen(true)}
         type="button"
         whileTap={{ scale: 0.98 }}

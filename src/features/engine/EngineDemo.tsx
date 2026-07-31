@@ -1,9 +1,10 @@
 "use client";
 
 import { Activity, Box, Focus, Layers3, Lightbulb, RotateCcw } from "lucide-react";
-import type { ComponentType } from "react";
+import { type ComponentType, useEffect } from "react";
 import { BuildSummary } from "@/features/builder/components/BuildSummary";
 import { ComponentSelector } from "@/features/builder/components/ComponentSelector";
+import { useBuilderStore } from "@/store/builderStore";
 import { isReplacementBusy, useEngineStore } from "@/store/engineStore";
 import { PCViewer } from "@/three/viewer/PCViewer";
 import styles from "./EngineDemo.module.css";
@@ -53,6 +54,19 @@ export function EngineDemo() {
   const resetCamera = useEngineStore((state) => state.resetCamera);
   const focusInternal = useEngineStore((state) => state.focusInternal);
   const busy = isReplacementBusy(replacementState.phase) || replacementRequest !== null;
+  const catalogueStatus = useBuilderStore((state) => state.catalogueStatus);
+  const initializeCatalogue = useBuilderStore((state) => state.initializeCatalogue);
+
+  useEffect(() => {
+    void initializeCatalogue();
+  }, [initializeCatalogue]);
+
+  const liveStatus =
+    catalogueStatus === "error"
+      ? "Hardware service offline"
+      : catalogueStatus !== "ready"
+        ? "Syncing hardware data"
+        : phaseLabels[replacementState.phase];
 
   return (
     <main className={styles["engine"]}>
@@ -70,7 +84,7 @@ export function EngineDemo() {
         </div>
         <div aria-live="polite" className={styles["engineStatus"]}>
           <span className={styles["statusPulse"]} data-busy={busy} />
-          <span>{phaseLabels[replacementState.phase]}</span>
+          <span>{liveStatus}</span>
           {replacementQueue.length > 0 ? <strong>+{replacementQueue.length} QUEUED</strong> : null}
         </div>
         <div className={styles["version"]}>

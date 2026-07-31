@@ -274,6 +274,11 @@
   letter-spacing: 0.09em;
 }
 
+.saveButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
 @media (max-width: 767px) {
   .root {
     overflow: hidden;
@@ -281,6 +286,7 @@
 
   .eyebrow,
   .components,
+  .metricGrid,
   .scoreSection,
   .compatibility,
   .saveButton {
@@ -311,22 +317,5 @@
 
   .price {
     font-size: 1.2rem;
-  }
-
-  .metricGrid {
-    margin-top: var(--space-2);
-  }
-
-  .metric {
-    min-height: 44px;
-    padding: var(--space-2);
-  }
-
-  .metric span {
-    font-size: 0.42rem;
-  }
-
-  .metric strong {
-    font-size: 0.68rem;
   }
 }

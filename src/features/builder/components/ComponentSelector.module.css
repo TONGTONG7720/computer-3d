@@ -60,6 +60,12 @@
   white-space: nowrap;
 }
 
+.smartButton:disabled,
+.mobileSaveButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
 .mobileSaveButton {
   display: none;
   width: 36px;
@@ -135,6 +141,53 @@
   overflow: auto;
   scrollbar-color: var(--color-border-strong) transparent;
   scrollbar-width: thin;
+}
+
+.catalogueState {
+  display: grid;
+  padding: var(--space-8) var(--space-4);
+  place-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  color: var(--color-primary);
+  background: var(--color-card-gradient);
+  text-align: center;
+}
+
+.catalogueState strong {
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+}
+
+.catalogueState span {
+  max-width: 28ch;
+  color: var(--color-text-muted);
+  font-size: 0.64rem;
+  line-height: 1.5;
+}
+
+.retryButton {
+  display: inline-flex;
+  min-height: 36px;
+  margin-top: var(--space-2);
+  padding: 0 var(--space-3);
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-medium);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 0.56rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.loadingIcon {
+  animation: catalogue-spin 1.1s linear infinite;
 }
 
 .hardwareCard {
@@ -342,11 +395,14 @@
     display: flex;
     margin-top: 0;
     overflow-x: auto;
+    scrollbar-width: none;
   }
 
   .categoryTab {
     min-width: 48px;
     min-height: 38px;
+    color: var(--color-text-secondary);
+    font-size: 0.6875rem;
   }
 
   .optionList {
@@ -355,6 +411,18 @@
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .categoryTabs::-webkit-scrollbar,
+  .optionList::-webkit-scrollbar {
+    display: none;
+  }
+
+  .catalogueState {
+    width: 224px;
+    min-width: 224px;
+    padding: var(--space-5) var(--space-3);
   }
 
   .hardwareCard {
@@ -364,11 +432,38 @@
     scroll-snap-align: start;
   }
 
+  .brand,
+  .spec {
+    color: var(--color-text-secondary);
+  }
+
+  .brand {
+    font-size: 0.6875rem;
+  }
+
+  .spec,
+  .performance,
+  .price {
+    font-size: 0.6875rem;
+  }
+
   .feedback {
     position: absolute;
     right: var(--space-3);
     bottom: calc(100% + var(--space-2));
     left: var(--space-3);
     margin: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadingIcon {
+    animation: none;
+  }
+}
+
+@keyframes catalogue-spin {
+  to {
+    transform: rotate(360deg);
   }
 }

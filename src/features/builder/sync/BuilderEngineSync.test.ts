@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createBuilderStore } from "@/store/builderStore";
 import { createEngineStore } from "@/store/engineStore";
-import { defaultSelectedComponents, hardwareByCategory } from "../data/mockHardware";
+import { defaultSelectedComponents, hardwareByCategory, mockHardware } from "../data/mockHardware";
 import {
   applyBuilderSelectionWithScene,
   selectBuilderHardwareWithScene,
@@ -10,7 +10,7 @@ import {
 describe("BuilderEngineSync", () => {
   it("updates builder state before emitting a scene replacement", () => {
     // Given
-    const builder = createBuilderStore();
+    const builder = createBuilderStore({ initialCatalogue: mockHardware });
     const engine = createEngineStore();
     const cpu = hardwareByCategory.cpu[1];
 
@@ -29,7 +29,7 @@ describe("BuilderEngineSync", () => {
 
   it("queues every changed part when applying a recommended machine", () => {
     // Given
-    const builder = createBuilderStore();
+    const builder = createBuilderStore({ initialCatalogue: mockHardware });
     const engine = createEngineStore();
     const recommendation = {
       ...defaultSelectedComponents,

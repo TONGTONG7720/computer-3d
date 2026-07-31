@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Sparkles, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { mockHardware } from "../data/mockHardware";
+import { useBuilderStore } from "@/store/builderStore";
 import {
   type RecommendationUseCase,
   recommendationUseCases,
@@ -27,9 +27,10 @@ const useCaseLabels: Readonly<Record<RecommendationUseCase, string>> = {
 export function RecommendationDialog({ open, onClose }: RecommendationDialogProps) {
   const [budget, setBudget] = useState(8000);
   const [useCase, setUseCase] = useState<RecommendationUseCase>("gaming");
+  const catalogue = useBuilderStore((state) => state.catalogue);
   const recommendation = useMemo(
-    () => recommendBuild({ budget, useCase }, mockHardware),
-    [budget, useCase],
+    () => (catalogue.length > 0 ? recommendBuild({ budget, useCase }, catalogue) : null),
+    [budget, catalogue, useCase],
   );
 
   if (typeof document === "undefined") {
@@ -108,37 +109,43 @@ export function RecommendationDialog({ open, onClose }: RecommendationDialogProp
 
             <div className={styles["preview"]}>
               <p className={styles["previewLabel"]}>RECOMMENDED MACHINE</p>
-              <div className={styles["previewMachine"]}>
-                <div>
-                  <span>CPU</span>
-                  <strong>{recommendation.components.cpu?.name}</strong>
-                </div>
-                <div>
-                  <span>GPU</span>
-                  <strong>{recommendation.components.gpu?.name}</strong>
-                </div>
-                <div>
-                  <span>PERFORMANCE</span>
-                  <strong>
-                    {useCase === "productivity"
-                      ? recommendation.performance.production
-                      : recommendation.performance[useCase]}
-                    /100
-                  </strong>
-                </div>
-              </div>
-              <div className={styles["previewPrice"]}>
-                <span>TOTAL CONFIGURATION</span>
-                <strong>¥{recommendation.totalPrice.toLocaleString("zh-CN")}</strong>
-              </div>
-              {recommendation.overBudget ? (
-                <p className={styles["overBudget"]}>当前预算低于最小完整兼容方案。</p>
-              ) : null}
-              <ul className={styles["reasons"]}>
-                {recommendation.reasons.map((reason) => (
-                  <li key={reason}>{reason}</li>
-                ))}
-              </ul>
+              {recommendation === null ? (
+                <p className={styles["savedMessage"]}>硬件数据正在同步，请稍后重试。</p>
+              ) : (
+                <>
+                  <div className={styles["previewMachine"]}>
+                    <div>
+                      <span>CPU</span>
+                      <strong>{recommendation.components.cpu?.name}</strong>
+                    </div>
+                    <div>
+                      <span>GPU</span>
+                      <strong>{recommendation.components.gpu?.name}</strong>
+                    </div>
+                    <div>
+                      <span>PERFORMANCE</span>
+                      <strong>
+                        {useCase === "productivity"
+                          ? recommendation.performance.production
+                          : recommendation.performance[useCase]}
+                        /100
+                      </strong>
+                    </div>
+                  </div>
+                  <div className={styles["previewPrice"]}>
+                    <span>TOTAL CONFIGURATION</span>
+                    <strong>¥{recommendation.totalPrice.toLocaleString("zh-CN")}</strong>
+                  </div>
+                  {recommendation.overBudget ? (
+                    <p className={styles["overBudget"]}>当前预算低于最小完整兼容方案。</p>
+                  ) : null}
+                  <ul className={styles["reasons"]}>
+                    {recommendation.reasons.map((reason) => (
+                      <li key={reason}>{reason}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
 
             <footer className={styles["actions"]}>
@@ -147,7 +154,11 @@ export function RecommendationDialog({ open, onClose }: RecommendationDialogProp
               </button>
               <motion.button
                 className={styles["primaryButton"]}
+                disabled={recommendation === null}
                 onClick={() => {
+                  if (recommendation === null) {
+                    return;
+                  }
                   applyBuilderSelectionWithScene(recommendation.components);
                   onClose();
                 }}

@@ -1,11 +1,18 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangle, Check, Save, Sparkles } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  Database,
+  LoaderCircle,
+  RefreshCw,
+  Save,
+  Sparkles,
+} from "lucide-react";
 import { useState } from "react";
 import { useBuilderStore } from "@/store/builderStore";
 import { isReplacementBusy, useEngineStore } from "@/store/engineStore";
-import { getHardwareByCategory } from "../data/mockHardware";
 import { evaluateCompatibility } from "../domain/CompatibilityEngine";
 import {
   formatHardwareSpec,
@@ -27,6 +34,32 @@ type HardwareCardProps = {
   readonly onSelect: () => void;
 };
 
+type CatalogueStateProps = {
+  readonly error: string | null;
+  readonly loading: boolean;
+  readonly onRetry: () => void;
+};
+
+function CatalogueState({ error, loading, onRetry }: CatalogueStateProps) {
+  return (
+    <div className={styles["catalogueState"]} role={error === null ? "status" : "alert"}>
+      {loading ? (
+        <LoaderCircle className={styles["loadingIcon"]} size={22} strokeWidth={1.5} />
+      ) : (
+        <Database size={22} strokeWidth={1.5} />
+      )}
+      <strong>{loading ? "SYNCING HARDWARE DATA" : "HARDWARE SERVICE OFFLINE"}</strong>
+      <span>{loading ? "正在读取 MySQL 硬件目录与模型信息。" : error}</span>
+      {!loading ? (
+        <button className={styles["retryButton"]} onClick={onRetry} type="button">
+          <RefreshCw size={13} />
+          RETRY CONNECTION
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 function HardwareCard({
   hardware,
   selected,
@@ -42,6 +75,7 @@ function HardwareCard({
     <motion.button
       aria-pressed={selected}
       className={styles["hardwareCard"]}
+      data-hardware-id={hardware.id}
       data-selected={selected}
       data-status={compatibility}
       disabled={disabled || selected}
@@ -78,13 +112,17 @@ export function ComponentSelector() {
   const [recommendationOpen, setRecommendationOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
   const selectedComponents = useBuilderStore((state) => state.selectedComponents);
+  const catalogue = useBuilderStore((state) => state.catalogue);
+  const catalogueStatus = useBuilderStore((state) => state.catalogueStatus);
+  const catalogueError = useBuilderStore((state) => state.catalogueError);
+  const retryCatalogue = useBuilderStore((state) => state.retryCatalogue);
   const activeCategory = useBuilderStore((state) => state.activeCategory);
   const feedback = useBuilderStore((state) => state.feedback);
   const setActiveCategory = useBuilderStore((state) => state.setActiveCategory);
   const replacementState = useEngineStore((state) => state.replacementState);
   const replacementRequest = useEngineStore((state) => state.replacementRequest);
   const definition = findCategoryDefinition(activeCategory);
-  const options = getHardwareByCategory(activeCategory);
+  const options = catalogue.filter((hardware) => hardware.category === activeCategory);
   const selected = getSelectedHardware(selectedComponents, activeCategory);
   const busy = isReplacementBusy(replacementState.phase) || replacementRequest !== null;
 
@@ -94,11 +132,16 @@ export function ComponentSelector() {
         <div>
           <p className={styles["eyebrow"]}>COMPONENT BAY</p>
           <h1>Configure architecture</h1>
-          <span>八类硬件实时联动场景与系统指标。</span>
+          <span>
+            八类硬件实时联动场景
+            <br />
+            与系统指标。
+          </span>
         </div>
         <div className={styles["headerActions"]}>
           <motion.button
             className={styles["smartButton"]}
+            disabled={catalogueStatus !== "ready"}
             onClick={() => setRecommendationOpen(true)}
             type="button"
             whileTap={{ scale: 0.97 }}
@@ -109,6 +152,7 @@ export function ComponentSelector() {
           <motion.button
             aria-label="保存当前配置"
             className={styles["mobileSaveButton"]}
+            disabled={catalogueStatus !== "ready"}
             onClick={() => setSaveOpen(true)}
             type="button"
             whileTap={{ scale: 0.97 }}
@@ -144,20 +188,30 @@ export function ComponentSelector() {
       </div>
 
       <div aria-live="polite" className={styles["optionList"]}>
-        {options.map((hardware) => {
-          const candidate = replaceSelectedHardware(selectedComponents, hardware);
-          const compatibility = evaluateCompatibility(candidate).status;
-          return (
-            <HardwareCard
-              compatibility={compatibility}
-              disabled={busy}
-              hardware={hardware}
-              key={hardware.id}
-              onSelect={() => selectBuilderHardwareWithScene(hardware)}
-              selected={selected?.id === hardware.id}
-            />
-          );
-        })}
+        {catalogueStatus === "ready" ? (
+          options.map((hardware) => {
+            const candidate = replaceSelectedHardware(selectedComponents, hardware);
+            const compatibility = evaluateCompatibility(candidate).status;
+            return (
+              <HardwareCard
+                compatibility={compatibility}
+                disabled={busy}
+                hardware={hardware}
+                key={hardware.id}
+                onSelect={() => selectBuilderHardwareWithScene(hardware)}
+                selected={selected?.id === hardware.id}
+              />
+            );
+          })
+        ) : (
+          <CatalogueState
+            error={catalogueError}
+            loading={catalogueStatus !== "error"}
+            onRetry={() => {
+              void retryCatalogue();
+            }}
+          />
+        )}
       </div>
 
       <AnimatePresence mode="wait">
