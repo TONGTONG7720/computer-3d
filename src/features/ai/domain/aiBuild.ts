@@ -17,7 +17,7 @@ const componentIdsSchema = z
 
 const requirementSchema = z
   .object({
-    budget: z.number().nonnegative().nullable(),
+    budget: z.number().nonnegative().nullable().optional().default(null),
     purposes: z.array(purposeSchema),
     priorities: z.array(prioritySchema),
     styles: z.array(styleSchema),

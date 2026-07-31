@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import java.util.Map;
 
 public record AiBuildRequest(
-        @NotBlank @Size(max = 800) String message,
+        @NotBlank @Size(max = 2000) String message,
         @Pattern(
                 regexp = "^[0-9a-fA-F-]{36}$",
                 message = "sessionId 必须是 UUID"

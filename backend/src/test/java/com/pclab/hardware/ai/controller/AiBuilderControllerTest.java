@@ -40,6 +40,25 @@ class AiBuilderControllerTest {
     }
 
     @Test
+    void acceptsMessageAtDocumentedCharacterLimit() throws Exception {
+        when(aiBuilderService.build(any(AiBuildRequest.class))).thenReturn(sampleView());
+
+        mockMvc.perform(post("/api/ai/build")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"message\":\"" + "x".repeat(2000) + "\",\"currentComponents\":{}}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void rejectsMessageBeyondDocumentedCharacterLimit() throws Exception {
+        mockMvc.perform(post("/api/ai/build")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"message\":\"" + "x".repeat(2001) + "\",\"currentComponents\":{}}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
+    }
+
+    @Test
     void returnsExplainableStructuredBuild() throws Exception {
         when(aiBuilderService.build(any(AiBuildRequest.class))).thenReturn(sampleView());
 

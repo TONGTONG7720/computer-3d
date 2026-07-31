@@ -81,4 +81,14 @@ describe("AiBuilderApiClient", () => {
       }),
     ).toThrow();
   });
+
+  it("normalizes an omitted optional budget to null", () => {
+    const { budget: _budget, ...requirement } = validPayload.data.requirement;
+    const result = parseAiBuildResponse({
+      ...validPayload,
+      data: { ...validPayload.data, requirement },
+    });
+
+    expect(result.requirement.budget).toBeNull();
+  });
 });

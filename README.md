@@ -1,9 +1,9 @@
 # PC LAB 3D
 
 PC LAB 3D 是一个汽车配置器式的沉浸式电脑装机平台。当前仓库已完成
-`Price Intelligence System V1.0`：Builder 在实时联动 3D 场景、兼容性、
-性能与内部配置价的基础上，增加了人工商品库、跨平台比价、7/30 天价格
-趋势、可靠商家推荐与受控购买跳转。
+`AI Builder System V1.0`：用户可以用自然语言描述预算、用途与外观偏好，
+系统通过确定性规则、审核知识与可选 LLM 解析生成可解释配置，并在用户确认后
+驱动 Builder 状态与 3D 安装动画。
 
 ## 当前能力
 
@@ -17,22 +17,32 @@ PC LAB 3D 是一个汽车配置器式的沉浸式电脑装机平台。当前仓�
 - 最低价与可靠商家分离排序，并显示价差与推荐理由
 - Builder 比价面板、7/30 天 SVG 趋势图和购买跳转记录
 - `/admin/prices` 商品、报价、匹配与价格运营控制台
+- 自然语言需求解析、预算优化、依赖升级与逐组件推荐理由
+- 规则优先的 AI 成本路由、MySQL 知识检索与可选 Chroma 向量检索
+- Builder 右下角 AI Diagnostic Port，方案确认后才更新 3D 装机状态
+- `/admin/ai` Prompt 版本、知识、推荐规则与隐私化请求日志控制台
 - Admin Key、参数校验、限流、Trace ID、跳转域名白名单与统一异常响应
 
-V1 仅使用人工维护数据，不调用淘宝、京东或拼多多开放 API，不运行爬虫。
-界面会明确标注人工数据与演示报价，避免伪装成实时平台价格。
+AI V1 默认完全使用本地规则与审核数据，OpenAI-compatible LLM 和 Chroma 均为
+显式可选能力；关闭或故障时不会阻断装机。价格 V1 仍只使用人工维护数据，
+不调用电商开放 API，不运行爬虫。
 
 ## 系统结构
 
 ```mermaid
 flowchart LR
-  UI["Next.js 3D Builder / Price Admin"] --> API["Spring Boot REST API"]
+  UI["Next.js 3D Builder / Admin"] --> API["Spring Boot REST API"]
   API --> HW["Hardware Domain"]
   API --> PRICE["Price Intelligence Domain"]
   PRICE --> MATCH["Matching Engine"]
   PRICE --> RANK["Promotion + Ranking"]
   PRICE --> ADAPTER["PlatformAdapter Registry"]
   ADAPTER --> MANUAL["ManualCatalogAdapter"]
+  API --> AI["AI Orchestrator"]
+  AI --> RULES["Requirement Parser + Build Solver"]
+  AI --> KNOWLEDGE["Reviewed Knowledge Gateway"]
+  AI -. optional .-> LLM["OpenAI-compatible Model"]
+  KNOWLEDGE -. optional .-> VECTOR["Chroma V2"]
   API --> DB[("MySQL")]
   API --> CACHE[("Redis")]
   UI --> THREE["React Three Fiber / Three.js"]
@@ -44,7 +54,9 @@ flowchart LR
 - Backend：Spring Boot 3、Java 21、MyBatis Plus、Flyway
 - Data：MySQL、Redis
 
-完整领域、数据库、算法、安全与商业规则见
+完整 AI 架构、Prompt、RAG、接口、UI 与数据流见
+[AI Builder V1 规格](docs/superpowers/specs/2026-08-01-pc-lab-ai-builder-v1-design.md)；
+价格领域见
 [Price Intelligence V1 规格](docs/superpowers/specs/2026-07-31-pc-lab-price-intelligence-v1-design.md)。
 
 ## 本地启动
@@ -60,6 +72,7 @@ flowchart LR
    $env:PC_LAB_DB_USERNAME = "root"
    $env:PC_LAB_DB_PASSWORD = "replace-with-your-local-db-password"
    $env:PC_LAB_ADMIN_KEY = "change-this-local-key"
+   $env:PC_LAB_AI_ANALYTICS_HASH_KEY = "change-this-local-hmac-key"
    mvn -f backend/pom.xml spring-boot:run
    ```
 
@@ -73,9 +86,25 @@ flowchart LR
    pnpm dev
    ```
 
-   前端默认运行在 `http://127.0.0.1:3000`，Builder 位于 `/`，价格运营台
-   位于 `/admin/prices`。运营台要求输入与后端一致的 Admin Key；密钥只保存在
-   当前标签页的 `sessionStorage`，不会写入 URL 或长期本地存储。
+   前端默认运行在 `http://127.0.0.1:3000`，Builder 位于 `/`，价格与 AI 运营台
+   分别位于 `/admin/prices`、`/admin/ai`。运营台要求输入与后端一致的 Admin Key；
+   密钥只保存在当前标签页的 `sessionStorage`，不会写入 URL 或长期本地存储。
+
+### 可选模型与向量检索
+
+默认无需外部 AI 服务。需要增强复杂自然语言解析时，再配置：
+
+```powershell
+$env:PC_LAB_AI_MODEL_ENABLED = "true"
+$env:PC_LAB_AI_MODEL_BASE_URL = "https://your-openai-compatible-host"
+$env:PC_LAB_AI_MODEL_API_KEY = "your-key"
+$env:PC_LAB_AI_MODEL_NAME = "your-model"
+```
+
+需要 Chroma V2 语义检索时，设置 `PC_LAB_AI_VECTOR_ENABLED=true`、
+`PC_LAB_AI_VECTOR_BASE_URL` 与 `PC_LAB_AI_VECTOR_COLLECTION_ID`。模型密钥与向量
+Token 只配置在后端；前端永远不接触这些凭据。每日 Token 预算、超时和降级行为
+可通过 `PC_LAB_AI_DAILY_TOKEN_BUDGET`、`PC_LAB_AI_TIMEOUT_MILLIS` 调整。
 
 ### 同源代理模式
 
@@ -99,6 +128,7 @@ pnpm start
 | 硬件搜索/过滤 | `GET /api/hardware` |
 | 硬件详情 | `GET /api/hardware/{idOrKey}` |
 | 配置保存/读取 | `POST /api/build`、`GET /api/build/{publicId}` |
+| AI 生成装机方案 | `POST /api/ai/build` |
 | 硬件价格摘要 | `GET /api/price-intelligence/hardware/{idOrKey}` |
 | 7/30 天趋势与报价变更明细 | `GET /api/price-intelligence/hardware/{idOrKey}/history` |
 | 整机报价 | `POST /api/price-intelligence/build/quote` |
@@ -107,9 +137,14 @@ pnpm start
 | Admin 商品 CRUD | `/api/admin/products/**` |
 | Admin 报价维护 | `/api/admin/products/{id}/offers`、`/api/admin/offers/**` |
 | Admin 价格概览 | `GET /api/admin/price-dashboard` |
+| Admin AI 概览 | `GET /api/admin/ai/dashboard` |
+| Admin Prompt 版本 | `GET /api/admin/ai/prompts`、`POST /api/admin/ai/prompts/{key}/versions` |
+| Admin 知识与向量同步 | `/api/admin/ai/knowledge/**` |
+| Admin 推荐规则与日志 | `/api/admin/ai/rules/**`、`GET /api/admin/ai/logs` |
 
 所有 `/api/admin/**` 请求必须携带 `X-Admin-Key`。公共响应不会返回原始商品
-链接或联盟链接，只返回受控跳转路径。
+链接或联盟链接，只返回受控跳转路径。AI 请求日志只保存哈希、结构化意图、路由、
+耗时与结果，不保存原始对话文本。
 
 ## 价格数据规则
 
