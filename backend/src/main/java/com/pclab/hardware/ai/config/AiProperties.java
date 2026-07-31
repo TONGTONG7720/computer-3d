@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class AiProperties {
 
     private int timeoutMillis = 6000;
+    private String analyticsHashKey = "pc-lab-ai-local-development-key";
     private final Model model = new Model();
     private final Vector vector = new Vector();
 
@@ -15,6 +16,14 @@ public class AiProperties {
 
     public void setTimeoutMillis(int timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
+    }
+
+    public String getAnalyticsHashKey() {
+        return analyticsHashKey;
+    }
+
+    public void setAnalyticsHashKey(String analyticsHashKey) {
+        this.analyticsHashKey = analyticsHashKey;
     }
 
     public Model getModel() {

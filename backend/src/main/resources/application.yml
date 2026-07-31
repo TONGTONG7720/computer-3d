@@ -86,6 +86,7 @@ app:
         - suning.com
   ai:
     timeout-millis: ${PC_LAB_AI_TIMEOUT_MILLIS:6000}
+    analytics-hash-key: ${PC_LAB_AI_ANALYTICS_HASH_KEY:pc-lab-ai-local-development-key}
     model:
       enabled: ${PC_LAB_AI_MODEL_ENABLED:false}
       base-url: ${PC_LAB_AI_MODEL_BASE_URL:https://api.openai.com}
