@@ -16,6 +16,8 @@ import com.pclab.hardware.mapper.HardwareCategoryMapper;
 import com.pclab.hardware.mapper.HardwareMapper;
 import com.pclab.hardware.mapper.HardwareModelMapper;
 import com.pclab.hardware.mapper.ProductPriceMapper;
+import com.pclab.hardware.price.entity.ProductEntity;
+import com.pclab.hardware.price.mapper.ProductMapper;
 import com.pclab.hardware.storage.ModelStorageService;
 import com.pclab.hardware.storage.ModelStorageService.StoredModel;
 import com.pclab.hardware.utils.SearchNormalizer;
@@ -29,6 +31,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.math.BigDecimal;
 import java.util.Objects;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
@@ -42,6 +45,7 @@ public class AdminHardwareService {
     private final HardwareCategoryMapper categoryMapper;
     private final HardwareModelMapper modelMapper;
     private final ProductPriceMapper priceMapper;
+    private final ProductMapper productMapper;
     private final HardwareSpecificationService specificationService;
     private final ModelStorageService modelStorageService;
 
@@ -50,6 +54,7 @@ public class AdminHardwareService {
             HardwareCategoryMapper categoryMapper,
             HardwareModelMapper modelMapper,
             ProductPriceMapper priceMapper,
+            ProductMapper productMapper,
             HardwareSpecificationService specificationService,
             ModelStorageService modelStorageService
     ) {
@@ -57,6 +62,7 @@ public class AdminHardwareService {
         this.categoryMapper = categoryMapper;
         this.modelMapper = modelMapper;
         this.priceMapper = priceMapper;
+        this.productMapper = productMapper;
         this.specificationService = specificationService;
         this.modelStorageService = modelStorageService;
     }
@@ -232,28 +238,70 @@ public class AdminHardwareService {
 
     private ProductPriceEntity upsertInternalPrice(
             HardwareEntity hardware,
-            java.math.BigDecimal value,
+            BigDecimal value,
             boolean inStock,
             String seller
     ) {
-        ProductPriceEntity price = priceMapper.selectOne(
-                Wrappers.<ProductPriceEntity>lambdaQuery()
-                        .eq(ProductPriceEntity::getHardwareId, hardware.getId())
-                        .eq(ProductPriceEntity::getSource, "INTERNAL")
-                        .eq(ProductPriceEntity::getSeller, seller)
+        ProductEntity product = productMapper.selectOne(
+                Wrappers.<ProductEntity>lambdaQuery()
+                        .eq(ProductEntity::getHardwareId, hardware.getId())
+                        .eq(ProductEntity::getRecordSource, "INTERNAL")
+                        .eq(ProductEntity::getDeleted, 0)
         );
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        if (product == null) {
+            product = new ProductEntity();
+            product.setProductKey("internal-" + hardware.getHardwareKey());
+            product.setHardwareId(hardware.getId());
+            product.setTitle(hardware.getName());
+            product.setBrand(hardware.getBrand());
+            product.setModel(hardware.getHardwareKey());
+            product.setCategory(hardware.getCategoryCode());
+            product.setImageUrl(Objects.requireNonNullElse(hardware.getCoverUrl(), ""));
+            product.setDescription("PC LAB internal reference product");
+            product.setNormalizedTitle(SearchNormalizer.normalize(hardware.getName()));
+            product.setSpecJson("{}");
+            product.setMatchConfidence(BigDecimal.ONE);
+            product.setMatchStatus("CONFIRMED");
+            product.setStatus("ACTIVE");
+            product.setRecordSource("INTERNAL");
+            product.setCreatedAt(now);
+            product.setUpdatedAt(now);
+            product.setDeleted(0);
+            productMapper.insert(product);
+        }
+        ProductPriceEntity price = priceMapper.selectOne(
+                Wrappers.<ProductPriceEntity>lambdaQuery()
+                        .eq(ProductPriceEntity::getProductId, product.getId())
+                        .eq(ProductPriceEntity::getPlatform, "INTERNAL")
+                        .eq(ProductPriceEntity::getSeller, seller)
+        );
         if (price == null) {
             price = new ProductPriceEntity();
-            price.setHardwareId(hardware.getId());
-            price.setSource("INTERNAL");
+            price.setProductId(product.getId());
+            price.setPlatform("INTERNAL");
             price.setSeller(seller);
+            price.setShopType("INTERNAL");
             price.setCurrency("CNY");
             price.setProductUrl("");
+            price.setAffiliateUrl("");
+            price.setPromotionJson("{}");
+            price.setRecordSource("INTERNAL");
+            price.setIsEnabled(1);
+            price.setIsReviewed(1);
+            price.setCouponAmount(BigDecimal.ZERO);
+            price.setFullReductionAmount(BigDecimal.ZERO);
+            price.setMemberDiscountAmount(BigDecimal.ZERO);
+            price.setPlatformSubsidyAmount(BigDecimal.ZERO);
+            price.setShippingFee(BigDecimal.ZERO);
+            price.setSalesCount(0);
+            price.setRating(BigDecimal.ZERO);
+            price.setSellerScore(BigDecimal.valueOf(100));
             price.setCreatedAt(now);
         }
-        price.setPrice(value);
-        price.setInStock(inStock ? 1 : 0);
+        price.setSalePrice(value);
+        price.setFinalPrice(value);
+        price.setStockStatus(inStock ? "IN_STOCK" : "OUT_OF_STOCK");
         price.setCheckedAt(now);
         price.setUpdatedAt(now);
         if (price.getId() == null) {
@@ -345,11 +393,11 @@ public class AdminHardwareService {
     private static PriceView toPriceView(ProductPriceEntity price) {
         return new PriceView(
                 price.getId(),
-                price.getSource(),
+                price.getPlatform(),
                 price.getSeller(),
-                price.getPrice(),
+                price.getFinalPrice(),
                 price.getCurrency(),
-                price.getInStock() == 1,
+                "IN_STOCK".equals(price.getStockStatus()),
                 price.getProductUrl(),
                 price.getCheckedAt()
         );

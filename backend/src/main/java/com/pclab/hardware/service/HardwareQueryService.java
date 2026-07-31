@@ -149,11 +149,7 @@ public class HardwareQueryService {
     @Cacheable(cacheNames = "prices", key = "#idOrKey")
     public List<PriceView> findPrices(String idOrKey) {
         HardwareEntity hardware = requireHardware(idOrKey);
-        return priceMapper.selectList(
-                        Wrappers.<ProductPriceEntity>lambdaQuery()
-                                .eq(ProductPriceEntity::getHardwareId, hardware.getId())
-                                .orderByAsc(ProductPriceEntity::getPrice)
-                ).stream()
+        return priceMapper.selectByHardwareId(hardware.getId()).stream()
                 .map(this::toPriceView)
                 .toList();
     }
@@ -282,11 +278,11 @@ public class HardwareQueryService {
     private PriceView toPriceView(ProductPriceEntity price) {
         return new PriceView(
                 price.getId(),
-                price.getSource(),
+                price.getPlatform(),
                 price.getSeller(),
-                price.getPrice(),
+                price.getFinalPrice(),
                 price.getCurrency(),
-                price.getInStock() == 1,
+                "IN_STOCK".equals(price.getStockStatus()),
                 price.getProductUrl(),
                 price.getCheckedAt()
         );
