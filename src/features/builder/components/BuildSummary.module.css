@@ -123,6 +123,38 @@
   font-size: 0.9rem;
 }
 
+.compareButton {
+  display: flex;
+  width: 100%;
+  min-height: 40px;
+  margin-top: var(--space-3);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-small);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  transition:
+    color 140ms ease,
+    background 140ms ease,
+    transform 140ms ease;
+}
+
+.compareButton:hover {
+  color: var(--color-bg-canvas);
+  background: var(--color-primary);
+}
+
+.compareButton:active {
+  transform: scale(0.98);
+}
+
 .metricGrid {
   display: grid;
   margin-top: var(--space-3);
@@ -289,6 +321,7 @@
   .metricGrid,
   .scoreSection,
   .compatibility,
+  .compareButton,
   .saveButton {
     display: none;
   }

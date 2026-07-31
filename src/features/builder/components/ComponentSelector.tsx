@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertTriangle,
+  BadgeDollarSign,
   Check,
   Database,
   LoaderCircle,
@@ -38,6 +39,10 @@ type CatalogueStateProps = {
   readonly error: string | null;
   readonly loading: boolean;
   readonly onRetry: () => void;
+};
+
+type ComponentSelectorProps = {
+  readonly onOpenPrices: () => void;
 };
 
 function CatalogueState({ error, loading, onRetry }: CatalogueStateProps) {
@@ -108,7 +113,7 @@ function HardwareCard({
   );
 }
 
-export function ComponentSelector() {
+export function ComponentSelector({ onOpenPrices }: ComponentSelectorProps) {
   const [recommendationOpen, setRecommendationOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
   const selectedComponents = useBuilderStore((state) => state.selectedComponents);
@@ -158,6 +163,16 @@ export function ComponentSelector() {
             whileTap={{ scale: 0.97 }}
           >
             <Save size={14} />
+          </motion.button>
+          <motion.button
+            aria-label="比较当前硬件价格"
+            className={styles["mobilePriceButton"]}
+            disabled={catalogueStatus !== "ready"}
+            onClick={onOpenPrices}
+            type="button"
+            whileTap={{ scale: 0.97 }}
+          >
+            <BadgeDollarSign size={14} />
           </motion.button>
         </div>
       </header>

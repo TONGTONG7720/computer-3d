@@ -179,7 +179,7 @@ All UI spacing derives from 4px.
   recommendation, offer rows, 7/30-day trend, and manual-data disclosure.
 - States: loading, ready, no offers, stale data, history loading, history empty,
   error.
-- Desktop: centered 1040px dialog with split comparison/history regions.
+- Desktop: centered 920px dialog with split comparison/history regions.
 - Mobile: full-height bottom sheet with a sticky close action.
 - Purchase links always target the internal tracked redirect endpoint.
 

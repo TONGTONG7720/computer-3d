@@ -61,12 +61,14 @@
 }
 
 .smartButton:disabled,
-.mobileSaveButton:disabled {
+.mobileSaveButton:disabled,
+.mobilePriceButton:disabled {
   cursor: not-allowed;
   opacity: 0.46;
 }
 
-.mobileSaveButton {
+.mobileSaveButton,
+.mobilePriceButton {
   display: none;
   width: 36px;
   height: 36px;
@@ -76,6 +78,12 @@
   color: var(--color-primary);
   background: var(--color-primary-subtle);
   cursor: pointer;
+}
+
+.mobilePriceButton {
+  border-color: var(--color-warning-border);
+  color: var(--color-warning);
+  background: var(--color-warning-subtle);
 }
 
 .categoryTabs {
@@ -387,7 +395,8 @@
     min-height: 34px;
   }
 
-  .mobileSaveButton {
+  .mobileSaveButton,
+  .mobilePriceButton {
     display: grid;
   }
 

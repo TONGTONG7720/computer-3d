@@ -54,4 +54,9 @@ export const getBuildQuote = async (
 export const getOfferRedirectUrl = (
   redirectPath: string,
   apiUrl: string = hardwarePlatformApiUrl,
-): string => new URL(redirectPath, new URL(apiUrl).origin).toString();
+  source: "BUILDER" | "DETAIL" | "ADMIN_PREVIEW" = "BUILDER",
+): string => {
+  const redirectUrl = new URL(redirectPath, new URL(apiUrl).origin);
+  redirectUrl.searchParams.set("source", source);
+  return redirectUrl.toString();
+};

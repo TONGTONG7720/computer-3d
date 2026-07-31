@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertTriangle,
+  BadgeDollarSign,
   Cpu,
   MemoryStick,
   RectangleHorizontal,
@@ -16,13 +17,17 @@ import { AnimatedNumber } from "./AnimatedNumber";
 import styles from "./BuildSummary.module.css";
 import { SaveBuildDialog } from "./SaveBuildDialog";
 
+type BuildSummaryProps = {
+  readonly onOpenPrices: () => void;
+};
+
 const scoreRows = [
   { key: "gaming", label: "GAMING" },
   { key: "production", label: "PRODUCTION" },
   { key: "ai", label: "AI COMPUTE" },
 ] as const;
 
-export function BuildSummary() {
+export function BuildSummary({ onOpenPrices }: BuildSummaryProps) {
   const [saveOpen, setSaveOpen] = useState(false);
   const selected = useBuilderStore((state) => state.selectedComponents);
   const totalPrice = useBuilderStore((state) => state.totalPrice);
@@ -79,6 +84,10 @@ export function BuildSummary() {
           <small>¥</small>
           <AnimatedNumber value={totalPrice} />
         </div>
+        <button className={styles["compareButton"]} onClick={onOpenPrices} type="button">
+          <BadgeDollarSign size={14} strokeWidth={1.7} />
+          COMPARE MARKET PRICES
+        </button>
       </section>
 
       <div className={styles["metricGrid"]}>

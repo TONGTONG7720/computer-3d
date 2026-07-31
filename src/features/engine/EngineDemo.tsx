@@ -1,9 +1,10 @@
 "use client";
 
 import { Activity, Box, Focus, Layers3, Lightbulb, RotateCcw } from "lucide-react";
-import { type ComponentType, useEffect } from "react";
+import { type ComponentType, useEffect, useState } from "react";
 import { BuildSummary } from "@/features/builder/components/BuildSummary";
 import { ComponentSelector } from "@/features/builder/components/ComponentSelector";
+import { PriceComparisonDialog } from "@/features/price/builder/PriceComparisonDialog";
 import { useBuilderStore } from "@/store/builderStore";
 import { isReplacementBusy, useEngineStore } from "@/store/engineStore";
 import { PCViewer } from "@/three/viewer/PCViewer";
@@ -43,6 +44,7 @@ function ToolButton({ active = false, icon: Icon, label, onClick }: ToolButtonPr
 }
 
 export function EngineDemo() {
+  const [priceOpen, setPriceOpen] = useState(false);
   const exploded = useEngineStore((state) => state.exploded);
   const rgbMode = useEngineStore((state) => state.rgbMode);
   const cameraMode = useEngineStore((state) => state.cameraMode);
@@ -56,6 +58,7 @@ export function EngineDemo() {
   const busy = isReplacementBusy(replacementState.phase) || replacementRequest !== null;
   const catalogueStatus = useBuilderStore((state) => state.catalogueStatus);
   const initializeCatalogue = useBuilderStore((state) => state.initializeCatalogue);
+  const setActiveCategory = useBuilderStore((state) => state.setActiveCategory);
 
   useEffect(() => {
     void initializeCatalogue();
@@ -97,11 +100,16 @@ export function EngineDemo() {
         aria-label="Component selector"
         className={`${styles["panel"]} ${styles["componentPanel"]}`}
       >
-        <ComponentSelector />
+        <ComponentSelector onOpenPrices={() => setPriceOpen(true)} />
       </aside>
 
       <aside aria-label="Build summary" className={`${styles["panel"]} ${styles["summaryPanel"]}`}>
-        <BuildSummary />
+        <BuildSummary
+          onOpenPrices={() => {
+            setActiveCategory("gpu");
+            setPriceOpen(true);
+          }}
+        />
       </aside>
 
       <nav aria-label="3D viewer tools" className={styles["toolbar"]}>
@@ -136,6 +144,7 @@ export function EngineDemo() {
           LIVE CONFIG / XYZ
         </span>
       </div>
+      <PriceComparisonDialog onClose={() => setPriceOpen(false)} open={priceOpen} />
     </main>
   );
 }
