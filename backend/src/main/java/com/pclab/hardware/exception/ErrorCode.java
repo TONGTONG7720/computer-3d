@@ -10,6 +10,8 @@ public enum ErrorCode {
     UNAUTHORIZED_ADMIN(HttpStatus.UNAUTHORIZED, "Admin Key 无效"),
     CONFLICT(HttpStatus.CONFLICT, "数据已发生变化，请刷新后重试"),
     RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "请求过于频繁"),
+    PRICE_OFFER_NOT_FOUND(HttpStatus.NOT_FOUND, "报价不存在"),
+    PRICE_PROMOTION_INVALID(HttpStatus.BAD_REQUEST, "优惠金额不合法"),
     STORAGE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "模型文件存储失败"),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "服务暂时不可用");
 
