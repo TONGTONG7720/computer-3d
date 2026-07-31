@@ -11,7 +11,10 @@ public enum ErrorCode {
     CONFLICT(HttpStatus.CONFLICT, "数据已发生变化，请刷新后重试"),
     RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "请求过于频繁"),
     PRICE_OFFER_NOT_FOUND(HttpStatus.NOT_FOUND, "报价不存在"),
+    PRICE_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "商品不存在"),
     PRICE_PROMOTION_INVALID(HttpStatus.BAD_REQUEST, "优惠金额不合法"),
+    PRICE_REDIRECT_BLOCKED(HttpStatus.BAD_REQUEST, "购买链接未通过安全校验"),
+    PRICE_RANGE_INVALID(HttpStatus.BAD_REQUEST, "价格趋势范围仅支持 7D 或 30D"),
     STORAGE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "模型文件存储失败"),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "服务暂时不可用");
 

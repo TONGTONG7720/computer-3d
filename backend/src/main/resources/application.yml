@@ -70,3 +70,17 @@ app:
     scheduler-enabled: ${PC_LAB_PRICE_SCHEDULER_ENABLED:true}
     hot-refresh-cron: ${PC_LAB_PRICE_HOT_CRON:0 15 * * * *}
     normal-refresh-cron: ${PC_LAB_PRICE_NORMAL_CRON:0 30 3 * * *}
+    analytics-hash-key: ${PC_LAB_ANALYTICS_HASH_KEY:pc-lab-local-development-key}
+    redirect-hosts:
+      JD:
+        - jd.com
+      TAOBAO:
+        - taobao.com
+      PDD:
+        - yangkeduo.com
+      TMALL:
+        - tmall.com
+      AMAZON:
+        - amazon.cn
+      SUNING:
+        - suning.com
