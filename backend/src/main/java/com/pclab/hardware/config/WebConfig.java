@@ -1,6 +1,7 @@
 package com.pclab.hardware.config;
 
 import com.pclab.hardware.security.AdminKeyInterceptor;
+import com.pclab.hardware.ai.config.AiProperties;
 import com.pclab.hardware.price.config.PriceProperties;
 import com.pclab.hardware.security.RateLimitInterceptor;
 import com.pclab.hardware.security.RequestTraceFilter;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableConfigurationProperties({
+    AiProperties.class,
     CorsProperties.class,
     PriceProperties.class,
     StorageProperties.class,

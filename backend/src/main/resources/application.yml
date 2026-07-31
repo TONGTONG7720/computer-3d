@@ -84,3 +84,22 @@ app:
         - amazon.cn
       SUNING:
         - suning.com
+  ai:
+    timeout-millis: ${PC_LAB_AI_TIMEOUT_MILLIS:6000}
+    model:
+      enabled: ${PC_LAB_AI_MODEL_ENABLED:false}
+      base-url: ${PC_LAB_AI_MODEL_BASE_URL:https://api.openai.com}
+      api-key: ${PC_LAB_AI_MODEL_API_KEY:}
+      name: ${PC_LAB_AI_MODEL_NAME:}
+      embedding-name: ${PC_LAB_AI_EMBEDDING_MODEL:text-embedding-3-small}
+      max-output-tokens: ${PC_LAB_AI_MAX_OUTPUT_TOKENS:800}
+      temperature: ${PC_LAB_AI_TEMPERATURE:0.1}
+      estimated-tokens-per-request: ${PC_LAB_AI_ESTIMATED_TOKENS:1200}
+      daily-token-budget: ${PC_LAB_AI_DAILY_TOKEN_BUDGET:50000}
+    vector:
+      enabled: ${PC_LAB_AI_VECTOR_ENABLED:false}
+      base-url: ${PC_LAB_AI_VECTOR_BASE_URL:http://127.0.0.1:8000}
+      token: ${PC_LAB_AI_VECTOR_TOKEN:}
+      tenant: ${PC_LAB_AI_VECTOR_TENANT:default_tenant}
+      database: ${PC_LAB_AI_VECTOR_DATABASE:default_database}
+      collection-id: ${PC_LAB_AI_VECTOR_COLLECTION_ID:}

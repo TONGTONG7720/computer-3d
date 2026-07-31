@@ -16,3 +16,8 @@ spring:
 app:
   security:
     admin-key: test-admin-key
+  ai:
+    model:
+      enabled: false
+    vector:
+      enabled: false
