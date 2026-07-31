@@ -3,6 +3,7 @@
 import { Html } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
+import { PCFShadowMap } from "three";
 import { engineStore } from "@/store/engineStore";
 import { CameraController } from "../core/CameraController";
 import { LightingSystem } from "../core/LightingSystem";
@@ -105,7 +106,7 @@ export function PCViewer() {
         onPointerMissed={() => {
           engineStore.getState().selectComponent(null);
         }}
-        shadows={profile.shadows}
+        shadows={profile.shadows ? { type: PCFShadowMap } : false}
       >
         <Suspense fallback={<SceneLoader />}>
           <LightingSystem profile={profile} />

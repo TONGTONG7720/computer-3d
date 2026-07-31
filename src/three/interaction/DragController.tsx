@@ -14,7 +14,7 @@ export function DragController({ mobile }: DragControllerProps) {
       enableDamping
       enablePan
       makeDefault
-      maxDistance={14.5}
+      maxDistance={mobile ? 46 : 18}
       maxPolarAngle={Math.PI * 0.73}
       minDistance={mobile ? 6.8 : 5.4}
       minPolarAngle={Math.PI * 0.18}
