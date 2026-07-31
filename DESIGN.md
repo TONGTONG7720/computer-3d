@@ -6,8 +6,8 @@
 - Lazyweb: skipped because the user supplied a complete high-fidelity visual specification and requested implementation rather than renewed visual research.
 - Imagen drafts: skipped because the focal visual is a real-time Three.js assembly and the approved specification already defines its composition.
 - Scope: this document covers Engine V1.0, Builder V1.0, Hardware Platform
-  V1.0, and Price Intelligence V1.0. Live marketplace feeds, AI chat, accounts,
-  and community remain outside this phase.
+  V1.0, Price Intelligence V1.0, and AI Builder V1.0. Live marketplace feeds,
+  accounts, and community remain outside this phase.
 - Price Intelligence extension: the Admin workspace uses an operational,
   Apple-commerce-inspired density while retaining PC LAB graphite materials.
   Price data, provenance, and stale state stay visually stronger than chrome.
@@ -203,6 +203,43 @@ All UI spacing derives from 4px.
 - The chart uses a semantic SVG title/description and retains a textual price
   summary for non-visual access.
 
+### AI Diagnostic Port
+
+- Structure: 48px launcher, cyan activity notch, AI-violet spectral edge,
+  advisor status and unread/result signal.
+- Placement: desktop right 24px / bottom 88px; mobile inside the bottom action
+  layer without covering the 3D toolbar.
+- States: idle, analysing, proposal ready, applying, complete, clarification,
+  recoverable error and offline.
+- The launcher is the only persistent AI accent. It never competes with the
+  cyan Builder selection language or the computer model.
+
+### AI Build Advisor Panel
+
+- Structure: compact instrument header, transcript, task presets, proposal,
+  evidence disclosure, sticky composer and apply action.
+- Desktop: 392px wide, up to 680px tall, floating above the Builder stage with
+  the existing mixed tonal glass recipe.
+- Mobile: full-width bottom sheet with a 72dvh maximum height, sticky composer
+  and one-column component changes.
+- States: welcome, composing, analysing, proposal, confirmation required,
+  applying, applied, clarification and service failure.
+- Initial compatible builds may apply automatically. Multi-part modifications
+  expose one explicit “应用整套调整” action before replacing scene assets.
+- Focus enters the panel, remains trapped while open and returns to the launcher
+  on close. Status changes are announced through a polite live region.
+
+### AI Operations Workspace
+
+- Structure: protected access gate, six-metric telemetry rail, Prompt,
+  Knowledge, Rules and Logs workspaces, contextual editor.
+- Prompt content uses a code-like reading surface but remains a native labelled
+  textarea. Publishing is a named action and shows the new optimistic version.
+- Knowledge rows expose category, provenance, revision and vector-sync state;
+  raw user messages never appear in the log workspace.
+- Dense operational information uses border-led containment and restrained
+  depth, keeping the Admin surface distinct from the cinematic Builder stage.
+
 ## 6. Motion & Interaction
 
 | Type | Duration | Easing | Usage |
@@ -221,6 +258,12 @@ Rules:
 - Numerical changes use tabular figures and never alter surrounding layout width.
 - Admin editor drawers enter over 240ms with opacity plus horizontal transform;
   their midpoint must remain visually distinguishable from the settled state.
+- AI advisor opens over 240ms with opacity plus an 8px vertical transform;
+  analysis uses a static progress rail with one moving highlight, never a
+  decorative looping mascot.
+- AI proposal application delegates motion to the existing 800–1500ms
+  mechanical installation queue; the chat panel itself does not imitate part
+  installation motion.
 - A replacement that is incompatible remains selectable so users can understand
   the rule, but its blocking reason is announced before save.
 
@@ -252,4 +295,5 @@ Strategy: mixed tonal shift plus restrained glass.
 | Procedural environment instead of production HDR | Lighting system | No licensed HDR has been supplied | Replace through the environment manifest without changing viewer APIs |
 | Internal reference prices | Hardware Platform | They remain the fallback when no reviewed offer exists | Keep them distinct from marketplace quotes in every UI |
 | Manual marketplace quotes | Price Intelligence | V1 intentionally uses reviewed Admin data and no crawler or live marketplace API | Replace each manual adapter with approved affiliate adapters while preserving the normalized offer contract |
-| Rule-based recommendations | Builder recommendation dialog | AI chat and RAG are outside Builder V1.0 | Upgrade the recommendation provider without changing the selection contract |
+| Limited style/noise metadata | AI Builder | The hardware catalogue does not yet carry verified colour and acoustic measurements for every item | Add reviewed hardware-profile attributes; until then disclose unfulfilled preferences |
+| Optional dense-vector service | AI Builder RAG | MySQL and Redis are guaranteed locally, but no Chroma/Milvus endpoint or embedding credential is guaranteed | Enable the Chroma adapter when approved infrastructure is configured; retain deterministic MySQL retrieval as fallback |
