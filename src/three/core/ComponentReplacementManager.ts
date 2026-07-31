@@ -44,6 +44,7 @@ export interface ReplacementDependencies {
   readonly removeCurrent: (slot: ReplacementSlot) => Promise<void>;
   readonly install: (slot: ReplacementSlot, model: Group) => Promise<void>;
   readonly commit: (request: ReplacementRequest, model: Group) => Promise<void>;
+  readonly rollback: (slot: ReplacementSlot, candidate: Group | undefined) => Promise<void>;
   readonly releaseCurrent: (slot: ReplacementSlot) => void;
 }
 
@@ -76,8 +77,10 @@ export class ComponentReplacementManager {
       assetId: request.assetId,
     });
 
+    let currentRemoved = false;
+    let nextModel: Group | undefined;
     try {
-      let nextModel = this.dependencies.acquireCached(request.assetId);
+      nextModel = this.dependencies.acquireCached(request.assetId);
       if (nextModel === undefined) {
         this.emit({
           phase: "loading",
@@ -93,6 +96,7 @@ export class ComponentReplacementManager {
         assetId: request.assetId,
       });
       await this.dependencies.removeCurrent(request.slot);
+      currentRemoved = true;
 
       this.emit({
         phase: "installing",
@@ -117,6 +121,9 @@ export class ComponentReplacementManager {
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : "Component replacement failed.";
+      if (currentRemoved) {
+        await this.dependencies.rollback(request.slot, nextModel);
+      }
       this.emit({
         phase: "failed",
         slot: request.slot,

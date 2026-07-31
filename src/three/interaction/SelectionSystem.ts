@@ -1,4 +1,5 @@
-import type { Object3D } from "three";
+import { type Color, Mesh, MeshStandardMaterial, type Object3D } from "three";
+import { materialTokens } from "../materials/MaterialSystem";
 import type { ComponentType } from "../models/modelManifest";
 
 const componentNames = {
@@ -36,3 +37,49 @@ export const resolveSelection = (object: Object3D): SelectionResult | undefined 
   }
   return undefined;
 };
+
+type MaterialSnapshot = {
+  readonly material: MeshStandardMaterial;
+  readonly emissive: Color;
+  readonly emissiveIntensity: number;
+};
+
+export class SelectionSystem {
+  private snapshots: readonly MaterialSnapshot[] = [];
+
+  select(root: Object3D): void {
+    this.clear();
+    const nextSnapshots: MaterialSnapshot[] = [];
+
+    root.traverse((object) => {
+      if (!(object instanceof Mesh)) {
+        return;
+      }
+
+      const materials = Array.isArray(object.material) ? object.material : [object.material];
+      for (const material of materials) {
+        if (!(material instanceof MeshStandardMaterial)) {
+          continue;
+        }
+
+        nextSnapshots.push({
+          material,
+          emissive: material.emissive.clone(),
+          emissiveIntensity: material.emissiveIntensity,
+        });
+        material.emissive.set(materialTokens.selected);
+        material.emissiveIntensity = Math.max(material.emissiveIntensity, 0.72);
+      }
+    });
+
+    this.snapshots = nextSnapshots;
+  }
+
+  clear(): void {
+    for (const snapshot of this.snapshots) {
+      snapshot.material.emissive.copy(snapshot.emissive);
+      snapshot.material.emissiveIntensity = snapshot.emissiveIntensity;
+    }
+    this.snapshots = [];
+  }
+}

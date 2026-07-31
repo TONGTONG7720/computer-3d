@@ -11,6 +11,7 @@ const createDependencies = (): ReplacementDependencies => ({
   removeCurrent: vi.fn(async () => undefined),
   install: vi.fn(async () => undefined),
   commit: vi.fn(async () => undefined),
+  rollback: vi.fn(async () => undefined),
   releaseCurrent: vi.fn(),
 });
 
@@ -72,6 +73,22 @@ describe("ComponentReplacementManager", () => {
 
     expect(result.kind).toBe("failure");
     expect(dependencies.removeCurrent).not.toHaveBeenCalled();
+    expect(dependencies.commit).not.toHaveBeenCalled();
+  });
+
+  it("rolls back the current component when installation fails", async () => {
+    const dependencies = createDependencies();
+    vi.mocked(dependencies.install).mockRejectedValue(new Error("animation interrupted"));
+    const manager = new ComponentReplacementManager(dependencies);
+
+    const result = await manager.replace({
+      slot: "gpu",
+      assetId: "gpu-rtx5090-aurora",
+      modelUrl: "/models/gpu_rtx5090_aurora.glb",
+    });
+
+    expect(result.kind).toBe("failure");
+    expect(dependencies.rollback).toHaveBeenCalledOnce();
     expect(dependencies.commit).not.toHaveBeenCalled();
   });
 });

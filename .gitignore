@@ -13,3 +13,4 @@ Thumbs.db
 .vercel/
 playwright-report/
 test-results/
+.qa/

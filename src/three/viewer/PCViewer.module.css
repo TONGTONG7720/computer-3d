@@ -1,0 +1,81 @@
+.viewer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      color-mix(in srgb, var(--color-primary) 11%, transparent),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-stage) 92%, transparent),
+      var(--color-bg-canvas)
+    );
+  touch-action: none;
+}
+
+.viewer::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--color-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px);
+  background-position: center;
+  background-size: 64px 64px;
+  content: "";
+  mask-image: radial-gradient(circle at 50% 55%, black, transparent 72%);
+  pointer-events: none;
+}
+
+.viewer canvas {
+  position: relative;
+  z-index: 1;
+}
+
+.canvasFallback,
+.loader {
+  display: grid;
+  width: min(280px, calc(100vw - var(--space-8)));
+  min-height: 92px;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  color: var(--color-text-secondary);
+  background: var(--color-surface-glass);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.canvasFallback {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.loader::before {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: loader-spin 0.9s linear infinite;
+  content: "";
+}
+
+@keyframes loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader::before {
+    animation: none;
+  }
+}

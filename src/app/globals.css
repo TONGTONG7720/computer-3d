@@ -18,6 +18,15 @@
   --color-danger: #ff6474;
   --color-focus: #b7f3ff;
   --color-border: rgba(183, 243, 255, 0.14);
+  --color-border-strong: rgba(183, 243, 255, 0.28);
+  --color-primary-border: rgba(101, 230, 255, 0.38);
+  --color-success-border: rgba(91, 230, 168, 0.25);
+  --color-primary-subtle: rgba(101, 230, 255, 0.08);
+  --color-success-subtle: rgba(91, 230, 168, 0.07);
+  --color-grid-line: rgba(101, 230, 255, 0.032);
+  --color-surface-glass: rgba(8, 14, 23, 0.68);
+  --color-surface-glass-strong: rgba(8, 14, 23, 0.84);
+  --color-card-gradient: linear-gradient(145deg, rgba(22, 34, 53, 0.62), rgba(9, 15, 25, 0.72));
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -33,6 +42,7 @@
   --radius-large: 16px;
   --radius-panel: 20px;
   --shadow-depth: 0 24px 80px rgba(0, 0, 0, 0.4);
+  --shadow-glass: 0 20px 70px rgba(0, 0, 0, 0.28);
   --font-display: "Space Grotesk Variable", "Segoe UI", sans-serif;
   --font-body: "Noto Sans SC Variable", "Microsoft YaHei", sans-serif;
 }
@@ -54,6 +64,7 @@ body {
     radial-gradient(circle at 72% 28%, rgba(140, 123, 255, 0.1), transparent 28%),
     var(--color-bg-canvas);
   font-family: var(--font-body);
+  overflow: hidden;
 }
 
 button,
@@ -61,38 +72,12 @@ input {
   font: inherit;
 }
 
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
 button:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 3px;
-}
-
-.foundation-shell {
-  display: grid;
-  min-height: 100dvh;
-  place-content: center;
-  padding: var(--space-6);
-  text-align: center;
-}
-
-.foundation-shell h1 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(3rem, 8vw, 5rem);
-  font-weight: 600;
-  letter-spacing: -0.04em;
-}
-
-.foundation-shell p {
-  margin: var(--space-4) 0 0;
-  color: var(--color-text-secondary);
-}
-
-.foundation-shell .foundation-kicker {
-  margin-bottom: var(--space-3);
-  color: var(--color-primary);
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
 }

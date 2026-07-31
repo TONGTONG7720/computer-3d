@@ -159,3 +159,63 @@ export const playInstallationAnimation = (
       });
   });
 };
+
+export const playRemovalAnimation = (
+  object: Group,
+  options: InstallationOptions,
+  reducedMotion: boolean,
+): Promise<void> => {
+  const endPosition: Vector3Tuple = [
+    options.assembledPosition[0] + options.entryOffset[0] * 0.72,
+    options.assembledPosition[1] + options.entryOffset[1] * 0.72 + 0.12,
+    options.assembledPosition[2] + options.entryOffset[2] * 0.72,
+  ];
+  const endRotation: Vector3Tuple = [
+    options.assembledRotation[0] + 0.1,
+    options.assembledRotation[1] - 0.2,
+    options.assembledRotation[2] + 0.08,
+  ];
+
+  gsap.killTweensOf(object.position);
+  gsap.killTweensOf(object.rotation);
+
+  if (reducedMotion) {
+    object.position.set(...endPosition);
+    object.rotation.set(...endRotation);
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    const timeline = gsap.timeline({
+      defaults: { ease: "power3.out" },
+      onComplete: resolve,
+    });
+    timeline
+      .to(object.scale, {
+        x: 1.018,
+        y: 1.018,
+        z: 1.018,
+        duration: 0.08,
+      })
+      .to(
+        object.position,
+        {
+          x: endPosition[0],
+          y: endPosition[1],
+          z: endPosition[2],
+          duration: 0.46,
+        },
+        "<",
+      )
+      .to(
+        object.rotation,
+        {
+          x: endRotation[0],
+          y: endRotation[1],
+          z: endRotation[2],
+          duration: 0.46,
+        },
+        "<",
+      );
+  });
+};

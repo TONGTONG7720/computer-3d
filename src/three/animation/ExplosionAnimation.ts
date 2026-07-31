@@ -1,3 +1,6 @@
+import gsap from "gsap";
+import type { Group } from "three";
+import type { SceneComponent } from "../core/SceneManager";
 import type { ComponentType, Vector3Tuple } from "../models/modelManifest";
 
 export type ExplosionTransform = {
@@ -46,3 +49,83 @@ const explosionTransforms = {
 
 export const getExplosionTransform = (componentType: ComponentType): ExplosionTransform =>
   explosionTransforms[componentType];
+
+type StoredTransform = {
+  readonly position: Vector3Tuple;
+  readonly rotation: Vector3Tuple;
+};
+
+const assembledTransforms = new WeakMap<Group, StoredTransform>();
+
+const rememberAssembledTransform = (object: Group): StoredTransform => {
+  const existing = assembledTransforms.get(object);
+  if (existing !== undefined) {
+    return existing;
+  }
+
+  const transform: StoredTransform = {
+    position: [object.position.x, object.position.y, object.position.z],
+    rotation: [object.rotation.x, object.rotation.y, object.rotation.z],
+  };
+  assembledTransforms.set(object, transform);
+  return transform;
+};
+
+export const playExplosionAnimation = (
+  components: readonly SceneComponent[],
+  exploded: boolean,
+  reducedMotion: boolean,
+): Promise<void> => {
+  const animations: Promise<void>[] = [];
+
+  for (const component of components) {
+    const assembled = rememberAssembledTransform(component.object);
+    const offset = getExplosionTransform(component.slot);
+    const targetPosition: Vector3Tuple = exploded
+      ? [
+          assembled.position[0] + offset.position[0],
+          assembled.position[1] + offset.position[1],
+          assembled.position[2] + offset.position[2],
+        ]
+      : assembled.position;
+    const targetRotation: Vector3Tuple = exploded
+      ? [
+          assembled.rotation[0] + offset.rotation[0],
+          assembled.rotation[1] + offset.rotation[1],
+          assembled.rotation[2] + offset.rotation[2],
+        ]
+      : assembled.rotation;
+
+    gsap.killTweensOf(component.object.position);
+    gsap.killTweensOf(component.object.rotation);
+
+    if (reducedMotion) {
+      component.object.position.set(...targetPosition);
+      component.object.rotation.set(...targetRotation);
+      continue;
+    }
+
+    animations.push(
+      new Promise((resolve) => {
+        gsap.to(component.object.position, {
+          x: targetPosition[0],
+          y: targetPosition[1],
+          z: targetPosition[2],
+          duration: 0.9,
+          delay: component.slot === "case" ? 0 : 0.035,
+          ease: "power3.out",
+          onComplete: resolve,
+        });
+        gsap.to(component.object.rotation, {
+          x: targetRotation[0],
+          y: targetRotation[1],
+          z: targetRotation[2],
+          duration: 0.9,
+          ease: "power3.out",
+        });
+      }),
+    );
+  }
+
+  return Promise.all(animations).then(() => undefined);
+};
