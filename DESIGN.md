@@ -5,8 +5,9 @@
 - Embedded references: PC LAB 3D Product Design V2.0, Porsche-style configurator, NVIDIA future lab, Apple product presentation; execution references selected `gpt-tasteskill` + `apple` because the approved direction is cinematic, product-first, and mechanically precise.
 - Lazyweb: skipped because the user supplied a complete high-fidelity visual specification and requested implementation rather than renewed visual research.
 - Imagen drafts: skipped because the focal visual is a real-time Three.js assembly and the approved specification already defines its composition.
-- Scope: this document covers Engine V1.0 and Builder V1.0. Commerce feeds, AI chat,
-  accounts, and backend administration remain outside this phase.
+- Scope: this document covers Engine V1.0, Builder V1.0, and Hardware Platform
+  V1.0. Marketplace feeds, AI chat, accounts, and the Admin CMS frontend remain
+  outside this phase.
 
 ## 1. Atmosphere & Identity
 
@@ -194,5 +195,5 @@ Strategy: mixed tonal shift plus restrained glass.
 |---|---|---|---|
 | Procedural placeholder geometry | Engine demo | The repository contains no licensed GLB assets | Replace per component when validated GLB packages arrive |
 | Procedural environment instead of production HDR | Lighting system | No licensed HDR has been supplied | Replace through the environment manifest without changing viewer APIs |
-| Internal demo prices | Builder data | Marketplace integrations are explicitly out of scope | Replace price source behind the hardware repository boundary |
+| Internal database prices | Hardware Platform | Marketplace integrations are explicitly out of scope | Add marketplace quote providers without changing the hardware API contract |
 | Rule-based recommendations | Builder recommendation dialog | AI chat and RAG are outside Builder V1.0 | Upgrade the recommendation provider without changing the selection contract |
