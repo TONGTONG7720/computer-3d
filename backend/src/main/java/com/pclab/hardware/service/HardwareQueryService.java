@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,6 +91,7 @@ public class HardwareQueryService {
         this.viewAssembler = viewAssembler;
     }
 
+    @Cacheable(cacheNames = "hardware-list", key = "#query.cacheKey()")
     public PageView<HardwareView> findPage(HardwareQuery query) {
         LambdaQueryWrapper<HardwareEntity> wrapper = buildQuery(query);
         Page<HardwareEntity> result = hardwareMapper.selectPage(
@@ -109,11 +111,13 @@ public class HardwareQueryService {
         );
     }
 
+    @Cacheable(cacheNames = "hardware-detail", key = "#idOrKey")
     public HardwareView findDetail(String idOrKey) {
         HardwareEntity hardware = requireHardware(idOrKey);
         return toView(hardware, categoryMap());
     }
 
+    @Cacheable(cacheNames = "categories", key = "'all'")
     public List<CategoryView> findCategories() {
         return categoryMapper.selectList(
                         Wrappers.<HardwareCategoryEntity>lambdaQuery()
@@ -129,6 +133,7 @@ public class HardwareQueryService {
                 .toList();
     }
 
+    @Cacheable(cacheNames = "hardware-models", key = "#idOrKey")
     public List<HardwareModelView> findModels(String idOrKey) {
         HardwareEntity hardware = requireHardware(idOrKey);
         return modelMapper.selectList(
@@ -141,6 +146,7 @@ public class HardwareQueryService {
                 .toList();
     }
 
+    @Cacheable(cacheNames = "prices", key = "#idOrKey")
     public List<PriceView> findPrices(String idOrKey) {
         HardwareEntity hardware = requireHardware(idOrKey);
         return priceMapper.selectList(

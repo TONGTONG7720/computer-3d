@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import lombok.Data;
 
 @Data
@@ -57,8 +58,34 @@ public class HardwareQuery implements Serializable {
         return category == null ? null : category.toUpperCase(Locale.ROOT);
     }
 
+    public String cacheKey() {
+        String brands = brand == null
+                ? ""
+                : brand.stream().sorted().collect(Collectors.joining(","));
+        return String.join(
+                "|",
+                normalizedKeyword(),
+                value(normalizedCategory()),
+                brands,
+                decimalValue(minPrice),
+                decimalValue(maxPrice),
+                value(minPerformance),
+                value(page),
+                value(size),
+                value(sort)
+        );
+    }
+
     @AssertTrue(message = "minPrice 不能大于 maxPrice")
     public boolean isPriceRangeValid() {
         return minPrice == null || maxPrice == null || minPrice.compareTo(maxPrice) <= 0;
+    }
+
+    private static String decimalValue(BigDecimal value) {
+        return value == null ? "" : value.stripTrailingZeros().toPlainString();
+    }
+
+    private static String value(Object value) {
+        return value == null ? "" : value.toString();
     }
 }
