@@ -24,6 +24,14 @@ public class BestPriceAlgorithm {
         if (offers.isEmpty()) {
             throw new DomainException(ErrorCode.PRICE_OFFER_NOT_FOUND);
         }
+        if (offers.stream().anyMatch(
+                offer -> offer.finalPrice() == null || offer.finalPrice().signum() <= 0
+        )) {
+            throw new DomainException(
+                    ErrorCode.PRICE_PROMOTION_INVALID,
+                    "参与排序的到手价必须大于 0"
+            );
+        }
         RankableOffer lowest = offers.stream()
                 .min(Comparator.comparing(RankableOffer::finalPrice)
                         .thenComparing(RankableOffer::id))

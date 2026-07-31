@@ -7,21 +7,17 @@ import com.pclab.hardware.exception.ErrorCode;
 import com.pclab.hardware.mapper.ProductPriceMapper;
 import com.pclab.hardware.price.algorithm.PromotionCalculator;
 import com.pclab.hardware.price.algorithm.PromotionCalculator.PromotionInput;
+import com.pclab.hardware.price.domain.PriceRecordPolicy;
 import com.pclab.hardware.price.dto.AdminPriceRequests.UpsertOfferRequest;
 import com.pclab.hardware.price.entity.PriceHistoryEntity;
 import com.pclab.hardware.price.entity.ProductEntity;
 import com.pclab.hardware.price.mapper.PriceHistoryMapper;
 import com.pclab.hardware.price.mapper.ProductMapper;
 import com.pclab.hardware.price.vo.AdminPriceViews.OfferAdminView;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +47,8 @@ public class AdminOfferService {
     @Transactional
     @PriceCacheEviction
     public OfferAdminView createOffer(Long productId, UpsertOfferRequest request) {
-        requireProduct(productId);
+        ProductEntity product = requireProduct(productId);
+        PriceRecordPolicy.requireWritable(product.getRecordSource());
         long duplicates = priceMapper.selectCount(
                 Wrappers.<ProductPriceEntity>lambdaQuery()
                         .eq(ProductPriceEntity::getProductId, productId)
@@ -76,6 +73,7 @@ public class AdminOfferService {
     @PriceCacheEviction
     public OfferAdminView updateOffer(Long offerId, UpsertOfferRequest request) {
         ProductPriceEntity offer = requireOffer(offerId);
+        PriceRecordPolicy.requireWritable(offer.getRecordSource());
         if (request.version() == null) {
             throw new DomainException(ErrorCode.VALIDATION_FAILED, "更新报价必须提交 version");
         }
@@ -96,6 +94,7 @@ public class AdminOfferService {
     @PriceCacheEviction
     public void disableOffer(Long offerId) {
         ProductPriceEntity offer = requireOffer(offerId);
+        PriceRecordPolicy.requireWritable(offer.getRecordSource());
         offer.setIsEnabled(0);
         offer.setUpdatedAt(LocalDateTime.now(ZoneOffset.UTC));
         priceMapper.updateById(offer);
@@ -222,18 +221,4 @@ public class AdminOfferService {
         return value == null ? "" : value.trim();
     }
 
-    @CacheEvict(
-            cacheNames = {
-                    "prices",
-                    "price-comparison",
-                    "price-history",
-                    "price-build",
-                    "price-admin"
-            },
-            allEntries = true
-    )
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.RUNTIME)
-    private @interface PriceCacheEviction {
-    }
 }

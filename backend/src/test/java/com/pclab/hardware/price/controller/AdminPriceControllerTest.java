@@ -2,7 +2,9 @@ package com.pclab.hardware.price.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -12,12 +14,15 @@ import com.pclab.hardware.exception.ErrorCode;
 import com.pclab.hardware.price.domain.ProductMatch.MatchDecision;
 import com.pclab.hardware.price.dto.AdminPriceRequests;
 import com.pclab.hardware.price.service.AdminOfferService;
+import com.pclab.hardware.price.service.AdminPriceDashboardService;
 import com.pclab.hardware.price.service.AdminPriceService;
+import com.pclab.hardware.price.service.AdminProductMatchService;
 import com.pclab.hardware.price.vo.AdminPriceViews.MatchPreviewView;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -39,6 +44,12 @@ class AdminPriceControllerTest {
     @MockitoBean
     private AdminOfferService adminOfferService;
 
+    @MockitoBean
+    private AdminProductMatchService adminProductMatchService;
+
+    @MockitoBean
+    private AdminPriceDashboardService adminPriceDashboardService;
+
     @Test
     void validatesProductTitleBeforeServiceCall() throws Exception {
         mockMvc.perform(post("/api/admin/products")
@@ -53,7 +64,9 @@ class AdminPriceControllerTest {
 
     @Test
     void returnsExplainableMatchPreview() throws Exception {
-        when(adminPriceService.previewMatch(any(AdminPriceRequests.MatchPreviewRequest.class)))
+        when(adminProductMatchService.previewMatch(
+                any(AdminPriceRequests.MatchPreviewRequest.class)
+        ))
                 .thenReturn(new MatchPreviewView(
                         7L,
                         "gpu-nvidia-rtx5090",
@@ -94,6 +107,27 @@ class AdminPriceControllerTest {
                         .content(validOfferJson()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("PRICE_PROMOTION_INVALID"));
+    }
+
+    @Test
+    void forwardsCategoryAndMatchStatusFilters() throws Exception {
+        mockMvc.perform(get("/api/admin/products")
+                        .header("X-Admin-Key", "test-admin-key")
+                        .param("category", "GPU")
+                        .param("matchStatus", "CONFIRMED")
+                        .param("page", "2"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<AdminPriceRequests.ProductListQuery> queryCaptor =
+                ArgumentCaptor.forClass(AdminPriceRequests.ProductListQuery.class);
+        verify(adminPriceService).list(queryCaptor.capture());
+        AdminPriceRequests.ProductListQuery query = queryCaptor.getValue();
+        org.assertj.core.api.Assertions.assertThat(
+                query.category()
+        ).isEqualTo("GPU");
+        org.assertj.core.api.Assertions.assertThat(
+                query.matchStatus()
+        ).isEqualTo("CONFIRMED");
     }
 
     private static String validOfferJson() {

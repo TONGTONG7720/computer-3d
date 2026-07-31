@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parsePriceComparison, parsePriceHistory } from "./PriceApiClient";
+import { getOfferRedirectUrl, parsePriceComparison, parsePriceHistory } from "./PriceApiClient";
 
 const validOffer = {
   id: 41,
@@ -89,6 +89,17 @@ describe("PriceApiClient", () => {
     expect(comparison.dataMode).toBe("MANUAL");
   });
 
+  it("routes purchase tracking through the configured API path", () => {
+    const redirectPath = "/api/price-intelligence/offers/41/go";
+
+    expect(getOfferRedirectUrl(redirectPath, "http://127.0.0.1:3100/backend-api")).toBe(
+      "http://127.0.0.1:3100/backend-api/price-intelligence/offers/41/go?source=BUILDER",
+    );
+    expect(getOfferRedirectUrl(redirectPath, "http://127.0.0.1:8088/api")).toBe(
+      "http://127.0.0.1:8088/api/price-intelligence/offers/41/go?source=BUILDER",
+    );
+  });
+
   it("parses valid 30-day history points", () => {
     const history = parsePriceHistory({
       code: "OK",
@@ -96,7 +107,6 @@ describe("PriceApiClient", () => {
       data: {
         hardwareKey: "gpu-nvidia-rtx5090",
         range: "30D",
-        platform: null,
         points: [
           {
             date: "2026-07-30",
@@ -109,6 +119,7 @@ describe("PriceApiClient", () => {
             offerCount: 3,
           },
         ],
+        changes: [],
         lowestPrice: 22299,
         highestPrice: 22499,
         changePercent: -0.89,
@@ -119,7 +130,28 @@ describe("PriceApiClient", () => {
     });
 
     expect(history.range).toBe("30D");
+    expect(history.platform).toBeNull();
     expect(history.points).toHaveLength(2);
+  });
+
+  it("rejects history responses without change records", () => {
+    expect(() =>
+      parsePriceHistory({
+        code: "OK",
+        message: "success",
+        data: {
+          hardwareKey: "gpu-nvidia-rtx5090",
+          range: "30D",
+          points: [],
+          lowestPrice: null,
+          highestPrice: null,
+          changePercent: 0,
+          updatedAt: "2026-07-31T08:30:00",
+        },
+        traceId: "trace-history",
+        timestamp: "2026-07-31T08:30:01Z",
+      }),
+    ).toThrow();
   });
 
   it("rejects invalid history dates", () => {
@@ -138,6 +170,7 @@ describe("PriceApiClient", () => {
               offerCount: 1,
             },
           ],
+          changes: [],
           lowestPrice: 22299,
           highestPrice: 22299,
           changePercent: 0,

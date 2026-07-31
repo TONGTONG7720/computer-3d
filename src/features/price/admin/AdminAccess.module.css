@@ -1,0 +1,137 @@
+.accessPage {
+  position: relative;
+  display: grid;
+  min-height: 100dvh;
+  padding: var(--space-6);
+  place-items: center;
+  overflow: hidden;
+  color: var(--color-text-primary);
+  background:
+    linear-gradient(var(--color-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px),
+    radial-gradient(circle at 50% 18%, rgba(101, 230, 255, 0.13), transparent 30%),
+    var(--color-bg-canvas);
+  background-size:
+    48px 48px,
+    48px 48px,
+    auto,
+    auto;
+}
+
+.accessAtmosphere {
+  position: absolute;
+  width: min(760px, 86vw);
+  aspect-ratio: 1;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-primary-subtle), transparent 62%);
+  box-shadow: inset 0 0 100px var(--color-primary-subtle);
+  opacity: 0.72;
+}
+
+.accessAtmosphere::before,
+.accessAtmosphere::after {
+  position: absolute;
+  inset: 12%;
+  border: 1px solid var(--color-border);
+  border-radius: inherit;
+  content: "";
+}
+
+.accessAtmosphere::after {
+  inset: 28%;
+}
+
+.backLink {
+  position: absolute;
+  z-index: 2;
+  top: var(--space-6);
+  left: var(--space-6);
+  display: inline-flex;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: var(--color-primary);
+}
+
+.accessCard {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(440px, 100%);
+  padding: var(--space-10);
+  gap: var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface-glass-strong);
+  box-shadow:
+    var(--shadow-depth),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px) saturate(120%);
+}
+
+.accessIcon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-medium);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+
+.accessCard h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.accessCard > p {
+  max-width: 68ch;
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.accessCard form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.accessCard > small {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+@media (max-width: 767px) {
+  .accessPage {
+    padding: var(--space-4);
+  }
+
+  .backLink {
+    top: var(--space-3);
+    left: var(--space-3);
+  }
+
+  .accessCard {
+    padding: var(--space-6);
+  }
+
+  .accessCard h1 {
+    font-size: 28px;
+  }
+}

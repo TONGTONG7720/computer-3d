@@ -1,0 +1,151 @@
+.editorForm {
+  display: grid;
+  min-height: 100%;
+  padding: var(--space-5);
+  align-content: start;
+  gap: var(--space-4);
+}
+
+.subEditorHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.subEditorHeader > div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.subEditorHeader strong {
+  font-family: var(--font-display);
+  font-size: 16px;
+}
+
+.subEditorHeader span,
+.fieldGrid label > span,
+.promotionGrid label > span,
+.wideField > span {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 11px;
+}
+
+.fieldGrid,
+.promotionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.promotionGrid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.promotionGrid label:last-child {
+  grid-column: span 2;
+}
+
+.fieldGrid label,
+.promotionGrid label,
+.wideField {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-2);
+}
+
+.fieldGrid input,
+.fieldGrid select,
+.promotionGrid input,
+.wideField input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  color: var(--color-text-primary);
+  background: var(--color-surface-card);
+  outline: 0;
+}
+
+.fieldGrid input:focus,
+.fieldGrid select:focus,
+.promotionGrid input:focus,
+.wideField input:focus {
+  border-color: var(--color-primary-border);
+}
+
+.finalPricePreview {
+  display: grid;
+  padding: var(--space-4);
+  gap: var(--space-1);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-primary-subtle);
+}
+
+.finalPricePreview span,
+.finalPricePreview small {
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.finalPricePreview strong {
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+}
+
+.checkRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.checkRow label {
+  display: flex;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-surface-card);
+}
+
+.checkRow input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+}
+
+.checkRow label > span {
+  color: var(--color-text-secondary);
+  font-size: 11px;
+}
+
+.inlineError {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-small);
+  color: var(--color-danger);
+  background: var(--color-danger-subtle);
+  font-size: 11px;
+}
+
+@media (max-width: 767px) {
+  .editorForm {
+    padding: var(--space-4);
+  }
+  .fieldGrid {
+    grid-template-columns: 1fr;
+  }
+  .promotionGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .promotionGrid label:last-child {
+    grid-column: auto;
+  }
+}

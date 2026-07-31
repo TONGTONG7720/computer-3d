@@ -137,11 +137,7 @@ export function ComponentSelector({ onOpenPrices }: ComponentSelectorProps) {
         <div>
           <p className={styles["eyebrow"]}>COMPONENT BAY</p>
           <h1>Configure architecture</h1>
-          <span>
-            八类硬件实时联动场景
-            <br />
-            与系统指标。
-          </span>
+          <span>八类硬件实时联动。</span>
         </div>
         <div className={styles["headerActions"]}>
           <motion.button

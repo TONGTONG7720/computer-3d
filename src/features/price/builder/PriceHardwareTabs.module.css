@@ -1,0 +1,73 @@
+.hardwareTabs {
+  display: grid;
+  padding: var(--space-2) var(--space-3);
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface-panel) 82%, transparent);
+}
+
+.hardwareTabs button {
+  display: grid;
+  min-width: 0;
+  min-height: 54px;
+  padding: var(--space-2);
+  align-content: center;
+  grid-template-columns: auto 1fr;
+  gap: 1px var(--space-1);
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+  color: var(--color-text-muted);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.hardwareTabs button > span {
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.hardwareTabs button > small {
+  overflow: hidden;
+  grid-column: 1 / -1;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hardwareTabs button:hover:not(:disabled) {
+  color: var(--color-text-primary);
+  background: var(--color-surface-hover);
+}
+
+.hardwareTabs button[aria-pressed="true"] {
+  border-color: var(--color-primary-border);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+
+.hardwareTabs button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (max-width: 767px) {
+  .hardwareTabs {
+    display: flex;
+    padding: var(--space-2) var(--space-3);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .hardwareTabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hardwareTabs button {
+    min-width: 94px;
+    min-height: 48px;
+  }
+}

@@ -1,12 +1,13 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fetchAdminDashboard, fetchAdminProducts } from "../api/AdminPriceApiClient";
 import type { AdminDashboard, AdminProductPage } from "../domain/adminPrice";
 import { AdminPriceDashboard } from "./AdminPriceDashboard";
 
 vi.mock("../api/AdminPriceApiClient", () => ({
+  confirmProductMatch: vi.fn(),
   createAdminOffer: vi.fn(),
   createAdminProduct: vi.fn(),
   deleteAdminProduct: vi.fn(),
@@ -85,6 +86,10 @@ const productPage: AdminProductPage = {
 };
 
 describe("AdminPriceDashboard", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     sessionStorage.clear();
     vi.mocked(fetchAdminDashboard).mockReset();
@@ -106,6 +111,8 @@ describe("AdminPriceDashboard", () => {
     expect(await screen.findByText("华硕 RTX 5090 OC 32G")).toBeTruthy();
     expect(screen.getAllByText("过期报价")).toHaveLength(2);
     expect(screen.getByText("人工数据")).toBeTruthy();
+    expect(screen.getByText("硬件 #2")).toBeTruthy();
+    expect(screen.getByTestId("admin-overview-safe-area").textContent).toContain("价格情报控制台");
     expect(sessionStorage.getItem("pc-lab-price-admin-key")).toBe("session-secret");
   });
 
@@ -123,5 +130,57 @@ describe("AdminPriceDashboard", () => {
       expect(screen.getByRole("alert").textContent).toContain("无法加载价格数据");
     });
     expect(screen.getByRole("button", { name: "重新加载" })).toBeTruthy();
+  });
+
+  it("navigates every product page without dropping active filters", async () => {
+    const firstPage = { ...productPage, total: 28, totalPages: 2 };
+    const secondPage = { ...productPage, page: 2, total: 28, totalPages: 2, items: [] };
+    vi.mocked(fetchAdminDashboard).mockResolvedValue(dashboard);
+    vi.mocked(fetchAdminProducts)
+      .mockResolvedValueOnce(firstPage)
+      .mockResolvedValueOnce(secondPage);
+
+    render(<AdminPriceDashboard />);
+    fireEvent.change(screen.getByLabelText("Admin Key"), {
+      target: { value: "session-secret" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "进入控制台" }));
+    await screen.findByText("华硕 RTX 5090 OC 32G");
+
+    fireEvent.click(screen.getByRole("button", { name: "下一页" }));
+
+    await waitFor(() => {
+      expect(fetchAdminProducts).toHaveBeenLastCalledWith(
+        "session-secret",
+        expect.objectContaining({ page: 2 }),
+      );
+    });
+  });
+
+  it("offers a mobile filter sheet with category and match status", async () => {
+    vi.mocked(fetchAdminDashboard).mockResolvedValue(dashboard);
+    vi.mocked(fetchAdminProducts).mockResolvedValue(productPage);
+
+    render(<AdminPriceDashboard />);
+    fireEvent.change(screen.getByLabelText("Admin Key"), {
+      target: { value: "session-secret" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "进入控制台" }));
+    await screen.findByText("华硕 RTX 5090 OC 32G");
+
+    fireEvent.click(screen.getByRole("button", { name: "筛选商品" }));
+    const sheet = screen.getByRole("dialog", { name: "商品筛选" });
+    fireEvent.change(within(sheet).getByLabelText("筛选分类"), { target: { value: "GPU" } });
+    fireEvent.change(within(sheet).getByLabelText("筛选匹配状态"), {
+      target: { value: "CONFIRMED" },
+    });
+    fireEvent.click(within(sheet).getByRole("button", { name: "应用筛选" }));
+
+    await waitFor(() => {
+      expect(fetchAdminProducts).toHaveBeenLastCalledWith(
+        "session-secret",
+        expect.objectContaining({ category: "GPU", matchStatus: "CONFIRMED", page: 1 }),
+      );
+    });
   });
 });

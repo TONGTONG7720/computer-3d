@@ -1,8 +1,9 @@
 "use client";
 
-import { BadgeCheck, Link2, Plus, Save, Trash2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import {
+  confirmProductMatch,
   createAdminProduct,
   deleteAdminProduct,
   disableAdminOffer,
@@ -15,15 +16,26 @@ import type {
   MatchPreview,
   UpsertProductInput,
 } from "../domain/adminPrice";
-import { productStatusSchema } from "../domain/adminPrice";
-import styles from "./AdminPriceDashboard.module.css";
+import controls from "./AdminControls.module.css";
+import { AdminPriceHistoryDialog } from "./AdminPriceHistoryDialog";
 import { OfferEditor } from "./OfferEditor";
+import styles from "./ProductEditor.module.css";
+import { ProductEditorActions } from "./ProductEditorActions";
+import { ProductIdentityFields } from "./ProductIdentityFields";
+import { ProductMatchPanel } from "./ProductMatchPanel";
+import { ProductOfferList } from "./ProductOfferList";
+import { useOptimisticProductOffers } from "./useOptimisticProductOffers";
 
 type ProductEditorProps = {
   readonly adminKey: string;
   readonly product: AdminProduct | null;
   readonly onClose: () => void;
   readonly onChanged: (selectedProductId?: number) => void;
+};
+
+type MatchPreviewState = {
+  readonly fingerprint: string;
+  readonly value: MatchPreview;
 };
 
 const toForm = (product: AdminProduct | null): UpsertProductInput => ({
@@ -41,41 +53,52 @@ const toForm = (product: AdminProduct | null): UpsertProductInput => ({
 const toMessage = (error: unknown): string =>
   error instanceof Error ? error.message : "操作失败，请检查数据后重试。";
 
-const formatMoney = (value: number): string =>
-  new Intl.NumberFormat("zh-CN", {
-    style: "currency",
-    currency: "CNY",
-    maximumFractionDigits: 0,
-  }).format(value);
+const toMatchFingerprint = (form: UpsertProductInput): string =>
+  JSON.stringify([form.title, form.brand, form.model, form.category, form.hardwareId]);
 
 export function ProductEditor({ adminKey, product, onClose, onChanged }: ProductEditorProps) {
   const [form, setForm] = useState<UpsertProductInput>(() => toForm(product));
-  const [preview, setPreview] = useState<MatchPreview | null>(null);
+  const [previewState, setPreviewState] = useState<MatchPreviewState | null>(null);
   const [editingOffer, setEditingOffer] = useState<AdminOffer | null>(null);
   const [offerMode, setOfferMode] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState("");
+  const { productWithOffers, rememberOffer } = useOptimisticProductOffers(product);
+  const readOnly = product?.recordSource === "INTERNAL";
+  const matchFingerprint = toMatchFingerprint(form);
+  const preview = previewState?.fingerprint === matchFingerprint ? previewState.value : null;
 
-  if (offerMode && product) {
+  if (offerMode && product && !readOnly) {
     return (
       <OfferEditor
         adminKey={adminKey}
         offer={editingOffer}
         productId={product.id}
         onCancel={() => setOfferMode(false)}
-        onSaved={() => onChanged(product.id)}
+        onSaved={(savedOffer) => {
+          rememberOffer(savedOffer);
+          setEditingOffer(savedOffer);
+          setOfferMode(false);
+          onChanged(product.id);
+        }}
       />
     );
   }
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (readOnly) {
+      return;
+    }
     setSaving(true);
     setError("");
     try {
       const saved = product
         ? await updateAdminProduct(adminKey, product.id, form)
         : await createAdminProduct(adminKey, form);
+      setForm((current) => ({ ...current, version: saved.version }));
       onChanged(saved.id);
     } catch (caught) {
       setError(toMessage(caught));
@@ -91,22 +114,50 @@ export function ProductEditor({ adminKey, product, onClose, onChanged }: Product
     }
     setError("");
     try {
-      setPreview(
-        await previewProductMatch(adminKey, {
-          title: form.title,
-          brand: form.brand,
-          model: form.model,
-          category: form.category,
-          hardwareId: form.hardwareId,
-        }),
-      );
+      const value = await previewProductMatch(adminKey, {
+        title: form.title,
+        brand: form.brand,
+        model: form.model,
+        category: form.category,
+        hardwareId: form.hardwareId,
+      });
+      setPreviewState({ fingerprint: matchFingerprint, value });
     } catch (caught) {
       setError(toMessage(caught));
     }
   };
 
+  const confirmMatch = async () => {
+    if (
+      product === null ||
+      form.hardwareId === null ||
+      preview === null ||
+      preview.decision === "REJECTED" ||
+      readOnly
+    ) {
+      return;
+    }
+    setConfirming(true);
+    setError("");
+    try {
+      const confirmed = await confirmProductMatch(
+        adminKey,
+        product.id,
+        form.hardwareId,
+        form.version ?? product.version,
+      );
+      setForm((current) => ({ ...current, version: confirmed.version }));
+      setPreviewState(null);
+      onChanged(confirmed.id);
+    } catch (caught) {
+      setError(toMessage(caught));
+    } finally {
+      setConfirming(false);
+    }
+  };
+
   const removeProduct = async () => {
-    if (!product || !window.confirm(`停用商品“${product.title}”？`)) {
+    if (product === null || readOnly || !window.confirm(`停用商品“${product.title}”？`)) {
       return;
     }
     setSaving(true);
@@ -140,11 +191,11 @@ export function ProductEditor({ adminKey, product, onClose, onChanged }: Product
       <div className={styles["drawerHeader"]}>
         <div>
           <span>{product ? product.productKey : "NEW PRODUCT"}</span>
-          <h2>{product ? "编辑商品" : "创建人工商品"}</h2>
+          <h2>{readOnly ? "内部参考资料" : product ? "编辑商品" : "创建人工商品"}</h2>
         </div>
         <button
           aria-label="关闭编辑器"
-          className={styles["iconButton"]}
+          className={controls["iconButton"]}
           onClick={onClose}
           type="button"
         >
@@ -152,191 +203,41 @@ export function ProductEditor({ adminKey, product, onClose, onChanged }: Product
         </button>
       </div>
 
-      <div className={styles["fieldGrid"]}>
-        <label className={styles["spanTwo"]}>
-          <span>商品标题</span>
-          <input
-            required
-            value={form.title}
-            onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
-          />
-        </label>
-        <label>
-          <span>品牌</span>
-          <input
-            required
-            value={form.brand}
-            onChange={(event) => setForm((current) => ({ ...current, brand: event.target.value }))}
-          />
-        </label>
-        <label>
-          <span>标准型号</span>
-          <input
-            required
-            value={form.model}
-            onChange={(event) => setForm((current) => ({ ...current, model: event.target.value }))}
-          />
-        </label>
-        <label>
-          <span>分类</span>
-          <select
-            value={form.category}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                category: event.target.value,
-              }))
-            }
-          >
-            {["CPU", "GPU", "MOTHERBOARD", "RAM", "SSD", "HDD", "COOLING", "PSU", "CASE"].map(
-              (category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ),
-            )}
-          </select>
-        </label>
-        <label>
-          <span>发布状态</span>
-          <select
-            value={form.status}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                status: productStatusSchema.parse(event.target.value),
-              }))
-            }
-          >
-            <option value="DRAFT">草稿</option>
-            <option value="ACTIVE">已发布</option>
-            <option value="DISABLED">已停用</option>
-          </select>
-        </label>
-      </div>
+      {readOnly ? (
+        <p className={styles["readOnlyNote"]}>内部参考资料由硬件目录维护，此处只读。</p>
+      ) : null}
 
-      <label className={styles["wideField"]}>
-        <span>图片地址</span>
-        <input
-          placeholder="https://..."
-          type="url"
-          value={form.imageUrl}
-          onChange={(event) => setForm((current) => ({ ...current, imageUrl: event.target.value }))}
-        />
-      </label>
-      <label className={styles["wideField"]}>
-        <span>运营备注</span>
-        <textarea
-          rows={3}
-          value={form.description}
-          onChange={(event) =>
-            setForm((current) => ({
-              ...current,
-              description: event.target.value,
-            }))
-          }
-        />
-      </label>
-
-      <section className={styles["matchBlock"]}>
-        <div className={styles["sectionHeading"]}>
-          <div>
-            <span>硬件匹配</span>
-            <strong>{product?.matchStatus ?? "UNMATCHED"}</strong>
-          </div>
-          {product?.hardwareId ? (
-            <small>
-              <Link2 size={13} />
-              ID {product.hardwareId}
-            </small>
-          ) : null}
-        </div>
-        <div className={styles["matchAction"]}>
-          <label>
-            <span>硬件数据库 ID</span>
-            <input
-              min="1"
-              type="number"
-              value={form.hardwareId ?? ""}
-              onChange={(event) => {
-                const value = Number(event.target.value);
-                setForm((current) => ({
-                  ...current,
-                  hardwareId: value > 0 ? value : null,
-                }));
-              }}
-            />
-          </label>
-          <button className={styles["secondaryButton"]} onClick={runMatchPreview} type="button">
-            预览匹配
-          </button>
-        </div>
-        {preview ? (
-          <div className={styles["matchPreview"]}>
-            <div>
-              <BadgeCheck size={18} />
-              <span>
-                <strong>{Math.round(preview.confidence * 100)}%</strong>
-                {preview.decision}
-              </span>
-            </div>
-            <p>{preview.explanations.join("；")}</p>
-          </div>
-        ) : null}
-      </section>
+      <ProductIdentityFields
+        disabled={readOnly}
+        form={form}
+        onPatch={(patch) => setForm((current) => ({ ...current, ...patch }))}
+      />
+      <ProductMatchPanel
+        confirming={confirming}
+        hardwareId={form.hardwareId}
+        onConfirm={() => void confirmMatch()}
+        onHardwareIdChange={(hardwareId) => setForm((current) => ({ ...current, hardwareId }))}
+        onPreview={() => void runMatchPreview()}
+        preview={preview}
+        product={product}
+        readOnly={readOnly}
+      />
 
       {product ? (
-        <section className={styles["offerSection"]}>
-          <div className={styles["sectionHeading"]}>
-            <div>
-              <span>平台报价</span>
-              <strong>{product.offers.length} 条</strong>
-            </div>
-            <button
-              className={styles["textButton"]}
-              onClick={() => {
-                setEditingOffer(null);
-                setOfferMode(true);
-              }}
-              type="button"
-            >
-              <Plus size={15} />
-              新增报价
-            </button>
-          </div>
-          <div className={styles["offerList"]}>
-            {product.offers.map((offer) => (
-              <article className={styles["offerCard"]} key={offer.id}>
-                <button
-                  className={styles["offerMain"]}
-                  onClick={() => {
-                    setEditingOffer(offer);
-                    setOfferMode(true);
-                  }}
-                  type="button"
-                >
-                  <span>{offer.platform}</span>
-                  <strong>{formatMoney(offer.finalPrice)}</strong>
-                  <small>{offer.seller}</small>
-                </button>
-                <span className={styles["offerState"]} data-stale={offer.stale}>
-                  {offer.stale ? "过期" : offer.reviewed ? "已审核" : "待审核"}
-                </span>
-                <button
-                  aria-label={`停用 ${offer.seller} 报价`}
-                  className={styles["offerDelete"]}
-                  onClick={() => void removeOffer(offer.id)}
-                  type="button"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </article>
-            ))}
-            {product.offers.length === 0 ? (
-              <div className={styles["emptyOffers"]}>尚无平台报价</div>
-            ) : null}
-          </div>
-        </section>
+        <ProductOfferList
+          onCreate={() => {
+            setEditingOffer(null);
+            setOfferMode(true);
+          }}
+          onEdit={(offer) => {
+            setEditingOffer(offer);
+            setOfferMode(true);
+          }}
+          onOpenHistory={() => setHistoryOpen(true)}
+          onRemove={(offerId) => void removeOffer(offerId)}
+          product={productWithOffers ?? product}
+          readOnly={readOnly}
+        />
       ) : null}
 
       {error ? (
@@ -345,23 +246,22 @@ export function ProductEditor({ adminKey, product, onClose, onChanged }: Product
         </p>
       ) : null}
 
-      <div className={styles["editorActions"]}>
-        {product ? (
-          <button
-            className={styles["dangerButton"]}
-            disabled={saving}
-            onClick={() => void removeProduct()}
-            type="button"
-          >
-            <Trash2 size={15} />
-            停用商品
-          </button>
-        ) : null}
-        <button className={styles["primaryButton"]} disabled={saving} type="submit">
-          <Save size={16} />
-          {saving ? "正在保存" : product ? "保存商品" : "创建商品"}
-        </button>
-      </div>
+      {!readOnly ? (
+        <ProductEditorActions
+          editing={product !== null}
+          onRemove={() => void removeProduct()}
+          saving={saving}
+        />
+      ) : null}
+
+      {product?.hardwareId ? (
+        <AdminPriceHistoryDialog
+          hardwareId={product.hardwareId.toString()}
+          hardwareName={product.title}
+          onClose={() => setHistoryOpen(false)}
+          open={historyOpen}
+        />
+      ) : null}
     </form>
   );
 }

@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PriceComparisonService {
 
     static final String DISCLOSURE = "V1 为人工维护报价，演示数据非实时；购买前请在平台核验价格与库存。";
+    private static final BigDecimal MIN_MATCH_CONFIDENCE = new BigDecimal("0.80");
 
     private final HardwareQueryService hardwareService;
     private final ProductMapper productMapper;
@@ -142,11 +143,14 @@ public class PriceComparisonService {
     private static boolean isEligible(ProductPriceEntity offer, ProductEntity product) {
         return product != null
                 && "CONFIRMED".equals(product.getMatchStatus())
+                && product.getMatchConfidence() != null
+                && product.getMatchConfidence().compareTo(MIN_MATCH_CONFIDENCE) >= 0
                 && !"INTERNAL".equals(offer.getPlatform())
                 && offer.getIsEnabled() == 1
                 && offer.getIsReviewed() == 1
                 && "IN_STOCK".equals(offer.getStockStatus())
                 && offer.getFinalPrice() != null
+                && offer.getFinalPrice().signum() > 0
                 && offer.getCheckedAt() != null
                 && hasRedirect(offer);
     }

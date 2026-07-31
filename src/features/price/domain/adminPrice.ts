@@ -3,14 +3,22 @@ import { apiDateTimeSchema, pricePlatformSchema } from "./price";
 
 const identifierSchema = z.number().int().positive();
 const optionalUrlSchema = z.union([z.literal(""), z.url()]);
+const adminOfferPlatformSchema = z.union([pricePlatformSchema, z.literal("INTERNAL")]);
+const adminOfferShopTypeSchema = z.enum([
+  "SELF_OPERATED",
+  "BRAND_STORE",
+  "MARKETPLACE",
+  "OTHER",
+  "INTERNAL",
+]);
 
 export const adminOfferSchema = z
   .object({
     id: identifierSchema,
     productId: identifierSchema,
-    platform: pricePlatformSchema,
+    platform: adminOfferPlatformSchema,
     seller: z.string().min(1),
-    shopType: z.enum(["SELF_OPERATED", "BRAND_STORE", "MARKETPLACE"]),
+    shopType: adminOfferShopTypeSchema,
     salePrice: z.number().nonnegative(),
     couponAmount: z.number().nonnegative(),
     fullReductionAmount: z.number().nonnegative(),

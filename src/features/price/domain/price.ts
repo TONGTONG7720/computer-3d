@@ -62,12 +62,25 @@ const historyPointSchema = z
   })
   .strict();
 
+const historyChangeSchema = z
+  .object({
+    offerId: identifierSchema.nullable(),
+    platform: z.string().min(1),
+    salePrice: z.number().nonnegative(),
+    finalPrice: z.number().nonnegative(),
+    stockStatus: z.string().min(1),
+    recordSource: z.string().min(1),
+    recordedAt: apiDateTimeSchema,
+  })
+  .strict();
+
 const historyDataSchema = z
   .object({
     hardwareKey: z.string().min(1),
     range: priceRangeSchema,
-    platform: pricePlatformSchema.nullable(),
+    platform: pricePlatformSchema.nullable().optional().default(null),
     points: z.array(historyPointSchema),
+    changes: z.array(historyChangeSchema),
     lowestPrice: nullablePriceSchema,
     highestPrice: nullablePriceSchema,
     changePercent: z.number(),

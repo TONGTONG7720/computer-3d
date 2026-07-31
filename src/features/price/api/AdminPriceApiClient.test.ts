@@ -1,6 +1,10 @@
 import ky from "ky";
 import { describe, expect, it } from "vitest";
-import { fetchAdminDashboard, parseAdminProductPage } from "./AdminPriceApiClient";
+import {
+  fetchAdminDashboard,
+  fetchAdminProducts,
+  parseAdminProductPage,
+} from "./AdminPriceApiClient";
 
 const validOffer = {
   id: 41,
@@ -66,6 +70,56 @@ describe("AdminPriceApiClient", () => {
     });
 
     expect(result.items[0]?.offers[0]?.affiliateUrl).toContain("union");
+  });
+
+  it("keeps migrated internal reference prices readable", () => {
+    const result = parseAdminProductPage({
+      code: "OK",
+      message: "success",
+      data: {
+        page: 1,
+        size: 20,
+        total: 1,
+        totalPages: 1,
+        items: [
+          {
+            id: 10,
+            productKey: "internal-rtx5090",
+            hardwareId: 2,
+            title: "RTX 5090 内部参考价",
+            brand: "NVIDIA",
+            model: "RTX 5090",
+            category: "GPU",
+            imageUrl: "",
+            description: "由原硬件价格迁移生成",
+            matchConfidence: 1,
+            matchStatus: "CONFIRMED",
+            status: "ACTIVE",
+            recordSource: "INTERNAL",
+            version: 1,
+            offers: [
+              {
+                ...validOffer,
+                id: 42,
+                productId: 10,
+                platform: "INTERNAL",
+                seller: "PC LAB 内部参考价",
+                shopType: "OTHER",
+                productUrl: "",
+                affiliateUrl: "",
+                recordSource: "INTERNAL",
+              },
+            ],
+            updatedAt: "2026-07-31T08:30:00",
+          },
+        ],
+      },
+      traceId: "trace-internal",
+      timestamp: "2026-07-31T08:30:01Z",
+    });
+
+    expect(result.items[0]?.offers[0]?.platform).toBe("INTERNAL");
+    expect(result.items[0]?.offers[0]?.shopType).toBe("OTHER");
   });
 
   it("rejects invalid Admin offer ratings before rendering", () => {
@@ -146,5 +200,38 @@ describe("AdminPriceApiClient", () => {
     expect(receivedAdminKey).toBe("session-secret");
     expect(requestedUrl).toBe("https://pc-lab.test/api/admin/price-dashboard");
     expect(requestedUrl).not.toContain("session-secret");
+  });
+
+  it("sends pagination, category, and match status filters", async () => {
+    let requestedUrl = "";
+    const client = ky.create({
+      prefix: "https://pc-lab.test/api",
+      fetch: async (input, init) => {
+        const request = new Request(input, init);
+        requestedUrl = request.url;
+        return new Response(
+          JSON.stringify({
+            code: "OK",
+            message: "success",
+            data: { page: 2, size: 20, total: 28, totalPages: 2, items: [] },
+            traceId: "trace-products",
+            timestamp: "2026-07-31T08:30:01Z",
+          }),
+          { headers: { "Content-Type": "application/json" } },
+        );
+      },
+    });
+    const filters = {
+      category: "GPU",
+      matchStatus: "CONFIRMED",
+      page: 2,
+      size: 20,
+    };
+
+    await fetchAdminProducts("session-secret", filters, client);
+
+    expect(requestedUrl).toContain("page=2");
+    expect(requestedUrl).toContain("category=GPU");
+    expect(requestedUrl).toContain("matchStatus=CONFIRMED");
   });
 });

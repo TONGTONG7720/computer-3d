@@ -43,4 +43,20 @@ class AdminKeyInterceptorTest {
                         assertThat(exception.errorCode()).isEqualTo(ErrorCode.UNAUTHORIZED_ADMIN)
                 );
     }
+
+    @Test
+    void allowsCorsPreflightWithoutAdminKey() {
+        SecurityProperties properties = new SecurityProperties();
+        properties.setAdminKey("test-admin-key");
+        AdminKeyInterceptor interceptor = new AdminKeyInterceptor(properties);
+        MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/api/admin/products");
+
+        boolean accepted = interceptor.preHandle(
+                request,
+                new MockHttpServletResponse(),
+                new Object()
+        );
+
+        assertThat(accepted).isTrue();
+    }
 }

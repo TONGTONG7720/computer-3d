@@ -1,0 +1,99 @@
+.chartRoot {
+  margin-top: var(--space-5);
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.chartLine {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.chartArea {
+  stroke: none;
+}
+
+.chartPoint {
+  fill: var(--color-surface-panel);
+  stroke: var(--color-primary);
+  stroke-width: 3;
+}
+
+.chartAxis {
+  display: flex;
+  margin-top: var(--space-2);
+  justify-content: space-between;
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 11px;
+}
+
+.chartSummary {
+  display: grid;
+  margin-top: var(--space-4);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.chartSummary > span {
+  display: grid;
+  min-height: 60px;
+  padding: var(--space-2);
+  align-content: center;
+  gap: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  color: var(--color-text-muted);
+  background: var(--color-card-gradient);
+  font-size: 11px;
+}
+
+.chartSummary strong {
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chartSummary > span[data-positive="true"] strong {
+  color: var(--color-success);
+}
+
+.chartEmpty {
+  display: grid;
+  min-height: 240px;
+  margin-top: var(--space-5);
+  place-items: center;
+  align-content: center;
+  gap: var(--space-2);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-medium);
+  color: var(--color-text-muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+.chartEmpty strong {
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: 14px;
+}
+
+@media (max-width: 767px) {
+  .chartSummary {
+    gap: var(--space-1);
+  }
+
+  .chartSummary > span {
+    padding: var(--space-2) var(--space-1);
+  }
+}

@@ -30,7 +30,7 @@ PC LAB 3D feels like a precision computing laboratory rather than a store. The s
 | Hover | `--color-surface-hover` | `#1a2940` | Hover state |
 | Text primary | `--color-text-primary` | `#f5f8fc` | Titles and values |
 | Text secondary | `--color-text-secondary` | `#a9b4c3` | Body and labels |
-| Text muted | `--color-text-muted` | `#718095` | Nonessential metadata |
+| Text muted | `--color-text-muted` | `#8290a4` | AA-safe metadata and 11px telemetry |
 | Primary | `--color-primary` | `#65e6ff` | Main action and selection |
 | Primary hover | `--color-primary-hover` | `#9af0ff` | Hover |
 | Primary pressed | `--color-primary-pressed` | `#28d1f4` | Pressed |
@@ -159,8 +159,9 @@ All UI spacing derives from 4px.
   product list, and contextual editor drawer.
 - States: locked, loading, ready, filtered, empty, stale, saving, success, error.
 - Desktop: compact table with one selected product and a 420px contextual drawer.
-- Mobile: product cards with a full-screen editor; primary actions remain at
-  least 44px tall.
+- Mobile: product cards with a full-screen editor, a horizontally scrollable
+  metric rail, and a dedicated filter bottom sheet for platform, category,
+  publication state, and match state. Primary actions remain at least 44px tall.
 - Security: Admin Key is session-scoped, masked by default, and never appears in
   route state or persistent storage.
 
@@ -172,16 +173,27 @@ All UI spacing derives from 4px.
   conflict, invalid, saving, saved.
 - Final price is always shown beside the raw price and promotion breakdown.
 - Destructive actions require a named text action and never depend on icon color.
+- `INTERNAL` products and offers are immutable at both the interface and API
+  boundary; the editor presents them as reference-only records.
+- Match preview and match confirmation are distinct actions. A platform offer
+  cannot be treated as published inventory until an operator confirms its
+  hardware target.
 
 ### Price Comparison Dialog
 
-- Structure: selected hardware header, lowest-price signal, reliable-merchant
-  recommendation, offer rows, 7/30-day trend, and manual-data disclosure.
+- Structure: eight-category selected-hardware switcher, selected hardware
+  header, lowest-price signal, reliable-merchant recommendation, offer rows,
+  7/30-day trend, update time, shipping and sales details, and manual/affiliate
+  disclosure.
 - States: loading, ready, no offers, stale data, history loading, history empty,
   error.
 - Desktop: centered 920px dialog with split comparison/history regions.
-- Mobile: full-height bottom sheet with a sticky close action.
+- Mobile: full-height bottom sheet with a sticky close action and compact sticky
+  lowest-price/reliable-merchant summary beneath the category switcher.
 - Purchase links always target the internal tracked redirect endpoint.
+- Opening defaults to the configured GPU on every breakpoint. Focus moves into
+  the dialog, remains trapped while open, background content is isolated, and
+  focus returns to the launch control on close.
 
 ### Price Trend Chart
 
@@ -207,6 +219,8 @@ Rules:
 - Reduced motion uses direct placement plus a short opacity transition.
 - Every visible motion must correspond to selection, loading, replacement, or assembly state.
 - Numerical changes use tabular figures and never alter surrounding layout width.
+- Admin editor drawers enter over 240ms with opacity plus horizontal transform;
+  their midpoint must remain visually distinguishable from the settled state.
 - A replacement that is incompatible remains selectable so users can understand
   the rule, but its blocking reason is announced before save.
 

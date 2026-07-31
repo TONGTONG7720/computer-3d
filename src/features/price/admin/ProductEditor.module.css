@@ -1,0 +1,214 @@
+.editorForm {
+  display: grid;
+  min-height: 100%;
+  padding: var(--space-5);
+  align-content: start;
+  gap: var(--space-4);
+}
+
+.drawerHeader,
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.drawerHeader > div,
+.sectionHeading > div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.drawerHeader span,
+.sectionHeading span {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.07em;
+}
+
+.drawerHeader h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.fieldGrid label,
+.wideField,
+.matchAction label {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-2);
+}
+
+.fieldGrid label > span,
+.wideField > span,
+.matchAction label > span {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.fieldGrid input,
+.fieldGrid select,
+.wideField input,
+.wideField textarea,
+.matchAction input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  color: var(--color-text-primary);
+  background: var(--color-surface-card);
+  outline: 0;
+}
+
+.wideField textarea {
+  min-height: 84px;
+  padding-top: var(--space-3);
+  resize: vertical;
+}
+
+.fieldGrid input:focus,
+.fieldGrid select:focus,
+.wideField input:focus,
+.wideField textarea:focus,
+.matchAction input:focus {
+  border-color: var(--color-primary-border);
+}
+
+.fieldGrid input:disabled,
+.fieldGrid select:disabled,
+.wideField input:disabled,
+.wideField textarea:disabled,
+.matchAction input:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.spanTwo {
+  grid-column: 1 / -1;
+}
+
+.readOnlyNote {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius-small);
+  color: var(--color-warning);
+  background: var(--color-warning-subtle);
+  font-size: 12px;
+}
+
+.matchBlock {
+  display: grid;
+  padding: var(--space-4);
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-card-gradient);
+}
+
+.sectionHeading strong {
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: 12px;
+}
+
+.sectionHeading small {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-primary);
+  font-size: 10px;
+}
+
+.matchAction {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: end;
+  gap: var(--space-2);
+}
+
+.matchPreview {
+  display: grid;
+  padding: var(--space-3);
+  gap: var(--space-2);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-small);
+  background: var(--color-success-subtle);
+}
+
+.matchPreview > div {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-success);
+}
+
+.matchPreview > div > span {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+}
+
+.matchPreview strong {
+  color: var(--color-success);
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+
+.matchPreview p,
+.matchPreview small {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.inlineError {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-small);
+  color: var(--color-danger);
+  background: var(--color-danger-subtle);
+  font-size: 11px;
+}
+
+.editorActions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  padding-top: var(--space-3);
+  justify-content: space-between;
+  gap: var(--space-3);
+  background: linear-gradient(transparent, var(--color-surface-panel) 28%);
+}
+
+@media (max-width: 767px) {
+  .editorForm {
+    padding: var(--space-4);
+  }
+  .fieldGrid {
+    grid-template-columns: 1fr;
+  }
+  .spanTwo {
+    grid-column: auto;
+  }
+  .sectionHeading {
+    align-items: start;
+  }
+}

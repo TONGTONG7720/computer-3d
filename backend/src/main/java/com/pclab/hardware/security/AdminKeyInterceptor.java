@@ -26,6 +26,9 @@ public class AdminKeyInterceptor implements HandlerInterceptor {
             HttpServletResponse response,
             Object handler
     ) {
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
         String configuredKey = properties.getAdminKey();
         String submittedKey = request.getHeader(ADMIN_KEY_HEADER);
         if (configuredKey == null

@@ -49,7 +49,9 @@ const parseAdminDashboard = (payload: unknown): AdminDashboard =>
   apiEnvelope(adminDashboardSchema).parse(payload).data;
 
 export type AdminProductFilters = {
+  readonly category?: string | undefined;
   readonly keyword?: string | undefined;
+  readonly matchStatus?: string | undefined;
   readonly platform?: string | undefined;
   readonly status?: string | undefined;
   readonly page?: number | undefined;
@@ -68,6 +70,8 @@ export const fetchAdminProducts = async (
         page: filters.page ?? 1,
         size: filters.size ?? 20,
         ...(filters.keyword ? { keyword: filters.keyword } : {}),
+        ...(filters.category ? { category: filters.category } : {}),
+        ...(filters.matchStatus ? { matchStatus: filters.matchStatus } : {}),
         ...(filters.platform ? { platform: filters.platform } : {}),
         ...(filters.status ? { status: filters.status } : {}),
       },

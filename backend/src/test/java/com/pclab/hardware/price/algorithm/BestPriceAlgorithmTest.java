@@ -1,7 +1,10 @@
 package com.pclab.hardware.price.algorithm;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.pclab.hardware.exception.DomainException;
+import com.pclab.hardware.exception.ErrorCode;
 import com.pclab.hardware.price.domain.PlatformCode;
 import com.pclab.hardware.price.domain.PriceRanking;
 import com.pclab.hardware.price.domain.PriceRanking.RankableOffer;
@@ -30,6 +33,18 @@ class BestPriceAlgorithmTest {
         assertThat(result.lowest().platform()).isEqualTo(PlatformCode.PDD);
         assertThat(result.recommended().platform()).isEqualTo(PlatformCode.JD);
         assertThat(result.recommendedReason()).contains("自营", "价差");
+    }
+
+    @Test
+    void rejectsNonPositivePricesAtTheRankingBoundary() {
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+
+        assertThatThrownBy(() -> algorithm.rank(List.of(
+                offer(1L, PlatformCode.JD, "京东自营", "SELF_OPERATED",
+                        "0", 12000, "4.90", "98", now)
+        ), now)).isInstanceOfSatisfying(DomainException.class, exception ->
+                assertThat(exception.errorCode()).isEqualTo(ErrorCode.PRICE_PROMOTION_INVALID)
+        );
     }
 
     private static RankableOffer offer(

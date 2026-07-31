@@ -1,0 +1,167 @@
+.dialogBody {
+  display: grid;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+}
+
+.marketColumn,
+.historyColumn {
+  min-height: 0;
+  padding: var(--space-5);
+  overflow: auto;
+  scrollbar-color: var(--color-border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.marketColumn {
+  border-right: 1px solid var(--color-border);
+}
+
+.mobilePriceSummary {
+  display: none;
+}
+
+.priceSummary {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-card-gradient);
+}
+
+.priceSummary > div {
+  display: grid;
+  min-height: 68px;
+  padding: var(--space-3);
+  align-content: center;
+  gap: var(--space-1);
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.priceSummary > div:first-child {
+  min-height: 136px;
+  grid-row: span 2;
+}
+
+.priceSummary > div:nth-child(2),
+.priceSummary > div:nth-child(3) {
+  border-right: 0;
+}
+
+.priceSummary > div:nth-child(3) {
+  border-bottom: 0;
+}
+
+.priceSummary span {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.priceSummary strong {
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.priceSummary > div:first-child strong {
+  color: var(--color-primary);
+  font-size: 28px;
+  letter-spacing: -0.03em;
+}
+
+.offerList {
+  display: grid;
+  margin-top: var(--space-3);
+  gap: var(--space-2);
+}
+
+.noOffers {
+  display: grid;
+  min-height: 240px;
+  margin-top: var(--space-4);
+  place-items: center;
+  align-content: center;
+  gap: var(--space-2);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-medium);
+  color: var(--color-text-muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+.noOffers strong {
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: 14px;
+}
+
+@media (max-width: 767px) {
+  .dialogBody {
+    display: block;
+    overflow: auto;
+  }
+
+  .marketColumn,
+  .historyColumn {
+    overflow: visible;
+    padding: var(--space-4);
+  }
+
+  .marketColumn {
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobilePriceSummary {
+    position: sticky;
+    z-index: 2;
+    top: 0;
+    display: grid;
+    min-height: 58px;
+    margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    align-items: center;
+    grid-template-columns: auto 1fr;
+    gap: 0 var(--space-3);
+    border-bottom: 1px solid var(--color-primary-border);
+    background: color-mix(in srgb, var(--color-surface-panel) 94%, transparent);
+    backdrop-filter: blur(18px);
+  }
+
+  .mobilePriceSummary span,
+  .mobilePriceSummary small {
+    color: var(--color-text-muted);
+    font-size: 10px;
+  }
+
+  .mobilePriceSummary strong {
+    justify-self: end;
+    color: var(--color-primary);
+    font-family: var(--font-display);
+    font-size: 18px;
+  }
+
+  .mobilePriceSummary small {
+    grid-column: 1 / -1;
+  }
+
+  .priceSummary {
+    grid-template-columns: 1.15fr 1fr;
+  }
+
+  .priceSummary > div:first-child {
+    min-height: 120px;
+  }
+
+  .priceSummary > div:first-child strong {
+    font-size: 20px;
+  }
+}

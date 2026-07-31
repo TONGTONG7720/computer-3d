@@ -1,0 +1,169 @@
+.desktopToolbar,
+.mobileToolbar {
+  margin-top: var(--space-4);
+}
+
+.desktopToolbar {
+  display: grid;
+  padding: var(--space-3);
+  align-items: center;
+  grid-template-columns: minmax(220px, 1fr) auto auto auto;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(20px);
+}
+
+.mobileToolbar {
+  display: none;
+}
+
+.searchField {
+  display: flex;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  color: var(--color-text-muted);
+  background: var(--color-surface-card);
+}
+
+.searchField:focus-within {
+  border-color: var(--color-primary-border);
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+}
+
+.searchField input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  color: var(--color-text-primary);
+  background: transparent;
+  outline: 0;
+}
+
+.searchField input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.filterFields {
+  display: contents;
+}
+
+.filterFields select {
+  min-width: 112px;
+  min-height: 44px;
+  padding: 0 34px 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  color: var(--color-text-secondary);
+  background: var(--color-surface-card);
+  outline: 0;
+}
+
+.filterFields select:focus {
+  border-color: var(--color-primary-border);
+}
+
+.sheetBackdrop {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  display: none;
+  align-items: end;
+  background: var(--color-backdrop);
+  backdrop-filter: blur(12px);
+}
+
+.filterSheet {
+  width: 100%;
+  padding: var(--space-4) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  background:
+    radial-gradient(circle at 80% 0%, var(--color-primary-subtle), transparent 34%),
+    var(--color-surface-glass-strong);
+  box-shadow: var(--shadow-depth);
+  animation: filter-sheet-enter 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.filterSheet > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filterSheet > header > div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.filterSheet header small {
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.filterSheet header strong {
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+.filterSheet form {
+  display: grid;
+  margin-top: var(--space-5);
+  gap: var(--space-3);
+}
+
+.filterSheet form .filterFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+@keyframes filter-sheet-enter {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1180px) {
+  .desktopToolbar {
+    grid-template-columns: minmax(220px, 1fr) auto auto;
+  }
+
+  .desktopToolbar .filterFields select:nth-child(2),
+  .desktopToolbar .filterFields select:nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .desktopToolbar {
+    display: none;
+  }
+  .mobileToolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px 44px;
+    gap: var(--space-2);
+  }
+  .sheetBackdrop {
+    display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filterSheet {
+    animation-duration: 1ms;
+  }
+}

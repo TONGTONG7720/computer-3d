@@ -12,7 +12,11 @@ import com.pclab.hardware.price.service.PriceEventService;
 import com.pclab.hardware.price.service.PriceHistoryService;
 import com.pclab.hardware.price.vo.PriceComparisonView;
 import com.pclab.hardware.price.vo.PriceComparisonView.OfferView;
+import com.pclab.hardware.price.vo.PriceHistoryView;
+import com.pclab.hardware.price.vo.PriceHistoryView.DailyPoint;
+import com.pclab.hardware.price.vo.PriceHistoryView.HistoryRange;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -60,6 +64,31 @@ class PriceIntelligenceControllerTest {
                         .param("range", "90D"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("PRICE_RANGE_INVALID"));
+    }
+
+    @Test
+    void returnsThePublicHistoryRangeValue() throws Exception {
+        when(historyService.history("gpu", HistoryRange.SEVEN_DAYS, null))
+                .thenReturn(new PriceHistoryView(
+                        "gpu",
+                        HistoryRange.SEVEN_DAYS,
+                        null,
+                        List.of(new DailyPoint(
+                                LocalDate.of(2026, 7, 31),
+                                new BigDecimal("22299"),
+                                3
+                        )),
+                        List.of(),
+                        new BigDecimal("22299"),
+                        new BigDecimal("22299"),
+                        BigDecimal.ZERO,
+                        LocalDateTime.of(2026, 7, 31, 8, 0)
+                ));
+
+        mockMvc.perform(get("/api/price-intelligence/hardware/gpu/history")
+                        .param("range", "7D"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.range").value("7D"));
     }
 
     @Test

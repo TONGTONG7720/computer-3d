@@ -56,7 +56,12 @@ export const getOfferRedirectUrl = (
   apiUrl: string = hardwarePlatformApiUrl,
   source: "BUILDER" | "DETAIL" | "ADMIN_PREVIEW" = "BUILDER",
 ): string => {
-  const redirectUrl = new URL(redirectPath, new URL(apiUrl).origin);
+  const apiBaseUrl = new URL(`${apiUrl.replace(/\/+$/, "")}/`);
+  const redirectUrl = new URL(redirectPath, apiBaseUrl.origin);
+  const apiPath = apiBaseUrl.pathname.replace(/\/+$/, "");
+  if (apiPath && apiPath !== "/" && redirectUrl.pathname.startsWith("/api/")) {
+    redirectUrl.pathname = `${apiPath}${redirectUrl.pathname.slice("/api".length)}`;
+  }
   redirectUrl.searchParams.set("source", source);
   return redirectUrl.toString();
 };

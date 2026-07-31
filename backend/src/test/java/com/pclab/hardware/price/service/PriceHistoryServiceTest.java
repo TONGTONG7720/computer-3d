@@ -50,6 +50,8 @@ class PriceHistoryServiceTest {
                 .containsExactly(new BigDecimal("8799"), new BigDecimal("9199"));
         assertThat(result.platform()).isNull();
         assertThat(result.range()).isEqualTo(HistoryRange.THIRTY_DAYS);
+        assertThat(result.changes()).hasSize(3);
+        assertThat(result.changes().getFirst().finalPrice()).isEqualByComparingTo("9199");
     }
 
     private static PriceHistoryEntity point(
@@ -60,8 +62,12 @@ class PriceHistoryServiceTest {
     ) {
         PriceHistoryEntity history = new PriceHistoryEntity();
         history.setProductId(productId);
+        history.setOfferId(productId);
         history.setPlatform(PlatformCode.from(platform).name());
+        history.setSalePrice(new BigDecimal(price));
         history.setFinalPrice(new BigDecimal(price));
+        history.setStockStatus("IN_STOCK");
+        history.setRecordSource("MANUAL_DEMO");
         history.setRecordedAt(time);
         return history;
     }

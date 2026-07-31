@@ -77,6 +77,8 @@ public final class AdminPriceRequests {
             String keyword,
             String platform,
             String status,
+            String category,
+            String matchStatus,
             @Min(1) int page,
             @Min(1) @Max(50) int size
     ) {

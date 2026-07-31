@@ -1,0 +1,186 @@
+.backdrop {
+  position: fixed;
+  z-index: 110;
+  inset: 0;
+  display: grid;
+  padding: var(--space-6);
+  place-items: center;
+  background: var(--color-backdrop);
+  backdrop-filter: blur(14px);
+}
+
+.dialog {
+  width: min(640px, 100%);
+  max-height: calc(100dvh - var(--space-12));
+  padding: var(--space-5);
+  overflow: auto;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface-glass-strong);
+  box-shadow: var(--shadow-depth);
+}
+
+.dialog > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dialog > header > div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.dialog header small {
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.dialog h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  text-wrap: balance;
+}
+
+.rangeSwitch {
+  display: flex;
+  width: max-content;
+  margin-top: var(--space-4);
+  padding: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-surface-card);
+}
+
+.rangeSwitch button {
+  min-width: 64px;
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--radius-small);
+  color: var(--color-text-muted);
+  background: transparent;
+}
+
+.rangeSwitch button[aria-pressed="true"] {
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+
+.state {
+  display: grid;
+  min-height: 260px;
+  place-items: center;
+  align-content: center;
+  gap: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.state svg {
+  color: var(--color-primary);
+  animation: admin-history-spin 0.9s linear infinite;
+}
+
+.changeSection {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.changeHeading,
+.changeHeadingCopy,
+.changeItem,
+.changeMeta,
+.changePrice {
+  display: flex;
+}
+
+.changeHeading,
+.changeItem {
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.changeHeadingCopy,
+.changeMeta,
+.changePrice {
+  align-items: start;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.changeEyebrow {
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+
+.changeCount,
+.changeDetail,
+.changeEmpty {
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.changeList {
+  display: grid;
+  margin-top: var(--space-3);
+  gap: var(--space-2);
+}
+
+.changeItem {
+  min-height: 58px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-card-gradient);
+}
+
+.changePrice {
+  align-items: end;
+  text-align: right;
+}
+
+.changeItem strong {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.changeEmpty {
+  margin: 0;
+  padding: var(--space-4);
+  text-align: center;
+}
+
+@keyframes admin-history-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 767px) {
+  .backdrop {
+    padding: 0;
+    align-items: end;
+  }
+  .dialog {
+    width: 100%;
+    max-height: 86dvh;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .state svg {
+    animation: none;
+  }
+}

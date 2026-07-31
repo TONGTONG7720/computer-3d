@@ -1,108 +1,20 @@
 // @vitest-environment jsdom
 
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { emptySelectedComponents, parseHardwareId } from "@/features/builder/domain/hardware";
+import { emptySelectedComponents } from "@/features/builder/domain/hardware";
 import { builderStore } from "@/store/builderStore";
 import { getOfferRedirectUrl, getPriceComparison, getPriceHistory } from "../api/PriceApiClient";
 import type { PriceComparison, PriceHistory } from "../domain/price";
 import { PriceComparisonDialog } from "./PriceComparisonDialog";
+import { comparison, cpu, deferred, gpu, history, nextGpu } from "./PriceComparisonDialog.fixtures";
 
 vi.mock("../api/PriceApiClient", () => ({
   getOfferRedirectUrl: vi.fn((path: string) => `http://127.0.0.1:8088${path}?source=BUILDER`),
   getPriceComparison: vi.fn(),
   getPriceHistory: vi.fn(),
 }));
-
-const gpu = {
-  id: parseHardwareId("gpu-nvidia-rtx5090"),
-  name: "NVIDIA GeForce RTX 5090",
-  brand: "NVIDIA",
-  category: "gpu",
-  price: 23999,
-  performance: 100,
-  power: 575,
-  modelUrl: "/models/rtx5090.glb",
-  modelVariant: "rtx5090",
-  vram: 32,
-  length: 336,
-} as const;
-
-const nextGpu = {
-  ...gpu,
-  id: parseHardwareId("gpu-nvidia-rtx5080"),
-  name: "NVIDIA GeForce RTX 5080",
-};
-
-const comparison: PriceComparison = {
-  hardwareKey: "gpu-nvidia-rtx5090",
-  hardwareName: "NVIDIA GeForce RTX 5090",
-  internalReferencePrice: 23999,
-  lowestPrice: 21999,
-  lowestOfferId: 1,
-  recommendedOfferId: 2,
-  recommendedReason: "京东自营综合可信度更高",
-  priceRange: { min: 21999, max: 22699 },
-  offers: [
-    {
-      id: 1,
-      platform: "PDD",
-      platformLabel: "拼多多",
-      seller: "显卡严选店",
-      shopType: "MARKETPLACE",
-      salePrice: 21999,
-      discount: 0,
-      shipping: 0,
-      finalPrice: 21999,
-      rating: 4.6,
-      salesCount: 86,
-      trustScore: 78,
-      rankingScore: 84,
-      matchConfidence: 0.96,
-      stale: true,
-      tags: ["最低价"],
-      redirectPath: "/api/price-intelligence/offers/1/go",
-      recordSource: "MANUAL_DEMO",
-    },
-    {
-      id: 2,
-      platform: "JD",
-      platformLabel: "京东",
-      seller: "京东自营",
-      shopType: "SELF_OPERATED",
-      salePrice: 22999,
-      discount: 300,
-      shipping: 0,
-      finalPrice: 22699,
-      rating: 4.9,
-      salesCount: 428,
-      trustScore: 96,
-      rankingScore: 92,
-      matchConfidence: 0.98,
-      stale: false,
-      tags: ["自营"],
-      redirectPath: "/api/price-intelligence/offers/2/go",
-      recordSource: "MANUAL_DEMO",
-    },
-  ],
-  dataMode: "MANUAL",
-  disclosure: "平台报价由人工维护，不代表实时成交价。",
-  updatedAt: "2026-07-31T08:30:00",
-};
-
-const history: PriceHistory = {
-  hardwareKey: "gpu-nvidia-rtx5090",
-  range: "30D",
-  platform: null,
-  points: [
-    { date: "2026-07-30", minimumPrice: 22499, offerCount: 3 },
-    { date: "2026-07-31", minimumPrice: 21999, offerCount: 3 },
-  ],
-  lowestPrice: 21999,
-  highestPrice: 22499,
-  changePercent: -2.22,
-  updatedAt: "2026-07-31T08:30:00",
-};
 
 describe("PriceComparisonDialog", () => {
   afterEach(() => {
@@ -116,9 +28,10 @@ describe("PriceComparisonDialog", () => {
     vi.mocked(getPriceComparison).mockResolvedValue(comparison);
     vi.mocked(getPriceHistory).mockResolvedValue(history);
     builderStore.setState({
-      activeCategory: "gpu",
+      activeCategory: "cpu",
       selectedComponents: {
         ...emptySelectedComponents(),
+        cpu,
         gpu,
       },
     });
@@ -127,10 +40,14 @@ describe("PriceComparisonDialog", () => {
   it("distinguishes the lowest offer from the reliable recommendation", async () => {
     render(<PriceComparisonDialog onClose={vi.fn()} open />);
 
-    expect(await screen.findByText("NVIDIA GeForce RTX 5090")).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "NVIDIA GeForce RTX 5090" })).toBeTruthy();
     expect(screen.getByText("最低价")).toBeTruthy();
     expect(screen.getByText("可靠推荐")).toBeTruthy();
     expect(screen.getByText("数据可能过期")).toBeTruthy();
+    expect(screen.getAllByText(/免运费/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/销量 428/)).toBeTruthy();
+    expect(screen.getByText(/更新于/)).toBeTruthy();
+    expect(screen.getByText(/联盟跳转/)).toBeTruthy();
 
     const purchaseLink = screen.getByRole("link", { name: "前往京东购买" });
     expect(purchaseLink.getAttribute("href")).toContain("/offers/2/go?source=BUILDER");
@@ -167,7 +84,7 @@ describe("PriceComparisonDialog", () => {
 
   it("refetches when the selected hardware changes", async () => {
     render(<PriceComparisonDialog onClose={vi.fn()} open />);
-    await screen.findByText("NVIDIA GeForce RTX 5090");
+    await screen.findByRole("heading", { name: "NVIDIA GeForce RTX 5090" });
 
     builderStore.setState({
       selectedComponents: {
@@ -178,6 +95,150 @@ describe("PriceComparisonDialog", () => {
 
     await waitFor(() => {
       expect(getPriceComparison).toHaveBeenLastCalledWith("gpu-nvidia-rtx5080");
+    });
+  });
+
+  it("opens on GPU and switches across all selected hardware categories", async () => {
+    render(<PriceComparisonDialog onClose={vi.fn()} open />);
+
+    await waitFor(() => {
+      expect(getPriceComparison).toHaveBeenCalledWith("gpu-nvidia-rtx5090");
+    });
+    fireEvent.click(screen.getByRole("button", { name: "CPU · Intel Core i9-14900K" }));
+
+    await waitFor(() => {
+      expect(getPriceComparison).toHaveBeenLastCalledWith("cpu-intel-i9-14900k");
+    });
+    expect(screen.getByRole("button", { name: "GPU · NVIDIA GeForce RTX 5090" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "CPU · Intel Core i9-14900K" })).toBeTruthy();
+  });
+
+  it("ignores a slow response from the previously selected hardware", async () => {
+    const gpuRequest = deferred<PriceComparison>();
+    const cpuRequest = deferred<PriceComparison>();
+    const reliableOffer = comparison.offers.find(
+      (offer) => offer.id === comparison.recommendedOfferId,
+    );
+    if (reliableOffer === undefined) {
+      throw new Error("Price fixture requires a reliable offer");
+    }
+    vi.mocked(getPriceComparison).mockImplementation((hardwareId) =>
+      hardwareId === "cpu-intel-i9-14900k" ? cpuRequest.promise : gpuRequest.promise,
+    );
+
+    render(<PriceComparisonDialog onClose={vi.fn()} open />);
+    await waitFor(() => {
+      expect(getPriceComparison).toHaveBeenCalledWith("gpu-nvidia-rtx5090");
+    });
+    fireEvent.click(screen.getByRole("button", { name: "CPU · Intel Core i9-14900K" }));
+    cpuRequest.resolve({
+      ...comparison,
+      hardwareKey: "cpu-intel-i9-14900k",
+      hardwareName: "Intel Core i9-14900K",
+      offers: [{ ...reliableOffer, id: 7, seller: "CPU 可靠商家" }],
+      lowestOfferId: 7,
+      recommendedOfferId: 7,
+    });
+    expect((await screen.findAllByText("CPU 可靠商家")).length).toBeGreaterThan(0);
+
+    gpuRequest.resolve(comparison);
+    await waitFor(() => {
+      expect(screen.getAllByText("CPU 可靠商家").length).toBeGreaterThan(0);
+      expect(screen.queryByText("显卡严选店")).toBeNull();
+    });
+  });
+
+  it("ignores slow history from a previously selected range", async () => {
+    const thirtyDayRequest = deferred<PriceHistory>();
+    const sevenDayRequest = deferred<PriceHistory>();
+    vi.mocked(getPriceHistory).mockImplementation((_hardwareId, range) =>
+      range === "7D" ? sevenDayRequest.promise : thirtyDayRequest.promise,
+    );
+
+    render(<PriceComparisonDialog onClose={vi.fn()} open />);
+    await screen.findByRole("heading", { name: "NVIDIA GeForce RTX 5090" });
+    fireEvent.click(screen.getByRole("button", { name: "7 天" }));
+    await waitFor(() => {
+      expect(getPriceHistory).toHaveBeenLastCalledWith("gpu-nvidia-rtx5090", "7D");
+    });
+
+    sevenDayRequest.resolve({
+      ...history,
+      range: "7D",
+      points: [
+        { date: "2026-07-25", minimumPrice: 18199, offerCount: 2 },
+        { date: "2026-07-31", minimumPrice: 17999, offerCount: 3 },
+      ],
+      lowestPrice: 17999,
+      highestPrice: 18199,
+      changePercent: -9.87,
+    });
+    expect(await screen.findByText("-9.87%")).toBeTruthy();
+
+    thirtyDayRequest.resolve(history);
+    await waitFor(() => {
+      expect(screen.getByText("-9.87%")).toBeTruthy();
+      expect(screen.queryByText("-2.22%")).toBeNull();
+    });
+  });
+
+  it("reopens with the default GPU and 30-day range without stale requests", async () => {
+    function Harness() {
+      const [open, setOpen] = useState(true);
+      return (
+        <div>
+          <button onClick={() => setOpen(true)} type="button">
+            重新打开比价
+          </button>
+          <PriceComparisonDialog onClose={() => setOpen(false)} open={open} />
+        </div>
+      );
+    }
+    render(<Harness />);
+    await screen.findByRole("heading", { name: "NVIDIA GeForce RTX 5090" });
+    fireEvent.click(screen.getByRole("button", { name: "CPU · Intel Core i9-14900K" }));
+    fireEvent.click(await screen.findByRole("button", { name: "7 天" }));
+    await waitFor(() => {
+      expect(getPriceHistory).toHaveBeenLastCalledWith("cpu-intel-i9-14900k", "7D");
+    });
+    fireEvent.click(screen.getByRole("button", { name: "关闭比价" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+
+    vi.mocked(getPriceComparison).mockClear();
+    vi.mocked(getPriceHistory).mockClear();
+    fireEvent.click(screen.getByRole("button", { name: "重新打开比价" }));
+    await waitFor(() => {
+      expect(getPriceComparison).toHaveBeenCalledWith("gpu-nvidia-rtx5090");
+      expect(getPriceHistory).toHaveBeenCalledWith("gpu-nvidia-rtx5090", "30D");
+    });
+    expect(getPriceComparison).not.toHaveBeenCalledWith("cpu-intel-i9-14900k");
+    expect(getPriceHistory).not.toHaveBeenCalledWith("cpu-intel-i9-14900k", "7D");
+  });
+
+  it("traps focus and restores it to the launch control when closed", async () => {
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <div>
+          <button onClick={() => setOpen(true)} type="button">
+            打开比价
+          </button>
+          <PriceComparisonDialog onClose={() => setOpen(false)} open={open} />
+        </div>
+      );
+    }
+    render(<Harness />);
+    const launcher = screen.getByRole("button", { name: "打开比价" });
+
+    launcher.focus();
+    fireEvent.click(launcher);
+    const closeButton = await screen.findByRole("button", { name: "关闭比价" });
+    expect(document.activeElement).toBe(closeButton);
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(document.activeElement).toBe(launcher);
     });
   });
 });

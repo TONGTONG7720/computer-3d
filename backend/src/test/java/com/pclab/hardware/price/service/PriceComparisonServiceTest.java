@@ -54,6 +54,38 @@ class PriceComparisonServiceTest {
         assertThat(result.offers()).hasSize(2);
     }
 
+    @Test
+    void excludesLowConfidenceAndZeroPriceOffersBeforeRanking() {
+        HardwareQueryService hardwareService = mock(HardwareQueryService.class);
+        ProductMapper productMapper = mock(ProductMapper.class);
+        ProductPriceMapper priceMapper = mock(ProductPriceMapper.class);
+        HardwareEntity hardware = hardware();
+        when(hardwareService.requireHardware("gpu-nvidia-rtx5090")).thenReturn(hardware);
+        when(productMapper.selectActiveByHardwareId(1L)).thenReturn(List.of(
+                product(10L, "MANUAL", "0.99"),
+                product(11L, "MANUAL", "0.79"),
+                product(12L, "MANUAL", "0.99")
+        ));
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        when(priceMapper.selectByHardwareId(1L)).thenReturn(List.of(
+                offer(101L, 10L, "JD", "SELF_OPERATED", "9299", 12000, "4.9", "98", now),
+                offer(102L, 11L, "PDD", "MARKETPLACE", "1", 1800, "4.5", "80", now),
+                offer(103L, 12L, "TAOBAO", "BRAND_STORE", "0", 6500, "4.8", "91", now)
+        ));
+        PriceComparisonService service = new PriceComparisonService(
+                hardwareService,
+                productMapper,
+                priceMapper,
+                new BestPriceAlgorithm()
+        );
+
+        PriceComparisonView result = service.compareHardware("gpu-nvidia-rtx5090");
+
+        assertThat(result.lowestPrice()).isEqualByComparingTo("9299");
+        assertThat(result.offers()).extracting(PriceComparisonView.OfferView::id)
+                .containsExactly(101L);
+    }
+
     private static HardwareEntity hardware() {
         HardwareEntity hardware = new HardwareEntity();
         hardware.setId(1L);

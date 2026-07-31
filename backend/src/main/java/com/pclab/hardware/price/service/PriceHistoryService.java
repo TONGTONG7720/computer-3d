@@ -5,6 +5,7 @@ import com.pclab.hardware.price.domain.PlatformCode;
 import com.pclab.hardware.price.entity.PriceHistoryEntity;
 import com.pclab.hardware.price.mapper.PriceHistoryMapper;
 import com.pclab.hardware.price.vo.PriceHistoryView;
+import com.pclab.hardware.price.vo.PriceHistoryView.ChangePoint;
 import com.pclab.hardware.price.vo.PriceHistoryView.DailyPoint;
 import com.pclab.hardware.price.vo.PriceHistoryView.HistoryRange;
 import com.pclab.hardware.service.HardwareQueryService;
@@ -43,7 +44,7 @@ public class PriceHistoryService {
     public PriceHistoryView history(
             String idOrKey,
             HistoryRange range,
-        PlatformCode platform
+            PlatformCode platform
     ) {
         HardwareEntity hardware = hardwareService.requireHardware(idOrKey);
         LocalDateTime start = LocalDate.now(ZoneOffset.UTC)
@@ -78,6 +79,18 @@ public class PriceHistoryService {
                         entry.getValue().size()
                 ))
                 .toList();
+        List<ChangePoint> changes = history.reversed().stream()
+                .limit(12)
+                .map(point -> new ChangePoint(
+                        point.getOfferId(),
+                        point.getPlatform(),
+                        point.getSalePrice(),
+                        point.getFinalPrice(),
+                        point.getStockStatus(),
+                        point.getRecordSource(),
+                        point.getRecordedAt()
+                ))
+                .toList();
         if (points.isEmpty()) {
             return empty(hardwareKey, range, platform);
         }
@@ -101,6 +114,7 @@ public class PriceHistoryService {
                 range,
                 platform,
                 points,
+                changes,
                 lowest,
                 highest,
                 change,
@@ -117,6 +131,7 @@ public class PriceHistoryService {
                 hardwareKey,
                 range,
                 platform,
+                List.of(),
                 List.of(),
                 null,
                 null,

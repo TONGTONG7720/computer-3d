@@ -2,7 +2,8 @@
 
 import { useId } from "react";
 import type { PriceHistory } from "../domain/price";
-import styles from "./PriceComparisonDialog.module.css";
+import styles from "./PriceTrendChart.module.css";
+import { formatPriceMoney } from "./priceFormat";
 
 type PriceTrendChartProps = {
   readonly ariaLabel: string;
@@ -20,13 +21,6 @@ const width = 640;
 const height = 220;
 const insetX = 20;
 const insetY = 24;
-
-const formatMoney = (value: number): string =>
-  new Intl.NumberFormat("zh-CN", {
-    style: "currency",
-    currency: "CNY",
-    maximumFractionDigits: 0,
-  }).format(value);
 
 const toChartPoints = (history: PriceHistory): readonly ChartPoint[] => {
   const prices = history.points.map((point) => point.minimumPrice);
@@ -82,8 +76,8 @@ export function PriceTrendChart({ ariaLabel, history }: PriceTrendChartProps) {
       >
         <title>{ariaLabel}</title>
         <desc>
-          {history.range} 最低价 {formatMoney(history.lowestPrice ?? firstPoint.value)}，最高价{" "}
-          {formatMoney(history.highestPrice ?? firstPoint.value)}。
+          {history.range} 最低价 {formatPriceMoney(history.lowestPrice ?? firstPoint.value)}，最高价{" "}
+          {formatPriceMoney(history.highestPrice ?? firstPoint.value)}。
         </desc>
         <defs>
           <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
@@ -110,11 +104,11 @@ export function PriceTrendChart({ ariaLabel, history }: PriceTrendChartProps) {
       <div className={styles["chartSummary"]}>
         <span>
           区间最低
-          <strong>{formatMoney(history.lowestPrice ?? firstPoint.value)}</strong>
+          <strong>{formatPriceMoney(history.lowestPrice ?? firstPoint.value)}</strong>
         </span>
         <span>
           区间最高
-          <strong>{formatMoney(history.highestPrice ?? firstPoint.value)}</strong>
+          <strong>{formatPriceMoney(history.highestPrice ?? firstPoint.value)}</strong>
         </span>
         <span data-positive={history.changePercent <= 0}>
           区间变化

@@ -6,7 +6,9 @@ import com.pclab.hardware.price.dto.AdminPriceRequests.ProductListQuery;
 import com.pclab.hardware.price.dto.AdminPriceRequests.UpsertOfferRequest;
 import com.pclab.hardware.price.dto.AdminPriceRequests.UpsertProductRequest;
 import com.pclab.hardware.price.service.AdminOfferService;
+import com.pclab.hardware.price.service.AdminPriceDashboardService;
 import com.pclab.hardware.price.service.AdminPriceService;
+import com.pclab.hardware.price.service.AdminProductMatchService;
 import com.pclab.hardware.price.vo.AdminPriceViews.AdminDashboardView;
 import com.pclab.hardware.price.vo.AdminPriceViews.MatchPreviewView;
 import com.pclab.hardware.price.vo.AdminPriceViews.OfferAdminView;
@@ -34,13 +36,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminPriceController {
 
     private final AdminPriceService productService;
+    private final AdminProductMatchService matchService;
+    private final AdminPriceDashboardService dashboardService;
     private final AdminOfferService offerService;
 
     public AdminPriceController(
             AdminPriceService productService,
+            AdminProductMatchService matchService,
+            AdminPriceDashboardService dashboardService,
             AdminOfferService offerService
     ) {
         this.productService = productService;
+        this.matchService = matchService;
+        this.dashboardService = dashboardService;
         this.offerService = offerService;
     }
 
@@ -51,11 +59,15 @@ public class AdminPriceController {
             @Pattern(regexp = "JD|TAOBAO|PDD|TMALL|AMAZON|SUNING") String platform,
             @RequestParam(required = false)
             @Pattern(regexp = "ACTIVE|DRAFT|DISABLED") String status,
+            @RequestParam(required = false)
+            @Pattern(regexp = "CPU|GPU|MOTHERBOARD|RAM|SSD|HDD|COOLING|PSU|CASE") String category,
+            @RequestParam(required = false)
+            @Pattern(regexp = "UNMATCHED|CONFIRMED|REVIEW_REQUIRED|REJECTED") String matchStatus,
             @RequestParam(defaultValue = "1") @Min(1) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(50) int size
     ) {
         return ApiResponse.success(productService.list(
-                new ProductListQuery(keyword, platform, status, page, size)
+                new ProductListQuery(keyword, platform, status, category, matchStatus, page, size)
         ));
     }
 
@@ -84,7 +96,7 @@ public class AdminPriceController {
     ApiResponse<MatchPreviewView> previewMatch(
             @Valid @RequestBody MatchPreviewRequest request
     ) {
-        return ApiResponse.success(productService.previewMatch(request));
+        return ApiResponse.success(matchService.previewMatch(request));
     }
 
     @PostMapping("/products/{productId}/match")
@@ -92,7 +104,7 @@ public class AdminPriceController {
             @PathVariable Long productId,
             @Valid @RequestBody ConfirmMatchRequest request
     ) {
-        return ApiResponse.success(productService.confirmMatch(productId, request));
+        return ApiResponse.success(matchService.confirmMatch(productId, request));
     }
 
     @PostMapping("/products/{productId}/offers")
@@ -119,6 +131,6 @@ public class AdminPriceController {
 
     @GetMapping("/price-dashboard")
     ApiResponse<AdminDashboardView> dashboard() {
-        return ApiResponse.success(productService.dashboard());
+        return ApiResponse.success(dashboardService.dashboard());
     }
 }

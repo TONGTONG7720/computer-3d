@@ -3,20 +3,14 @@
 import { ExternalLink, ShieldCheck, TriangleAlert } from "lucide-react";
 import { getOfferRedirectUrl } from "../api/PriceApiClient";
 import type { PriceOffer } from "../domain/price";
-import styles from "./PriceComparisonDialog.module.css";
+import styles from "./PriceOfferCard.module.css";
+import { formatPriceMoney } from "./priceFormat";
 
 type PriceOfferCardProps = {
   readonly lowestOfferId: number | null;
   readonly offer: PriceOffer;
   readonly recommendedOfferId: number | null;
 };
-
-const formatMoney = (value: number): string =>
-  new Intl.NumberFormat("zh-CN", {
-    style: "currency",
-    currency: "CNY",
-    maximumFractionDigits: 0,
-  }).format(value);
 
 export function PriceOfferCard({ lowestOfferId, offer, recommendedOfferId }: PriceOfferCardProps) {
   const isLowest = offer.id === lowestOfferId;
@@ -41,14 +35,18 @@ export function PriceOfferCard({ lowestOfferId, offer, recommendedOfferId }: Pri
           {offer.shopType === "SELF_OPERATED" ? "平台自营" : "平台商家"} · 评分{" "}
           {offer.rating.toFixed(1)}
         </span>
+        <small>
+          {offer.shipping === 0 ? "免运费" : `运费 ${formatPriceMoney(offer.shipping)}`} · 销量{" "}
+          {offer.salesCount.toLocaleString("zh-CN")}
+        </small>
       </div>
       <div className={styles["offerTrust"]}>
         {offer.stale ? <TriangleAlert size={14} /> : <ShieldCheck size={14} />}
         <span>{offer.stale ? "数据可能过期" : `可信分 ${offer.trustScore.toFixed(0)}`}</span>
       </div>
       <div className={styles["offerPrice"]}>
-        {offer.discount > 0 ? <small>已优惠 {formatMoney(offer.discount)}</small> : null}
-        <strong>{formatMoney(offer.finalPrice)}</strong>
+        {offer.discount > 0 ? <small>已优惠 {formatPriceMoney(offer.discount)}</small> : null}
+        <strong>{formatPriceMoney(offer.finalPrice)}</strong>
       </div>
       <a
         aria-label={`前往${offer.platformLabel}购买`}

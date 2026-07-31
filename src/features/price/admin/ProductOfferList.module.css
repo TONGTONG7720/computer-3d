@@ -1,0 +1,145 @@
+.offerSection {
+  display: grid;
+  padding: var(--space-4);
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-card-gradient);
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.sectionHeading > div {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sectionHeading span {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sectionHeading strong {
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: 12px;
+}
+
+.sectionActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.offerList {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.offerCard {
+  display: grid;
+  min-height: 72px;
+  padding: var(--space-2);
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto 44px;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-surface-card);
+}
+
+.offerMain {
+  display: grid;
+  min-width: 0;
+  padding: var(--space-1);
+  gap: 2px;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.offerMain:disabled {
+  cursor: default;
+}
+
+.offerMain span {
+  color: var(--color-primary);
+  font-size: 10px;
+}
+
+.offerMain:disabled span {
+  color: var(--color-text-secondary);
+}
+
+.offerMain strong {
+  font-family: var(--font-display);
+  font-size: 14px;
+}
+
+.offerMain small {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.offerState {
+  padding: 4px var(--space-2);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-small);
+  color: var(--color-success);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.offerState[data-stale="true"] {
+  border-color: var(--color-warning-border);
+  color: var(--color-warning);
+}
+
+.offerDelete {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-small);
+  color: var(--color-text-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.offerDelete:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-subtle);
+}
+
+.emptyOffers {
+  padding: var(--space-4);
+  color: var(--color-text-muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .sectionHeading {
+    align-items: start;
+  }
+
+  .sectionActions {
+    flex-wrap: wrap;
+    justify-content: end;
+  }
+}

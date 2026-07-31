@@ -1,5 +1,6 @@
 package com.pclab.hardware.price.vo;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.pclab.hardware.price.domain.PlatformCode;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ public record PriceHistoryView(
         HistoryRange range,
         PlatformCode platform,
         List<DailyPoint> points,
+        List<ChangePoint> changes,
         BigDecimal lowestPrice,
         BigDecimal highestPrice,
         BigDecimal changePercent,
@@ -21,6 +23,7 @@ public record PriceHistoryView(
 
     public PriceHistoryView {
         points = List.copyOf(points);
+        changes = List.copyOf(changes);
     }
 
     public enum HistoryRange {
@@ -35,6 +38,7 @@ public record PriceHistoryView(
             this.days = days;
         }
 
+        @JsonValue
         public String apiValue() {
             return apiValue;
         }
@@ -58,6 +62,17 @@ public record PriceHistoryView(
             LocalDate date,
             BigDecimal minimumPrice,
             int offerCount
+    ) implements Serializable {
+    }
+
+    public record ChangePoint(
+            Long offerId,
+            String platform,
+            BigDecimal salePrice,
+            BigDecimal finalPrice,
+            String stockStatus,
+            String recordSource,
+            LocalDateTime recordedAt
     ) implements Serializable {
     }
 }

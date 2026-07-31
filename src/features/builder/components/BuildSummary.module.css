@@ -126,7 +126,7 @@
 .compareButton {
   display: flex;
   width: 100%;
-  min-height: 40px;
+  min-height: 44px;
   margin-top: var(--space-3);
   align-items: center;
   justify-content: center;
