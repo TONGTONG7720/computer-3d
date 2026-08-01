@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Bot, Braces, LoaderCircle, Sparkles, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { applyBuilderSelectionWithScene } from "@/features/builder/sync/BuilderEngineSync";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 import { useBuilderStore } from "@/store/builderStore";
@@ -48,12 +48,13 @@ export function AiAssistant() {
   const layerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const closeAssistant = useCallback(() => setOpen(false), []);
 
   useDialogFocus({
     dialogRef: panelRef,
     initialFocusRef: closeButtonRef,
     isolationRootRef: layerRef,
-    onClose: () => setOpen(false),
+    onClose: closeAssistant,
     open,
   });
 
@@ -147,7 +148,7 @@ export function AiAssistant() {
                   <span>{proposal ? routeLabel(proposal.route) : "READY"}</span>
                   <button
                     aria-label="关闭 AI 装机顾问"
-                    onClick={() => setOpen(false)}
+                    onClick={closeAssistant}
                     ref={closeButtonRef}
                     type="button"
                   >

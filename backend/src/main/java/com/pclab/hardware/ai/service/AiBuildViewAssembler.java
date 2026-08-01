@@ -8,6 +8,7 @@ import com.pclab.hardware.ai.vo.AiBuildView.AlternativeView;
 import com.pclab.hardware.ai.vo.AiBuildView.ComponentChangeView;
 import com.pclab.hardware.ai.vo.AiBuildView.KnowledgeSourceView;
 import com.pclab.hardware.ai.vo.AiBuildView.RequirementView;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,7 @@ public class AiBuildViewAssembler {
                 configuration.build().publicId(),
                 configuration.build().components(),
                 candidate.totalPrice(),
+                candidate.overBudget() ? candidate.budgetVariance() : BigDecimal.ZERO,
                 candidate.purposeScore(),
                 candidate.metrics().powerUsageWatt(),
                 candidate.metrics().compatibilityStatus(),

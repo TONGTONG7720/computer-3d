@@ -350,8 +350,10 @@ Request:
     "case": "case-compact-lab"
   },
   "totalPrice": 7942,
-  "score": 78,
-  "compatibility": "SUCCESS",
+  "budgetShortfall": 0,
+  "performanceScore": 78,
+  "powerUsageWatt": 443,
+  "compatibilityStatus": "SUCCESS",
   "requiresConfirmation": false,
   "assistantMessage": "已把预算优先留给显卡，并用 AM5 平台保持升级空间。",
   "componentReasons": {},
