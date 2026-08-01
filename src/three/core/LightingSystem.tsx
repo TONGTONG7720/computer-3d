@@ -13,55 +13,55 @@ export function LightingSystem({ profile }: LightingSystemProps) {
 
   return (
     <>
-      <ambientLight intensity={0.7} color={materialTokens.brushedAluminum} />
+      <ambientLight color={materialTokens.warmWhite} intensity={0.42} />
       <directionalLight
         castShadow={profile.shadows}
-        color={materialTokens.brushedAluminum}
-        intensity={3.4}
-        position={[5, 9, 7]}
+        color={materialTokens.warmWhite}
+        intensity={3.1}
+        position={[5.5, 8.5, 7.5]}
         shadow-bias={-0.0004}
         shadow-mapSize-height={profile.shadowMapSize}
         shadow-mapSize-width={profile.shadowMapSize}
       />
       <pointLight
-        color={materialTokens.cyan}
+        color={materialTokens.coldBlue}
         decay={2}
-        intensity={mobile ? 18 : 28}
-        position={[-4.5, 4.8, 4]}
+        intensity={mobile ? 15 : 24}
+        position={[-4.8, 4.6, 4.2]}
       />
       <pointLight
-        color={materialTokens.violet}
+        color={materialTokens.cyan}
         decay={2}
-        intensity={mobile ? 12 : 22}
-        position={[4.8, 5.5, -4]}
+        intensity={mobile ? 9 : 15}
+        position={[4.6, 5.2, -3.8]}
       />
       <spotLight
-        angle={0.5}
-        color={materialTokens.magenta}
+        angle={0.46}
+        color={materialTokens.warmWhite}
         decay={2}
-        intensity={mobile ? 20 : 34}
-        penumbra={0.8}
-        position={[1.5, 7.5, -4]}
+        intensity={mobile ? 17 : 28}
+        penumbra={0.86}
+        position={[1.5, 7.8, -4.2]}
         target-position={[0, 2.3, 0]}
       />
       <Environment resolution={mobile ? 32 : 64}>
         <Lightformer
-          color={materialTokens.brushedAluminum}
-          intensity={2.8}
+          color={materialTokens.warmWhite}
+          intensity={2.5}
           position={[0, 8, 0]}
           rotation-x={Math.PI / 2}
           scale={[9, 9, 1]}
         />
         <Lightformer
-          color={materialTokens.cyan}
-          intensity={3.2}
+          color={materialTokens.coldBlue}
+          intensity={2.8}
           position={[-6, 3.5, 2]}
           rotation-y={Math.PI / 2}
           scale={[5, 2, 1]}
         />
         <Lightformer
-          color={materialTokens.violet}
-          intensity={2.4}
+          color={materialTokens.brushedAluminum}
+          intensity={1.8}
           position={[6, 4, -2]}
           rotation-y={-Math.PI / 2}
           scale={[4, 2, 1]}

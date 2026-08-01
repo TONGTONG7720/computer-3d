@@ -1,0 +1,18 @@
+export const materialTokens = {
+  graphiteMetal: 0x161d27,
+  darkMetal: 0x080b10,
+  brushedAluminum: 0xaeb8c5,
+  plasticBlack: 0x11151c,
+  auroraBody: 0x21152a,
+  pcbGreen: 0x123f32,
+  pcbBlack: 0x121922,
+  copper: 0xc7793d,
+  glassTint: 0x8fdcf2,
+  cyan: 0x65e6ff,
+  violet: 0x8c7bff,
+  magenta: 0xff4fc6,
+  warning: 0xffba5c,
+  selected: 0xb7f3ff,
+  warmWhite: 0xffe5c4,
+  coldBlue: 0x69b8ff,
+} as const;
