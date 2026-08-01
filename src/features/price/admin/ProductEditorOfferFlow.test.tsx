@@ -34,6 +34,8 @@ const offer: AdminOffer = {
   salesCount: 428,
   rating: 4.9,
   sellerScore: 96,
+  deliveryScore: 88,
+  deliveryNote: "京东物流 · 已人工核验",
   currency: "CNY",
   stockStatus: "IN_STOCK",
   productUrl: "https://item.jd.com/17.html",
@@ -147,5 +149,36 @@ describe("ProductEditor offer flow", () => {
         expect.objectContaining({ version: 1 }),
       );
     });
+  });
+
+  it("submits explicit delivery evidence without synthesizing a shipping promise", async () => {
+    render(
+      <ProductEditor
+        adminKey="session-secret"
+        onChanged={vi.fn()}
+        onClose={vi.fn()}
+        product={{ ...product, offers: [] }}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "新增报价" }));
+    fireEvent.change(screen.getByLabelText("商家名称"), { target: { value: "显卡旗舰店" } });
+    fireEvent.change(screen.getByLabelText("物流可信分"), { target: { value: "92" } });
+    fireEvent.change(screen.getByLabelText("人工物流说明"), {
+      target: { value: "京东物流 · 次日达" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "创建报价" }));
+
+    await waitFor(() => {
+      expect(createAdminOffer).toHaveBeenCalledWith(
+        "session-secret",
+        9,
+        expect.objectContaining({
+          deliveryScore: 92,
+          deliveryNote: "京东物流 · 次日达",
+        }),
+      );
+    });
+    expect(screen.queryByText("保证次日达")).toBeNull();
   });
 });

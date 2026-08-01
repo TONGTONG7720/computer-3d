@@ -2,7 +2,9 @@
 
 import {
   BadgeDollarSign,
+  BellRing,
   Box,
+  CircleCheck,
   Clock3,
   Database,
   MousePointerClick,
@@ -28,10 +30,18 @@ const metrics = [
   { key: "staleOffers", label: "过期报价", icon: Clock3, tone: "warning" },
   { key: "missingCoverage", label: "缺少覆盖", icon: TriangleAlert, tone: "danger" },
   { key: "clicksLast24Hours", label: "24H 跳转", icon: MousePointerClick, tone: "neutral" },
+  { key: "activeAlertCount", label: "活跃提醒", icon: BellRing, tone: "primary" },
+  { key: "triggeredAlertCount", label: "已触发提醒", icon: CircleCheck, tone: "success" },
 ] as const satisfies ReadonlyArray<{
   readonly key: keyof Pick<
     AdminDashboard,
-    "activeProducts" | "validOffers" | "staleOffers" | "missingCoverage" | "clicksLast24Hours"
+    | "activeProducts"
+    | "validOffers"
+    | "staleOffers"
+    | "missingCoverage"
+    | "clicksLast24Hours"
+    | "activeAlertCount"
+    | "triggeredAlertCount"
   >;
   readonly label: string;
   readonly icon: typeof Database;

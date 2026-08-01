@@ -61,6 +61,8 @@ public final class AdminPriceRequests {
             @Min(0) int salesCount,
             @NotNull @DecimalMin("0") @DecimalMax("5") BigDecimal rating,
             @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal sellerScore,
+            @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal deliveryScore,
+            @Size(max = 160) String deliveryNote,
             @NotBlank @Pattern(regexp = "[A-Z]{3}") String currency,
             @NotBlank
             @Pattern(regexp = "IN_STOCK|OUT_OF_STOCK|PREORDER")

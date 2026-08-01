@@ -52,6 +52,8 @@ public final class AdminPriceViews {
             int salesCount,
             BigDecimal rating,
             BigDecimal sellerScore,
+            BigDecimal deliveryScore,
+            String deliveryNote,
             String currency,
             String stockStatus,
             String productUrl,
@@ -87,6 +89,8 @@ public final class AdminPriceViews {
             long staleOffers,
             long missingCoverage,
             long clicksLast24Hours,
+            long activeAlertCount,
+            long triggeredAlertCount,
             List<TopHardwareClickView> topClickedHardware,
             String dataMode,
             LocalDateTime generatedAt

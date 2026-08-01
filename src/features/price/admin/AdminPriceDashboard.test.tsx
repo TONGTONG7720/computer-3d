@@ -25,6 +25,8 @@ const dashboard: AdminDashboard = {
   staleOffers: 1,
   missingCoverage: 2,
   clicksLast24Hours: 14,
+  activeAlertCount: 5,
+  triggeredAlertCount: 2,
   topClickedHardware: [],
   dataMode: "MANUAL",
   generatedAt: "2026-07-31T08:30:00",
@@ -68,6 +70,8 @@ const productPage: AdminProductPage = {
           salesCount: 428,
           rating: 4.9,
           sellerScore: 96,
+          deliveryScore: 88,
+          deliveryNote: "京东物流 · 已人工核验",
           currency: "CNY",
           stockStatus: "IN_STOCK",
           productUrl: "https://item.jd.com/41.html",
@@ -110,6 +114,8 @@ describe("AdminPriceDashboard", () => {
 
     expect(await screen.findByText("华硕 RTX 5090 OC 32G")).toBeTruthy();
     expect(screen.getAllByText("过期报价")).toHaveLength(2);
+    expect(screen.getByText("活跃提醒")).toBeTruthy();
+    expect(screen.getByText("已触发提醒")).toBeTruthy();
     expect(screen.getByText("人工数据")).toBeTruthy();
     expect(screen.getByText("硬件 #2")).toBeTruthy();
     expect(screen.getByTestId("admin-overview-safe-area").textContent).toContain("价格情报控制台");

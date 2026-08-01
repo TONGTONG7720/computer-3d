@@ -29,6 +29,8 @@ export const adminOfferSchema = z
     salesCount: z.number().int().nonnegative(),
     rating: z.number().min(0).max(5),
     sellerScore: z.number().min(0).max(100),
+    deliveryScore: z.number().min(0).max(100),
+    deliveryNote: z.string().max(160),
     currency: z.string().length(3),
     stockStatus: z.enum(["IN_STOCK", "OUT_OF_STOCK", "PREORDER"]),
     productUrl: optionalUrlSchema,
@@ -70,6 +72,8 @@ export const adminDashboardSchema = z
     staleOffers: z.number().int().nonnegative(),
     missingCoverage: z.number().int().nonnegative(),
     clicksLast24Hours: z.number().int().nonnegative(),
+    activeAlertCount: z.number().int().nonnegative(),
+    triggeredAlertCount: z.number().int().nonnegative(),
     topClickedHardware: z.array(
       z
         .object({
@@ -141,6 +145,8 @@ export type UpsertOfferInput = {
   readonly salesCount: number;
   readonly rating: number;
   readonly sellerScore: number;
+  readonly deliveryScore: number;
+  readonly deliveryNote: string;
   readonly currency: string;
   readonly stockStatus: "IN_STOCK" | "OUT_OF_STOCK" | "PREORDER";
   readonly productUrl: string;

@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +52,7 @@ public class PriceAlertService {
 
     @Transactional
     @CacheEvict(cacheNames = ALERT_CACHE, key = HASHED_OWNER_KEY)
+    @Caching(evict = @CacheEvict(cacheNames = "price-admin", key = "'dashboard'"))
     public PriceAlertView upsert(
             String ownerToken,
             String hardwareKey,
@@ -93,6 +95,7 @@ public class PriceAlertService {
 
     @Transactional
     @CacheEvict(cacheNames = ALERT_CACHE, key = HASHED_OWNER_KEY)
+    @Caching(evict = @CacheEvict(cacheNames = "price-admin", key = "'dashboard'"))
     public void cancel(String ownerToken, String publicId) {
         String ownerHash = ownerHasher.hash(ownerToken);
         int updated = alertMapper.pauseOwnedAlert(
@@ -110,6 +113,11 @@ public class PriceAlertService {
             allEntries = true,
             condition = "#result > 0"
     )
+    @Caching(evict = @CacheEvict(
+            cacheNames = "price-admin",
+            key = "'dashboard'",
+            condition = "#result > 0"
+    ))
     public int reevaluateActiveAlerts() {
         int updatedCount = 0;
         for (PriceAlertEntity alert : alertMapper.selectActiveAlerts()) {
@@ -176,4 +184,5 @@ public class PriceAlertService {
                 alert.getUpdatedAt()
         );
     }
+
 }

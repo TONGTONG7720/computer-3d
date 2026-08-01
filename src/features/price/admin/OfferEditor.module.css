@@ -75,6 +75,12 @@
   border-color: var(--color-primary-border);
 }
 
+.fieldHint {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
 .finalPricePreview {
   display: grid;
   padding: var(--space-4);

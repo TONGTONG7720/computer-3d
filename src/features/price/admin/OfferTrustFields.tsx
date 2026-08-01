@@ -45,6 +45,18 @@ export function OfferTrustFields({ form, onPatch }: OfferTrustFieldsProps) {
           />
         </label>
         <label>
+          <span>物流可信分</span>
+          <input
+            max="100"
+            min="0"
+            required
+            step="0.1"
+            type="number"
+            value={form.deliveryScore}
+            onChange={(event) => onPatch({ deliveryScore: Number(event.target.value) || 0 })}
+          />
+        </label>
+        <label>
           <span>库存</span>
           <select
             value={form.stockStatus}
@@ -58,6 +70,20 @@ export function OfferTrustFields({ form, onPatch }: OfferTrustFieldsProps) {
           </select>
         </label>
       </div>
+      <label className={styles["wideField"]}>
+        <span>人工物流说明</span>
+        <input
+          aria-describedby="delivery-note-hint"
+          maxLength={160}
+          placeholder="仅记录管理员已核验的信息"
+          type="text"
+          value={form.deliveryNote}
+          onChange={(event) => onPatch({ deliveryNote: event.target.value })}
+        />
+      </label>
+      <small className={styles["fieldHint"]} id="delivery-note-hint">
+        原样展示人工说明，不自动生成到达承诺。
+      </small>
       <label className={styles["wideField"]}>
         <span>商品链接</span>
         <input

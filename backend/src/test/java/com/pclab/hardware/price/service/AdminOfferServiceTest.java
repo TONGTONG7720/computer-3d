@@ -1,6 +1,8 @@
 package com.pclab.hardware.price.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,6 +15,7 @@ import com.pclab.hardware.price.dto.AdminPriceRequests.UpsertOfferRequest;
 import com.pclab.hardware.price.entity.ProductEntity;
 import com.pclab.hardware.price.mapper.PriceHistoryMapper;
 import com.pclab.hardware.price.mapper.ProductMapper;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
 class AdminOfferServiceTest {
@@ -62,6 +65,28 @@ class AdminOfferServiceTest {
                 );
     }
 
+    @Test
+    void roundTripsDeliveryEvidenceWhenCreatingAnOffer() {
+        ProductMapper productMapper = mock(ProductMapper.class);
+        ProductEntity product = new ProductEntity();
+        product.setId(7L);
+        product.setRecordSource("MANUAL");
+        when(productMapper.selectById(7L)).thenReturn(product);
+        ProductPriceMapper priceMapper = mock(ProductPriceMapper.class);
+        when(priceMapper.selectCount(any())).thenReturn(0L);
+        when(priceMapper.insert(any(ProductPriceEntity.class))).thenAnswer(invocation -> {
+            ProductPriceEntity saved = invocation.getArgument(0);
+            saved.setId(17L);
+            return 1;
+        });
+        AdminOfferService service = service(productMapper, priceMapper);
+
+        var saved = service.createOffer(7L, offerRequest());
+
+        assertThat(saved.deliveryScore()).isEqualByComparingTo("92");
+        assertThat(saved.deliveryNote()).isEqualTo("京东物流 · 次日达");
+    }
+
     private static AdminOfferService service(
             ProductMapper productMapper,
             ProductPriceMapper priceMapper
@@ -80,5 +105,31 @@ class AdminOfferServiceTest {
         product.setId(7L);
         product.setRecordSource("INTERNAL");
         return product;
+    }
+
+    private static UpsertOfferRequest offerRequest() {
+        return new UpsertOfferRequest(
+                "JD",
+                "京东自营",
+                "SELF_OPERATED",
+                new BigDecimal("9299"),
+                new BigDecimal("100"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                3200,
+                new BigDecimal("4.9"),
+                new BigDecimal("98"),
+                new BigDecimal("92"),
+                "京东物流 · 次日达",
+                "CNY",
+                "IN_STOCK",
+                "",
+                "",
+                true,
+                false,
+                null
+        );
     }
 }

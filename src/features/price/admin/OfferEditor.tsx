@@ -33,6 +33,8 @@ const toForm = (offer: AdminOffer | null): UpsertOfferInput => ({
   salesCount: offer?.salesCount ?? 0,
   rating: offer?.rating ?? 4.8,
   sellerScore: offer?.sellerScore ?? 90,
+  deliveryScore: offer?.deliveryScore ?? 70,
+  deliveryNote: offer?.deliveryNote ?? "",
   currency: offer?.currency ?? "CNY",
   stockStatus: offer?.stockStatus ?? "IN_STOCK",
   productUrl: offer?.productUrl ?? "",

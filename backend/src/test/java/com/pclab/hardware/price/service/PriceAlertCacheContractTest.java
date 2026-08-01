@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 
 class PriceAlertCacheContractTest {
 
@@ -28,6 +29,7 @@ class PriceAlertCacheContractTest {
                 BigDecimal.class
         );
         assertHashedOwnerEviction(upsert.getAnnotation(CacheEvict.class));
+        assertDashboardEviction(upsert, "");
 
         Method cancel = PriceAlertService.class.getMethod(
                 "cancel",
@@ -35,6 +37,7 @@ class PriceAlertCacheContractTest {
                 String.class
         );
         assertHashedOwnerEviction(cancel.getAnnotation(CacheEvict.class));
+        assertDashboardEviction(cancel, "");
     }
 
     @Test
@@ -46,11 +49,23 @@ class PriceAlertCacheContractTest {
         assertThat(eviction.allEntries()).isTrue();
         assertThat(eviction.beforeInvocation()).isFalse();
         assertThat(eviction.condition()).isEqualTo("#result > 0");
+        assertDashboardEviction(reevaluate, "#result > 0");
     }
 
     private static void assertHashedOwnerEviction(CacheEvict eviction) {
         assertThat(eviction.cacheNames()).containsExactly("price-alerts");
         assertThat(eviction.key()).isEqualTo(HASHED_OWNER_KEY);
         assertThat(eviction.beforeInvocation()).isFalse();
+    }
+
+    private static void assertDashboardEviction(Method method, String condition) {
+        Caching caching = method.getAnnotation(Caching.class);
+        assertThat(caching).isNotNull();
+        assertThat(caching.evict()).singleElement().satisfies(eviction -> {
+            assertThat(eviction.cacheNames()).containsExactly("price-admin");
+            assertThat(eviction.key()).isEqualTo("'dashboard'");
+            assertThat(eviction.condition()).isEqualTo(condition);
+            assertThat(eviction.beforeInvocation()).isFalse();
+        });
     }
 }

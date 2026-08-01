@@ -5,8 +5,10 @@ import com.pclab.hardware.entity.HardwareEntity;
 import com.pclab.hardware.entity.ProductPriceEntity;
 import com.pclab.hardware.mapper.HardwareMapper;
 import com.pclab.hardware.mapper.ProductPriceMapper;
+import com.pclab.hardware.price.entity.PriceAlertEntity;
 import com.pclab.hardware.price.entity.PriceClickEventEntity;
 import com.pclab.hardware.price.entity.ProductEntity;
+import com.pclab.hardware.price.mapper.PriceAlertMapper;
 import com.pclab.hardware.price.mapper.PriceClickEventMapper;
 import com.pclab.hardware.price.mapper.ProductMapper;
 import com.pclab.hardware.price.mapper.TopHardwareClickRow;
@@ -26,17 +28,20 @@ public class AdminPriceDashboardService {
     private final ProductPriceMapper priceMapper;
     private final PriceClickEventMapper clickMapper;
     private final HardwareMapper hardwareMapper;
+    private final PriceAlertMapper alertMapper;
 
     public AdminPriceDashboardService(
             ProductMapper productMapper,
             ProductPriceMapper priceMapper,
             PriceClickEventMapper clickMapper,
-            HardwareMapper hardwareMapper
+            HardwareMapper hardwareMapper,
+            PriceAlertMapper alertMapper
     ) {
         this.productMapper = productMapper;
         this.priceMapper = priceMapper;
         this.clickMapper = clickMapper;
         this.hardwareMapper = hardwareMapper;
+        this.alertMapper = alertMapper;
     }
 
     @Cacheable(cacheNames = "price-admin", key = "'dashboard'")
@@ -64,6 +69,14 @@ public class AdminPriceDashboardService {
                 Wrappers.<PriceClickEventEntity>lambdaQuery()
                         .ge(PriceClickEventEntity::getClickedAt, now.minusHours(24))
         );
+        long activeAlerts = alertMapper.selectCount(
+                Wrappers.<PriceAlertEntity>lambdaQuery()
+                        .eq(PriceAlertEntity::getStatus, "ACTIVE")
+        );
+        long triggeredAlerts = alertMapper.selectCount(
+                Wrappers.<PriceAlertEntity>lambdaQuery()
+                        .eq(PriceAlertEntity::getStatus, "TRIGGERED")
+        );
         List<TopHardwareClickView> top = clickMapper.selectTopHardware(now.minusDays(30), 5)
                 .stream()
                 .map(AdminPriceDashboardService::toTopClick)
@@ -74,6 +87,8 @@ public class AdminPriceDashboardService {
                 staleOffers,
                 Math.max(0, activeHardware - productMapper.countCoveredHardware()),
                 clicks,
+                activeAlerts,
+                triggeredAlerts,
                 top,
                 "MANUAL",
                 now
