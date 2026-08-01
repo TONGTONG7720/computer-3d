@@ -22,10 +22,7 @@ describe("PriceApiClient alerts", () => {
       hardwareKey: "gpu-nvidia-rtx5090",
       hardwareName: "NVIDIA GeForce RTX 5090",
       targetPrice: 19_999,
-      currentBestPrice: 21_999,
       status: "ACTIVE",
-      triggeredAt: null,
-      checkedAt: "2026-08-02T08:30:00",
       updatedAt: "2026-08-02T08:30:00",
     };
     const envelope = (data: unknown) =>
@@ -54,9 +51,20 @@ describe("PriceApiClient alerts", () => {
       },
     });
 
-    await upsertPriceAlert("gpu-nvidia-rtx5090", 19_999, owner, client);
-    await getPriceAlerts(owner, client);
+    const created = await upsertPriceAlert("gpu-nvidia-rtx5090", 19_999, owner, client);
+    const listed = await getPriceAlerts(owner, client);
     await deletePriceAlert(publicId, owner, client);
+
+    expect(created).toMatchObject({
+      currentBestPrice: null,
+      triggeredAt: null,
+      checkedAt: null,
+    });
+    expect(listed[0]).toMatchObject({
+      currentBestPrice: null,
+      triggeredAt: null,
+      checkedAt: null,
+    });
 
     expect(requests).toEqual([
       {

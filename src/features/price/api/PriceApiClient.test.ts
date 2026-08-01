@@ -88,6 +88,40 @@ describe("PriceApiClient", () => {
     expect(quote.components[0]?.internalReferencePrice).toBeNull();
   });
 
+  it("normalizes omitted nullable quote fields from the backend to null", () => {
+    const quote = parseBuildQuote({
+      code: "OK",
+      message: "success",
+      data: {
+        components: [
+          {
+            hardwareKey: "ram-ddr5-64gb",
+            hardwareName: "DDR5 64GB",
+            internalReferencePrice: 1_499,
+          },
+        ],
+        internalTotal: 1_499,
+        lowestTotal: 0,
+        recommendedTotal: 0,
+        savings: 0,
+        pricedComponentCount: 0,
+        componentCount: 1,
+        complete: false,
+        disclosure: "V1 为人工维护报价。",
+        updatedAt: "2026-08-02T08:30:00",
+      },
+      traceId: "trace-build-quote-unpriced",
+      timestamp: "2026-08-02T08:30:01Z",
+    });
+
+    expect(quote.components[0]).toMatchObject({
+      internalReferencePrice: 1_499,
+      lowestPrice: null,
+      recommendedPrice: null,
+      recommendedOfferId: null,
+    });
+  });
+
   it("parses a valid public comparison without exposing marketplace URLs", () => {
     const comparison = parsePriceComparison(validComparison);
 
@@ -128,6 +162,29 @@ describe("PriceApiClient", () => {
 
     expect(comparison.lowestPrice).toBeNull();
     expect(comparison.dataMode).toBe("MANUAL");
+  });
+
+  it("normalizes omitted nullable comparison fields to null", () => {
+    const comparison = parsePriceComparison({
+      ...validComparison,
+      data: {
+        hardwareKey: validComparison.data.hardwareKey,
+        hardwareName: validComparison.data.hardwareName,
+        internalReferencePrice: validComparison.data.internalReferencePrice,
+        recommendedReason: validComparison.data.recommendedReason,
+        offers: [],
+        dataMode: validComparison.data.dataMode,
+        disclosure: validComparison.data.disclosure,
+      },
+    });
+
+    expect(comparison).toMatchObject({
+      lowestPrice: null,
+      lowestOfferId: null,
+      recommendedOfferId: null,
+      priceRange: null,
+      updatedAt: null,
+    });
   });
 
   it("routes purchase tracking through the configured API path", () => {

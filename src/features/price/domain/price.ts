@@ -6,8 +6,10 @@ export const priceRangeSchema = z.enum(["7D", "30D", "90D"]);
 export const apiDateTimeSchema = z.iso.datetime({ local: true });
 export const priceAlertOwnerSchema = z.uuid().brand<"PriceAlertOwner">();
 
-const nullablePriceSchema = z.number().nonnegative().nullable();
+const nullablePriceSchema = z.number().nonnegative().nullable().optional().default(null);
 const identifierSchema = z.number().int().positive();
+const nullableIdentifierSchema = identifierSchema.nullable().optional().default(null);
+const nullableDateTimeSchema = apiDateTimeSchema.nullable().optional().default(null);
 
 export const priceOfferSchema = z.strictObject({
   id: identifierSchema,
@@ -37,19 +39,21 @@ const comparisonDataSchema = z.strictObject({
   hardwareName: z.string().min(1),
   internalReferencePrice: z.number().nonnegative(),
   lowestPrice: nullablePriceSchema,
-  lowestOfferId: identifierSchema.nullable(),
-  recommendedOfferId: identifierSchema.nullable(),
+  lowestOfferId: nullableIdentifierSchema,
+  recommendedOfferId: nullableIdentifierSchema,
   recommendedReason: z.string().min(1),
   priceRange: z
     .strictObject({
       min: z.number().nonnegative(),
       max: z.number().nonnegative(),
     })
-    .nullable(),
+    .nullable()
+    .optional()
+    .default(null),
   offers: z.array(priceOfferSchema),
   dataMode: z.enum(["MANUAL", "LIVE", "HYBRID"]),
   disclosure: z.string().min(1),
-  updatedAt: apiDateTimeSchema.nullable(),
+  updatedAt: nullableDateTimeSchema,
 });
 
 const historyPointSchema = z.strictObject({
@@ -59,7 +63,7 @@ const historyPointSchema = z.strictObject({
 });
 
 const historyChangeSchema = z.strictObject({
-  offerId: identifierSchema.nullable(),
+  offerId: nullableIdentifierSchema,
   platform: z.string().min(1),
   salePrice: z.number().nonnegative(),
   finalPrice: z.number().nonnegative(),
@@ -86,7 +90,7 @@ const componentQuoteSchema = z.strictObject({
   internalReferencePrice: nullablePriceSchema,
   lowestPrice: nullablePriceSchema,
   recommendedPrice: nullablePriceSchema,
-  recommendedOfferId: identifierSchema.nullable(),
+  recommendedOfferId: nullableIdentifierSchema,
 });
 
 const buildQuoteDataSchema = z.strictObject({
@@ -109,8 +113,8 @@ export const priceAlertSchema = z.strictObject({
   targetPrice: z.number().min(0.01).max(9_999_999.99),
   currentBestPrice: nullablePriceSchema,
   status: z.enum(["ACTIVE", "TRIGGERED"]),
-  triggeredAt: apiDateTimeSchema.nullable(),
-  checkedAt: apiDateTimeSchema.nullable(),
+  triggeredAt: nullableDateTimeSchema,
+  checkedAt: nullableDateTimeSchema,
   updatedAt: apiDateTimeSchema,
 });
 
