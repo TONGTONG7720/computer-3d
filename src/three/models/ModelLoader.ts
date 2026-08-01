@@ -113,26 +113,29 @@ export class ThreeModelLoaderPort implements ModelLoaderPort {
   }
 }
 
-const disposeTexture = (texture: Texture | null): void => {
-  texture?.dispose();
-};
-
-const disposeMaterial = (material: Material): void => {
+const collectMaterialTextures = (material: Material, textures: Set<Texture>): void => {
   if (material instanceof MeshStandardMaterial) {
-    disposeTexture(material.map);
-    disposeTexture(material.normalMap);
-    disposeTexture(material.roughnessMap);
-    disposeTexture(material.metalnessMap);
-    disposeTexture(material.emissiveMap);
-    disposeTexture(material.alphaMap);
-    disposeTexture(material.aoMap);
+    const candidates = [
+      material.map,
+      material.normalMap,
+      material.roughnessMap,
+      material.metalnessMap,
+      material.emissiveMap,
+      material.alphaMap,
+      material.aoMap,
+    ];
+    for (const texture of candidates) {
+      if (texture !== null) {
+        textures.add(texture);
+      }
+    }
   }
-  material.dispose();
 };
 
 export const disposeModelResources = (root: Object3D): void => {
   const geometries = new Set<Mesh["geometry"]>();
   const materials = new Set<Material>();
+  const textures = new Set<Texture>();
 
   root.traverse((object) => {
     if (!(object instanceof Mesh)) {
@@ -153,7 +156,11 @@ export const disposeModelResources = (root: Object3D): void => {
     geometry.dispose();
   }
   for (const material of materials) {
-    disposeMaterial(material);
+    collectMaterialTextures(material, textures);
+    material.dispose();
+  }
+  for (const texture of textures) {
+    texture.dispose();
   }
 };
 
@@ -214,6 +221,7 @@ export class ModelLoader {
   }
 
   private async loadTemplate(manifest: ModelManifest): Promise<void> {
+    let latestProgress = 0;
     this.emit({
       status: "loading",
       assetId: manifest.assetId,
@@ -222,10 +230,14 @@ export class ModelLoader {
 
     try {
       const loaded = await this.port.loadAsync(manifest.url, (event) => {
+        const measuredProgress = event.total > 0 ? event.loaded / event.total : undefined;
+        if (measuredProgress !== undefined) {
+          latestProgress = Math.max(latestProgress, Math.min(measuredProgress, 1));
+        }
         this.emit({
           status: "loading",
           assetId: manifest.assetId,
-          progress: event.total > 0 ? event.loaded / event.total : undefined,
+          progress: measuredProgress === undefined ? undefined : latestProgress,
         });
       });
       loaded.scene.name = `TPL_${manifest.componentType.toUpperCase()}_${manifest.assetId}`;
