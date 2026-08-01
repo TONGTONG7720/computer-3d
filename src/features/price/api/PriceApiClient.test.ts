@@ -61,7 +61,7 @@ describe("PriceApiClient", () => {
           {
             hardwareKey: "gpu-nvidia-rtx5090",
             hardwareName: "NVIDIA GeForce RTX 5090",
-            internalReferencePrice: 23_999,
+            internalReferencePrice: null,
             lowestPrice: 22_599,
             recommendedPrice: 22_699,
             recommendedOfferId: 41,
@@ -83,6 +83,7 @@ describe("PriceApiClient", () => {
 
     expect(quote.internalTotal).toBe(23_999);
     expect(quote.savings).toBe(1_400);
+    expect(quote.components[0]?.internalReferencePrice).toBeNull();
   });
 
   it("parses a valid public comparison without exposing marketplace URLs", () => {

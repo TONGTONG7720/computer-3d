@@ -4,6 +4,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testi
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { hardwareByCategory, mockHardware } from "@/features/builder/data/mockHardware";
 import { BuilderStoreProvider } from "@/features/builder/store/BuilderStoreProvider";
+import { formatPriceMoney } from "@/features/price/builder/priceFormat";
 import { createBuilderStore } from "@/store/builderStore";
 import { BuildPanel } from "./BuildPanel";
 
@@ -65,6 +66,7 @@ describe("BuildPanel", () => {
 
   it("shows the typed purchase summary and opens the purchase plans", () => {
     const store = createBuilderStore({ initialCatalogue: mockHardware });
+    const localTotal = store.getState().totalPrice;
     const onOpenPrices = vi.fn();
 
     render(
@@ -74,7 +76,7 @@ describe("BuildPanel", () => {
           quoteState={{
             quote: {
               components: [],
-              internalTotal: 56_999,
+              internalTotal: localTotal + 10_000,
               lowestTotal: 55_599,
               recommendedTotal: 55_899,
               savings: 1_400,
@@ -91,9 +93,12 @@ describe("BuildPanel", () => {
       </BuilderStoreProvider>,
     );
 
-    expect(screen.getByText("内部参考")).toBeTruthy();
-    expect(screen.getByText("最低购买")).toBeTruthy();
-    expect(screen.getByText("可节省 ¥1,400")).toBeTruthy();
+    const summary = screen.getByRole("region", { name: "整机价格情报" });
+    expect(within(summary).getByText("内部参考")).toBeTruthy();
+    expect(within(summary).getByText(formatPriceMoney(localTotal))).toBeTruthy();
+    expect(within(summary).queryByText(formatPriceMoney(localTotal + 10_000))).toBeNull();
+    expect(within(summary).getByText("最低购买")).toBeTruthy();
+    expect(within(summary).getByText("可节省 ¥1,400")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "查看购买方案" }));
     expect(onOpenPrices).toHaveBeenCalledOnce();
@@ -101,17 +106,25 @@ describe("BuildPanel", () => {
 
   it("keeps the local internal total when platform quotes fail", () => {
     const store = createBuilderStore({ initialCatalogue: mockHardware });
+    const localTotal = store.getState().totalPrice;
+    const onOpenPrices = vi.fn();
+    const retry = vi.fn();
 
     render(
       <BuilderStoreProvider store={store}>
         <BuildPanel
-          onOpenPrices={vi.fn()}
-          quoteState={{ quote: null, retry: vi.fn(), status: "error" }}
+          onOpenPrices={onOpenPrices}
+          quoteState={{ quote: null, retry, status: "error" }}
         />
       </BuilderStoreProvider>,
     );
 
-    expect(screen.getByText("平台报价暂不可用")).toBeTruthy();
-    expect(screen.getAllByText("内部参考").length).toBeGreaterThan(0);
+    const summary = screen.getByRole("region", { name: "整机价格情报" });
+    expect(within(summary).getByText("平台报价暂不可用")).toBeTruthy();
+    expect(within(summary).getByText(formatPriceMoney(localTotal))).toBeTruthy();
+
+    fireEvent.click(within(summary).getByRole("button", { name: "重新获取平台报价" }));
+    expect(retry).toHaveBeenCalledOnce();
+    expect(onOpenPrices).not.toHaveBeenCalled();
   });
 });

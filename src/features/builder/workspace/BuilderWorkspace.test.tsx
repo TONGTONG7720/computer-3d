@@ -125,6 +125,12 @@ describe("BuilderWorkspace shell", () => {
     const gpuOptions = await screen.findByRole("list", { name: "GPU 可选硬件" });
     fireEvent.click(within(gpuOptions).getByRole("button", { name: /NVIDIA GeForce RTX 5080/ }));
 
+    await act(async () => {
+      oldRequest.resolve(quoteFixture({ lowestTotal: 47_999, savings: 9_000 }));
+      await oldRequest.promise;
+    });
+    expect(screen.queryByText("可节省 ¥9,000")).toBeNull();
+
     await waitFor(() =>
       expect(getBuildQuote).toHaveBeenLastCalledWith(
         expect.arrayContaining(["gpu-nvidia-rtx5080"]),
@@ -135,11 +141,6 @@ describe("BuilderWorkspace shell", () => {
       await newRequest.promise;
     });
     expect(await screen.findByText("可节省 ¥2,000")).toBeTruthy();
-
-    await act(async () => {
-      oldRequest.resolve(quoteFixture({ lowestTotal: 47_999, savings: 9_000 }));
-      await oldRequest.promise;
-    });
     expect(screen.getByText("可节省 ¥2,000")).toBeTruthy();
     expect(screen.queryByText("可节省 ¥9,000")).toBeNull();
   });

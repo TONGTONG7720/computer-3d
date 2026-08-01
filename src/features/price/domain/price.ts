@@ -80,7 +80,7 @@ const historyDataSchema = z.strictObject({
 const componentQuoteSchema = z.strictObject({
   hardwareKey: z.string().min(1),
   hardwareName: z.string().min(1),
-  internalReferencePrice: z.number().nonnegative(),
+  internalReferencePrice: nullablePriceSchema,
   lowestPrice: nullablePriceSchema,
   recommendedPrice: nullablePriceSchema,
   recommendedOfferId: identifierSchema.nullable(),

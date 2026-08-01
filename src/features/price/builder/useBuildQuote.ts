@@ -12,47 +12,79 @@ export type BuildQuoteState = {
   readonly retry: () => void;
 };
 
+type BuildQuoteResult = {
+  readonly quote: BuildQuote | null;
+  readonly signature: string;
+  readonly status: BuildQuoteStatus;
+};
+
+const inFlightBuildQuotes = new Map<string, Promise<BuildQuote>>();
+
+const createHardwareSignature = (hardwareKeys: readonly string[]): string =>
+  hardwareKeys.map(encodeURIComponent).join("&");
+
+const requestBuildQuote = (signature: string, force: boolean): Promise<BuildQuote> => {
+  if (!force) {
+    const existingRequest = inFlightBuildQuotes.get(signature);
+    if (existingRequest !== undefined) {
+      return existingRequest;
+    }
+  }
+
+  const hardwareKeys = signature.split("&").map(decodeURIComponent);
+  const request = getBuildQuote(hardwareKeys);
+
+  if (!force) {
+    inFlightBuildQuotes.set(signature, request);
+    const clearRequest = (): void => {
+      if (inFlightBuildQuotes.get(signature) === request) {
+        inFlightBuildQuotes.delete(signature);
+      }
+    };
+    void request.then(clearRequest, clearRequest);
+  }
+
+  return request;
+};
+
 export function useBuildQuote(hardwareKeys: readonly string[]): BuildQuoteState {
-  const [quote, setQuote] = useState<BuildQuote | null>(null);
-  const [status, setStatus] = useState<BuildQuoteStatus>("idle");
+  const signature = createHardwareSignature(hardwareKeys);
+  const [result, setResult] = useState<BuildQuoteResult>({
+    quote: null,
+    signature,
+    status: signature === "" ? "idle" : "loading",
+  });
   const requestRevision = useRef(0);
 
-  const load = useCallback(async (): Promise<void> => {
-    const revision = ++requestRevision.current;
-    const requestedHardwareKeys = [...hardwareKeys];
+  const load = useCallback(
+    async (force: boolean): Promise<void> => {
+      const revision = ++requestRevision.current;
 
-    if (requestedHardwareKeys.length === 0) {
-      setQuote(null);
-      setStatus("idle");
-      return;
-    }
-
-    setQuote(null);
-    setStatus("loading");
-
-    try {
-      const response = await getBuildQuote(requestedHardwareKeys);
-      if (revision !== requestRevision.current) {
+      if (signature === "") {
+        setResult({ quote: null, signature, status: "idle" });
         return;
       }
-      setQuote(response);
-      setStatus("success");
-    } catch (caught) {
-      if (revision !== requestRevision.current) {
-        return;
+
+      setResult({ quote: null, signature, status: "loading" });
+
+      try {
+        const quote = await requestBuildQuote(signature, force);
+        if (revision !== requestRevision.current) {
+          return;
+        }
+        setResult({ quote, signature, status: "success" });
+      } catch {
+        if (revision !== requestRevision.current) {
+          return;
+        }
+        setResult({ quote: null, signature, status: "error" });
       }
-      if (caught instanceof Error) {
-        setQuote(null);
-        setStatus("error");
-        return;
-      }
-      setQuote(null);
-      setStatus("error");
-    }
-  }, [hardwareKeys]);
+    },
+    [signature],
+  );
 
   useEffect(() => {
-    void load();
+    void load(false);
   }, [load]);
 
   useEffect(() => {
@@ -62,8 +94,16 @@ export function useBuildQuote(hardwareKeys: readonly string[]): BuildQuoteState 
   }, []);
 
   const retry = useCallback(() => {
-    void load();
+    void load(true);
   }, [load]);
 
-  return { quote, retry, status };
+  if (result.signature !== signature) {
+    return {
+      quote: null,
+      retry,
+      status: signature === "" ? "idle" : "loading",
+    };
+  }
+
+  return { quote: result.quote, retry, status: result.status };
 }

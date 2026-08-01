@@ -12,7 +12,8 @@
     "format": "biome format --write .",
     "test": "vitest",
     "test:run": "vitest run",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm build",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm build && pnpm verify:builder-bundle",
+    "verify:builder-bundle": "node scripts/verify-builder-bundle.mjs",
     "backend:test": "mvn -f backend/pom.xml test",
     "backend:package": "mvn -f backend/pom.xml package -DskipTests",
     "doctor": "npx react-doctor@latest"
