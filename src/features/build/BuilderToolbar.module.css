@@ -1,0 +1,288 @@
+.toolbar {
+  display: grid;
+  grid-template-columns: var(--toolbar-brand-width) minmax(var(--toolbar-identity-min-width), 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  height: 100%;
+  max-width: var(--workspace-max-width);
+  padding: 0 var(--space-8);
+  margin: 0 auto;
+  font-family: var(--font-ui);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.brandMark {
+  position: relative;
+  display: grid;
+  width: var(--space-10);
+  height: var(--space-10);
+  place-items: center;
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius-small);
+}
+
+.brandMark::before,
+.brandMark::after,
+.brandMark span {
+  position: absolute;
+  content: "";
+  border: var(--border-width) solid var(--text-secondary);
+}
+
+.brandMark::before {
+  width: var(--space-4);
+  height: var(--space-5);
+  border-radius: 2px;
+}
+
+.brandMark::after {
+  width: var(--space-6);
+  height: var(--space-3);
+  border-width: 0 var(--border-width) var(--border-width);
+}
+
+.brandMark span {
+  width: var(--space-1);
+  height: var(--space-1);
+  background: var(--primary);
+  border: 0;
+  border-radius: 50%;
+  transform: translate(var(--space-2), calc(var(--space-2) * -1));
+}
+
+.brandCopy {
+  display: grid;
+  line-height: 1;
+}
+
+.brandCopy strong {
+  font-size: var(--type-body-size);
+  letter-spacing: 0.03em;
+}
+
+.brandCopy small {
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--type-micro-size);
+  letter-spacing: 0.08em;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.nameButton,
+.nameInput {
+  min-width: 0;
+  height: var(--field-height);
+  padding: 0 var(--space-2);
+  color: var(--text-primary);
+  font-weight: 600;
+  background: transparent;
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-small);
+}
+
+.nameButton {
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: text;
+}
+
+.nameButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--border);
+}
+
+.nameInput {
+  width: min(100%, 320px);
+  background: var(--panel);
+  border-color: var(--border-strong);
+}
+
+.saveStatus,
+.health,
+.health span,
+.actions,
+.compactActions {
+  display: flex;
+  align-items: center;
+}
+
+.saveStatus {
+  gap: var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--type-micro-size);
+  white-space: nowrap;
+}
+
+.saveStatus[data-state="dirty"],
+.saveStatus[data-state="error"] {
+  color: var(--warning);
+}
+
+.saveStatus[data-state="saving"] svg {
+  animation: toolbar-spin 900ms linear infinite;
+}
+
+.health {
+  gap: var(--space-2);
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.health > span {
+  gap: var(--space-1);
+  min-height: var(--field-height);
+  padding: 0 var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--type-label-size);
+  white-space: nowrap;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-small);
+}
+
+.health [data-status="success"] {
+  color: var(--success);
+}
+
+.health [data-status="warning"] {
+  color: var(--warning);
+}
+
+.health [data-status="error"] {
+  color: var(--danger);
+}
+
+.actions,
+.compactActions {
+  gap: var(--space-2);
+}
+
+.actions button,
+.compactActions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: var(--touch-target);
+  padding: 0 var(--space-3);
+  background: transparent;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-small);
+  transition:
+    color var(--duration-feedback) ease-out,
+    background var(--duration-feedback) ease-out,
+    border-color var(--duration-feedback) ease-out,
+    transform var(--duration-feedback) ease-out;
+}
+
+.actions button:not(:disabled):hover,
+.compactActions button:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+.actions button:not(:disabled):active,
+.compactActions button:active {
+  transform: translateY(var(--border-width));
+}
+
+.saveButton[data-primary="true"] {
+  color: var(--v3-white);
+  background: var(--primary-pressed);
+  border-color: var(--primary-pressed);
+}
+
+.shareButton:disabled,
+.saveButton:disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.compactActions {
+  display: none;
+}
+
+@keyframes toolbar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1199px) {
+  .toolbar {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    padding-inline: var(--space-4);
+  }
+
+  .brand {
+    width: auto;
+  }
+
+  .brandCopy,
+  .health span:first-child,
+  .actions .shareButton {
+    display: none;
+  }
+
+  .compactActions {
+    display: flex;
+  }
+}
+
+@media (max-width: 767px) {
+  .toolbar {
+    gap: var(--space-2);
+    padding-inline: var(--space-2);
+  }
+
+  .brandMark {
+    width: var(--space-8);
+    height: var(--space-8);
+  }
+
+  .saveStatus,
+  .health,
+  .compactActions button:first-child,
+  .actions .saveButton span {
+    display: none;
+  }
+
+  .actions button,
+  .compactActions button {
+    padding: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saveStatus[data-state="saving"] svg {
+    animation: none;
+  }
+}

@@ -1,0 +1,169 @@
+.library {
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
+  gap: var(--space-3);
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-4);
+}
+
+.panelHeader,
+.search,
+.optionsHeader,
+.library nav,
+.options {
+  width: min(100%, var(--hardware-content-width));
+  margin-inline: auto;
+}
+
+.panelHeader,
+.optionsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.panelHeader > span:first-child,
+.optionsHeader > span:first-child {
+  display: grid;
+}
+
+.panelHeader small,
+.optionsHeader small {
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--type-micro-size);
+  font-weight: 600;
+  line-height: var(--type-micro-line);
+  letter-spacing: 0.08em;
+}
+
+.panelHeader strong,
+.optionsHeader strong {
+  color: var(--text-primary);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.panelHeader > span:last-child,
+.optionsHeader > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--type-micro-size);
+  white-space: nowrap;
+}
+
+.search {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--space-5) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-1);
+  height: var(--field-height);
+  padding: 0 var(--space-2);
+  color: var(--text-muted);
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-small);
+}
+
+.search:focus-within {
+  border-color: var(--primary);
+}
+
+.search input {
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  color: var(--text-primary);
+  background: transparent;
+  border: 0;
+  outline: 0;
+}
+
+.search input::placeholder {
+  color: var(--text-muted);
+}
+
+.search button {
+  min-width: var(--space-6);
+  min-height: var(--space-6);
+  padding: 0;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+}
+
+.optionsHeader {
+  padding-top: var(--space-2);
+  border-top: var(--border-width) solid var(--border);
+}
+
+.options {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-height: 0;
+  padding: 0 var(--space-1) var(--space-2) 0;
+  margin-block: 0;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-color: var(--border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.options li {
+  min-width: 0;
+}
+
+.empty {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-3);
+  color: var(--text-muted);
+  background: var(--surface);
+  border: var(--border-width) dashed var(--border-strong);
+  border-radius: var(--radius-small);
+}
+
+.empty strong {
+  color: var(--text-primary);
+  font-size: var(--type-body-size);
+}
+
+.empty span {
+  font-size: var(--type-label-size);
+}
+
+.empty button {
+  min-height: var(--field-height);
+  padding: 0 var(--space-3);
+  color: var(--text-primary);
+  background: var(--surface-hover);
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius-small);
+}
+
+@media (max-width: 767px) {
+  .library {
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .panelHeader,
+  .search,
+  .optionsHeader,
+  .library nav,
+  .options {
+    width: 100%;
+    max-width: none;
+  }
+
+  .options {
+    padding-right: 0;
+  }
+}

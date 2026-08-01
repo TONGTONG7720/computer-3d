@@ -102,6 +102,22 @@ The visual hierarchy is fixed:
 - Animate transform and opacity only. No panel-dimension animation, scale-on-card-hover, infinite
   shimmer, pulsing border, scanline, floating label, or decorative loop.
 
+### Component geometry tokens
+
+| Token | Value | Purpose |
+|---|---:|---|
+| `--workspace-max-width` | 1440px | Builder shell limit |
+| `--workspace-left-width` | 280px | Component Library |
+| `--workspace-viewer-width` | 720px | Reference viewport |
+| `--workspace-right-width` | 360px | Build Panel |
+| `--workspace-compact-left` | 248px | Compact desktop library |
+| `--workspace-compact-right` | 320px | Compact desktop summary |
+| `--toolbar-brand-width` | 184px | Desktop brand region |
+| `--hardware-content-width` | 240px | Slot/search/option content |
+| `--component-slot-height` | 40px | Category navigation row |
+| `--hardware-item-height` | 72px | Hardware option row |
+| `--field-height` | 36px | Dense search/edit field |
+
 ## V3.3 — Layout contract
 
 ### Desktop 1440 × 1024

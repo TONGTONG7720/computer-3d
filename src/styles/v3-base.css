@@ -19,9 +19,9 @@
 }
 
 [data-ui-version="v3"] :focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 2px var(--v3-focus-offset);
+  outline: var(--focus-ring-width) solid var(--primary);
+  outline-offset: var(--focus-ring-width);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--v3-focus-offset);
 }
 
 [data-ui-version="v3"] ::selection {
