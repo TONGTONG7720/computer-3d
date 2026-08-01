@@ -5,13 +5,20 @@ import { hardwareCategories } from "@/features/builder/domain/hardware";
 import { useBuilderWorkspaceStore } from "@/features/builder/store/BuilderStoreProvider";
 import { HardwareCategoryIcon } from "@/features/hardware/HardwareCategoryIcon";
 import { hardwareCategoryLabels } from "@/features/hardware/hardwarePresentation";
+import { BuildPriceSummary } from "@/features/price/builder/BuildPriceSummary";
+import type { BuildQuoteState } from "@/features/price/builder/useBuildQuote";
 import styles from "./BuildPanel.module.css";
 import { CompatibilityCard } from "./CompatibilityCard";
 import { OptimizationPanel } from "./OptimizationPanel";
 import { PerformanceCard } from "./PerformanceCard";
 import { PriceCard } from "./PriceCard";
 
-export function BuildPanel() {
+type BuildPanelProps = {
+  readonly onOpenPrices: () => void;
+  readonly quoteState: BuildQuoteState;
+};
+
+export function BuildPanel({ onOpenPrices, quoteState }: BuildPanelProps) {
   const selectedComponents = useBuilderWorkspaceStore((state) => state.selectedComponents);
   const performance = useBuilderWorkspaceStore((state) => state.performanceScore);
   const compatibility = useBuilderWorkspaceStore((state) => state.compatibilityStatus);
@@ -79,6 +86,11 @@ export function BuildPanel() {
         priceDelta={feedback.priceDelta}
         priceSource={priceSource}
         totalPrice={totalPrice}
+      />
+      <BuildPriceSummary
+        internalTotal={totalPrice}
+        onOpenPrices={onOpenPrices}
+        quoteState={quoteState}
       />
     </div>
   );

@@ -60,6 +60,7 @@ export function EngineDemo() {
   const busy = isReplacementBusy(replacementState.phase) || replacementRequest !== null;
   const catalogueStatus = useBuilderStore((state) => state.catalogueStatus);
   const initializeCatalogue = useBuilderStore((state) => state.initializeCatalogue);
+  const selectedComponents = useBuilderStore((state) => state.selectedComponents);
   const setActiveCategory = useBuilderStore((state) => state.setActiveCategory);
 
   useEffect(() => {
@@ -146,7 +147,11 @@ export function EngineDemo() {
           LIVE CONFIG / XYZ
         </span>
       </div>
-      <PriceComparisonDialog onClose={() => setPriceOpen(false)} open={priceOpen} />
+      <PriceComparisonDialog
+        onClose={() => setPriceOpen(false)}
+        open={priceOpen}
+        selectedComponents={selectedComponents}
+      />
       <AiAssistant />
     </main>
   );

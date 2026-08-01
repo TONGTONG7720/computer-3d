@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { hardwareByCategory, mockHardware } from "@/features/builder/data/mockHardware";
 import { BuilderStoreProvider } from "@/features/builder/store/BuilderStoreProvider";
 import { createBuilderStore } from "@/store/builderStore";
@@ -15,7 +15,10 @@ describe("BuildPanel", () => {
     const initialPrice = store.getState().totalPrice;
     render(
       <BuilderStoreProvider store={store}>
-        <BuildPanel />
+        <BuildPanel
+          onOpenPrices={vi.fn()}
+          quoteState={{ quote: null, retry: vi.fn(), status: "idle" }}
+        />
       </BuilderStoreProvider>,
     );
 
@@ -43,7 +46,10 @@ describe("BuildPanel", () => {
     const store = createBuilderStore({ initialCatalogue: mockHardware });
     render(
       <BuilderStoreProvider store={store}>
-        <BuildPanel />
+        <BuildPanel
+          onOpenPrices={vi.fn()}
+          quoteState={{ quote: null, retry: vi.fn(), status: "idle" }}
+        />
       </BuilderStoreProvider>,
     );
     const psu1000 = hardwareByCategory.power_supply[1];
@@ -55,5 +61,57 @@ describe("BuildPanel", () => {
       expect(screen.getByRole("status", { name: "兼容状态" }).textContent).toContain("需注意");
     });
     expect(screen.getByText(/建议至少/)).toBeTruthy();
+  });
+
+  it("shows the typed purchase summary and opens the purchase plans", () => {
+    const store = createBuilderStore({ initialCatalogue: mockHardware });
+    const onOpenPrices = vi.fn();
+
+    render(
+      <BuilderStoreProvider store={store}>
+        <BuildPanel
+          onOpenPrices={onOpenPrices}
+          quoteState={{
+            quote: {
+              components: [],
+              internalTotal: 56_999,
+              lowestTotal: 55_599,
+              recommendedTotal: 55_899,
+              savings: 1_400,
+              pricedComponentCount: 8,
+              componentCount: 8,
+              complete: true,
+              disclosure: "V1 为人工维护报价。",
+              updatedAt: "2026-08-02T08:30:00",
+            },
+            retry: vi.fn(),
+            status: "success",
+          }}
+        />
+      </BuilderStoreProvider>,
+    );
+
+    expect(screen.getByText("内部参考")).toBeTruthy();
+    expect(screen.getByText("最低购买")).toBeTruthy();
+    expect(screen.getByText("可节省 ¥1,400")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "查看购买方案" }));
+    expect(onOpenPrices).toHaveBeenCalledOnce();
+  });
+
+  it("keeps the local internal total when platform quotes fail", () => {
+    const store = createBuilderStore({ initialCatalogue: mockHardware });
+
+    render(
+      <BuilderStoreProvider store={store}>
+        <BuildPanel
+          onOpenPrices={vi.fn()}
+          quoteState={{ quote: null, retry: vi.fn(), status: "error" }}
+        />
+      </BuilderStoreProvider>,
+    );
+
+    expect(screen.getByText("平台报价暂不可用")).toBeTruthy();
+    expect(screen.getAllByText("内部参考").length).toBeGreaterThan(0);
   });
 });

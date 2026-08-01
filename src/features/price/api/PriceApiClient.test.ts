@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { getOfferRedirectUrl, parsePriceComparison, parsePriceHistory } from "./PriceApiClient";
+import {
+  getOfferRedirectUrl,
+  parseBuildQuote,
+  parsePriceComparison,
+  parsePriceHistory,
+} from "./PriceApiClient";
 
 const validOffer = {
   id: 41,
@@ -47,6 +52,39 @@ const validComparison = {
 };
 
 describe("PriceApiClient", () => {
+  it("parses every build quote field returned by the backend contract", () => {
+    const quote = parseBuildQuote({
+      code: "OK",
+      message: "success",
+      data: {
+        components: [
+          {
+            hardwareKey: "gpu-nvidia-rtx5090",
+            hardwareName: "NVIDIA GeForce RTX 5090",
+            internalReferencePrice: 23_999,
+            lowestPrice: 22_599,
+            recommendedPrice: 22_699,
+            recommendedOfferId: 41,
+          },
+        ],
+        internalTotal: 23_999,
+        lowestTotal: 22_599,
+        recommendedTotal: 22_699,
+        savings: 1_400,
+        pricedComponentCount: 1,
+        componentCount: 1,
+        complete: true,
+        disclosure: "V1 为人工维护报价。",
+        updatedAt: "2026-08-02T08:30:00",
+      },
+      traceId: "trace-build-quote",
+      timestamp: "2026-08-02T08:30:01Z",
+    });
+
+    expect(quote.internalTotal).toBe(23_999);
+    expect(quote.savings).toBe(1_400);
+  });
+
   it("parses a valid public comparison without exposing marketplace URLs", () => {
     const comparison = parsePriceComparison(validComparison);
 

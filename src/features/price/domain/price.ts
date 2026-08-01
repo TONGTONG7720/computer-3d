@@ -8,120 +8,105 @@ export const apiDateTimeSchema = z.iso.datetime({ local: true });
 const nullablePriceSchema = z.number().nonnegative().nullable();
 const identifierSchema = z.number().int().positive();
 
-export const priceOfferSchema = z
-  .object({
-    id: identifierSchema,
-    platform: pricePlatformSchema,
-    platformLabel: z.string().min(1),
-    seller: z.string().min(1),
-    shopType: z.string().min(1),
-    salePrice: z.number().nonnegative(),
-    discount: z.number().nonnegative(),
-    shipping: z.number().nonnegative(),
-    finalPrice: z.number().nonnegative(),
-    rating: z.number().min(0).max(5),
-    salesCount: z.number().int().nonnegative(),
-    trustScore: z.number().min(0).max(100),
-    rankingScore: z.number().min(0).max(100),
-    matchConfidence: z.number().min(0).max(1),
-    stale: z.boolean(),
-    tags: z.array(z.string().min(1)),
-    redirectPath: z.string().startsWith("/api/price-intelligence/offers/"),
-    recordSource: z.string().min(1),
-  })
-  .strict();
+export const priceOfferSchema = z.strictObject({
+  id: identifierSchema,
+  platform: pricePlatformSchema,
+  platformLabel: z.string().min(1),
+  seller: z.string().min(1),
+  shopType: z.string().min(1),
+  salePrice: z.number().nonnegative(),
+  discount: z.number().nonnegative(),
+  shipping: z.number().nonnegative(),
+  finalPrice: z.number().nonnegative(),
+  rating: z.number().min(0).max(5),
+  salesCount: z.number().int().nonnegative(),
+  trustScore: z.number().min(0).max(100),
+  rankingScore: z.number().min(0).max(100),
+  matchConfidence: z.number().min(0).max(1),
+  stale: z.boolean(),
+  tags: z.array(z.string().min(1)),
+  redirectPath: z.string().startsWith("/api/price-intelligence/offers/"),
+  recordSource: z.string().min(1),
+});
 
-const comparisonDataSchema = z
-  .object({
-    hardwareKey: z.string().min(1),
-    hardwareName: z.string().min(1),
-    internalReferencePrice: z.number().nonnegative(),
-    lowestPrice: nullablePriceSchema,
-    lowestOfferId: identifierSchema.nullable(),
-    recommendedOfferId: identifierSchema.nullable(),
-    recommendedReason: z.string().min(1),
-    priceRange: z
-      .object({
-        min: z.number().nonnegative(),
-        max: z.number().nonnegative(),
-      })
-      .strict()
-      .nullable(),
-    offers: z.array(priceOfferSchema),
-    dataMode: z.enum(["MANUAL", "LIVE", "HYBRID"]),
-    disclosure: z.string().min(1),
-    updatedAt: apiDateTimeSchema.nullable(),
-  })
-  .strict();
+const comparisonDataSchema = z.strictObject({
+  hardwareKey: z.string().min(1),
+  hardwareName: z.string().min(1),
+  internalReferencePrice: z.number().nonnegative(),
+  lowestPrice: nullablePriceSchema,
+  lowestOfferId: identifierSchema.nullable(),
+  recommendedOfferId: identifierSchema.nullable(),
+  recommendedReason: z.string().min(1),
+  priceRange: z
+    .strictObject({
+      min: z.number().nonnegative(),
+      max: z.number().nonnegative(),
+    })
+    .nullable(),
+  offers: z.array(priceOfferSchema),
+  dataMode: z.enum(["MANUAL", "LIVE", "HYBRID"]),
+  disclosure: z.string().min(1),
+  updatedAt: apiDateTimeSchema.nullable(),
+});
 
-const historyPointSchema = z
-  .object({
-    date: z.iso.date(),
-    minimumPrice: z.number().nonnegative(),
-    offerCount: z.number().int().nonnegative(),
-  })
-  .strict();
+const historyPointSchema = z.strictObject({
+  date: z.iso.date(),
+  minimumPrice: z.number().nonnegative(),
+  offerCount: z.number().int().nonnegative(),
+});
 
-const historyChangeSchema = z
-  .object({
-    offerId: identifierSchema.nullable(),
-    platform: z.string().min(1),
-    salePrice: z.number().nonnegative(),
-    finalPrice: z.number().nonnegative(),
-    stockStatus: z.string().min(1),
-    recordSource: z.string().min(1),
-    recordedAt: apiDateTimeSchema,
-  })
-  .strict();
+const historyChangeSchema = z.strictObject({
+  offerId: identifierSchema.nullable(),
+  platform: z.string().min(1),
+  salePrice: z.number().nonnegative(),
+  finalPrice: z.number().nonnegative(),
+  stockStatus: z.string().min(1),
+  recordSource: z.string().min(1),
+  recordedAt: apiDateTimeSchema,
+});
 
-const historyDataSchema = z
-  .object({
-    hardwareKey: z.string().min(1),
-    range: priceRangeSchema,
-    platform: pricePlatformSchema.nullable().optional().default(null),
-    points: z.array(historyPointSchema),
-    changes: z.array(historyChangeSchema),
-    lowestPrice: nullablePriceSchema,
-    highestPrice: nullablePriceSchema,
-    changePercent: z.number(),
-    updatedAt: apiDateTimeSchema,
-  })
-  .strict();
+const historyDataSchema = z.strictObject({
+  hardwareKey: z.string().min(1),
+  range: priceRangeSchema,
+  platform: pricePlatformSchema.nullable().optional().default(null),
+  points: z.array(historyPointSchema),
+  changes: z.array(historyChangeSchema),
+  lowestPrice: nullablePriceSchema,
+  highestPrice: nullablePriceSchema,
+  changePercent: z.number(),
+  updatedAt: apiDateTimeSchema,
+});
 
-const componentQuoteSchema = z
-  .object({
-    hardwareKey: z.string().min(1),
-    hardwareName: z.string().min(1),
-    internalReferencePrice: z.number().nonnegative(),
-    lowestPrice: nullablePriceSchema,
-    recommendedPrice: nullablePriceSchema,
-    recommendedOfferId: identifierSchema.nullable(),
-  })
-  .strict();
+const componentQuoteSchema = z.strictObject({
+  hardwareKey: z.string().min(1),
+  hardwareName: z.string().min(1),
+  internalReferencePrice: z.number().nonnegative(),
+  lowestPrice: nullablePriceSchema,
+  recommendedPrice: nullablePriceSchema,
+  recommendedOfferId: identifierSchema.nullable(),
+});
 
-const buildQuoteDataSchema = z
-  .object({
-    components: z.array(componentQuoteSchema),
-    lowestTotal: z.number().nonnegative(),
-    recommendedTotal: z.number().nonnegative(),
-    pricedComponentCount: z.number().int().nonnegative(),
-    componentCount: z.number().int().nonnegative(),
-    complete: z.boolean(),
-    disclosure: z.string().min(1),
-    updatedAt: apiDateTimeSchema,
-  })
-  .strict();
+const buildQuoteDataSchema = z.strictObject({
+  components: z.array(componentQuoteSchema),
+  internalTotal: z.number().nonnegative(),
+  lowestTotal: z.number().nonnegative(),
+  recommendedTotal: z.number().nonnegative(),
+  savings: z.number().nonnegative(),
+  pricedComponentCount: z.number().int().nonnegative(),
+  componentCount: z.number().int().nonnegative(),
+  complete: z.boolean(),
+  disclosure: z.string().min(1),
+  updatedAt: apiDateTimeSchema,
+});
 
 const apiEnvelope = <Schema extends z.ZodType>(data: Schema) =>
-  z
-    .object({
-      code: z.literal("OK"),
-      message: z.string(),
-      data,
-      traceId: z.string(),
-      timestamp: z.iso.datetime({ offset: true }),
-    })
-    .strict();
+  z.strictObject({
+    code: z.literal("OK"),
+    message: z.string(),
+    data,
+    traceId: z.string(),
+    timestamp: z.iso.datetime({ offset: true }),
+  });
 
 export const priceComparisonResponseSchema = apiEnvelope(comparisonDataSchema);
 export const priceHistoryResponseSchema = apiEnvelope(historyDataSchema);

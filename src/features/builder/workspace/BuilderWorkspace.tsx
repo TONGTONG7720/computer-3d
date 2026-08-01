@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import dynamic from "next/dynamic";
+import { useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { BottomSheet } from "@/components/overlays/BottomSheet";
 import { BuilderToolbar } from "@/features/build/BuilderToolbar";
 import { BuildPanel } from "@/features/build/BuildPanel";
 import { useBuildDraft } from "@/features/build/useBuildDraft";
+import { hardwareCategories } from "@/features/builder/domain/hardware";
 import { HardwareLibrary } from "@/features/hardware/HardwareLibrary";
+import { useBuildQuote } from "@/features/price/builder/useBuildQuote";
 import { BuilderDataSync } from "../store/BuilderDataSync";
 import { BuilderStoreProvider, useBuilderWorkspaceStore } from "../store/BuilderStoreProvider";
 import { ViewportLoader } from "../viewport/ViewportLoader";
@@ -14,19 +17,43 @@ import { WorkspaceMobileControls } from "./WorkspaceMobileControls";
 
 type ActiveSheet = "components" | "summary" | null;
 
+const LazyPriceComparisonDialog = dynamic(
+  () =>
+    import("@/features/price/builder/PriceComparisonDialog").then(
+      (module) => module.PriceComparisonDialog,
+    ),
+  { ssr: false },
+);
+
 function BuilderWorkspaceContent() {
   const draft = useBuildDraft();
   const [activeSheet, setActiveSheet] = useState<ActiveSheet>(null);
+  const [priceOpen, setPriceOpen] = useState(false);
   const performance = useBuilderWorkspaceStore((state) => state.performanceScore.overall);
   const compatibility = useBuilderWorkspaceStore((state) => state.compatibilityStatus.status);
   const budget = useBuilderWorkspaceStore((state) => state.budget);
+  const selectedComponents = useBuilderWorkspaceStore((state) => state.selectedComponents);
   const setBudget = useBuilderWorkspaceStore((state) => state.setBudget);
+  const hardwareKeys = useMemo(
+    () =>
+      hardwareCategories.flatMap((category) => {
+        const hardware = selectedComponents[category];
+        return hardware === null ? [] : [hardware.id];
+      }),
+    [selectedComponents],
+  );
+  const quoteState = useBuildQuote(hardwareKeys);
+  const openPrices = (): void => {
+    setActiveSheet(null);
+    setPriceOpen(true);
+  };
+  const buildPanel = <BuildPanel onOpenPrices={openPrices} quoteState={quoteState} />;
 
   return (
     <>
       <BuilderDataSync />
       <AppShell
-        buildPanel={<BuildPanel />}
+        buildPanel={buildPanel}
         componentLibrary={<HardwareLibrary />}
         mobileControls={
           <>
@@ -49,7 +76,7 @@ function BuilderWorkspaceContent() {
               size="full"
               title="配置分析"
             >
-              <BuildPanel />
+              {buildPanel}
             </BottomSheet>
           </>
         }
@@ -69,6 +96,13 @@ function BuilderWorkspaceContent() {
         }
         viewport={<ViewportLoader />}
       />
+      {priceOpen ? (
+        <LazyPriceComparisonDialog
+          onClose={() => setPriceOpen(false)}
+          open
+          selectedComponents={selectedComponents}
+        />
+      ) : null}
     </>
   );
 }

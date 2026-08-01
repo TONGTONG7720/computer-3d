@@ -4,7 +4,6 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { emptySelectedComponents } from "@/features/builder/domain/hardware";
-import { builderStore } from "@/store/builderStore";
 import { getOfferRedirectUrl, getPriceComparison, getPriceHistory } from "../api/PriceApiClient";
 import type { PriceComparison, PriceHistory } from "../domain/price";
 import { PriceComparisonDialog } from "./PriceComparisonDialog";
@@ -15,6 +14,12 @@ vi.mock("../api/PriceApiClient", () => ({
   getPriceComparison: vi.fn(),
   getPriceHistory: vi.fn(),
 }));
+
+const selectedComponents = {
+  ...emptySelectedComponents(),
+  cpu,
+  gpu,
+};
 
 describe("PriceComparisonDialog", () => {
   afterEach(() => {
@@ -27,18 +32,12 @@ describe("PriceComparisonDialog", () => {
     vi.mocked(getOfferRedirectUrl).mockClear();
     vi.mocked(getPriceComparison).mockResolvedValue(comparison);
     vi.mocked(getPriceHistory).mockResolvedValue(history);
-    builderStore.setState({
-      activeCategory: "cpu",
-      selectedComponents: {
-        ...emptySelectedComponents(),
-        cpu,
-        gpu,
-      },
-    });
   });
 
   it("distinguishes the lowest offer from the reliable recommendation", async () => {
-    render(<PriceComparisonDialog onClose={vi.fn()} open />);
+    render(
+      <PriceComparisonDialog onClose={vi.fn()} open selectedComponents={selectedComponents} />,
+    );
 
     expect(await screen.findByRole("heading", { name: "NVIDIA GeForce RTX 5090" })).toBeTruthy();
     expect(screen.getByText("最低价")).toBeTruthy();
@@ -56,7 +55,9 @@ describe("PriceComparisonDialog", () => {
   });
 
   it("reloads trend data when switching between 30 and 7 days", async () => {
-    render(<PriceComparisonDialog onClose={vi.fn()} open />);
+    render(
+      <PriceComparisonDialog onClose={vi.fn()} open selectedComponents={selectedComponents} />,
+    );
     await screen.findByLabelText("RTX 5090 价格趋势");
 
     fireEvent.click(screen.getByRole("button", { name: "7 天" }));
@@ -76,22 +77,30 @@ describe("PriceComparisonDialog", () => {
       offers: [],
     });
 
-    render(<PriceComparisonDialog onClose={vi.fn()} open />);
+    render(
+      <PriceComparisonDialog onClose={vi.fn()} open selectedComponents={selectedComponents} />,
+    );
 
     expect(await screen.findByText("暂无可购买报价")).toBeTruthy();
     expect(screen.getByText("仍可使用内部参考价完成配置。")).toBeTruthy();
   });
 
   it("refetches when the selected hardware changes", async () => {
-    render(<PriceComparisonDialog onClose={vi.fn()} open />);
+    const { rerender } = render(
+      <PriceComparisonDialog onClose={vi.fn()} open selectedComponents={selectedComponents} />,
+    );
     await screen.findByRole("heading", { name: "NVIDIA GeForce RTX 5090" });
 
-    builderStore.setState({
-      selectedComponents: {
-        ...emptySelectedComponents(),
-        gpu: nextGpu,
-      },
-    });
+    rerender(
+      <PriceComparisonDialog
+        onClose={vi.fn()}
+        open
+        selectedComponents={{
+          ...emptySelectedComponents(),
+          gpu: nextGpu,
+        }}
+      />,
+    );
 
     await waitFor(() => {
       expect(getPriceComparison).toHaveBeenLastCalledWith("gpu-nvidia-rtx5080");
@@ -99,7 +108,9 @@ describe("PriceComparisonDialog", () => {
   });
 
   it("opens on GPU and switches across all selected hardware categories", async () => {
-    render(<PriceComparisonDialog onClose={vi.fn()} open />);
+    render(
+      <PriceComparisonDialog onClose={vi.fn()} open selectedComponents={selectedComponents} />,
+    );
 
     await waitFor(() => {
       expect(getPriceComparison).toHaveBeenCalledWith("gpu-nvidia-rtx5090");
@@ -126,7 +137,9 @@ describe("PriceComparisonDialog", () => {
       hardwareId === "cpu-intel-i9-14900k" ? cpuRequest.promise : gpuRequest.promise,
     );
 
-    render(<PriceComparisonDialog onClose={vi.fn()} open />);
+    render(
+      <PriceComparisonDialog onClose={vi.fn()} open selectedComponents={selectedComponents} />,
+    );
     await waitFor(() => {
       expect(getPriceComparison).toHaveBeenCalledWith("gpu-nvidia-rtx5090");
     });
@@ -155,7 +168,9 @@ describe("PriceComparisonDialog", () => {
       range === "7D" ? sevenDayRequest.promise : thirtyDayRequest.promise,
     );
 
-    render(<PriceComparisonDialog onClose={vi.fn()} open />);
+    render(
+      <PriceComparisonDialog onClose={vi.fn()} open selectedComponents={selectedComponents} />,
+    );
     await screen.findByRole("heading", { name: "NVIDIA GeForce RTX 5090" });
     fireEvent.click(screen.getByRole("button", { name: "7 天" }));
     await waitFor(() => {
@@ -190,7 +205,11 @@ describe("PriceComparisonDialog", () => {
           <button onClick={() => setOpen(true)} type="button">
             重新打开比价
           </button>
-          <PriceComparisonDialog onClose={() => setOpen(false)} open={open} />
+          <PriceComparisonDialog
+            onClose={() => setOpen(false)}
+            open={open}
+            selectedComponents={selectedComponents}
+          />
         </div>
       );
     }
@@ -223,7 +242,11 @@ describe("PriceComparisonDialog", () => {
           <button onClick={() => setOpen(true)} type="button">
             打开比价
           </button>
-          <PriceComparisonDialog onClose={() => setOpen(false)} open={open} />
+          <PriceComparisonDialog
+            onClose={() => setOpen(false)}
+            open={open}
+            selectedComponents={selectedComponents}
+          />
         </div>
       );
     }
