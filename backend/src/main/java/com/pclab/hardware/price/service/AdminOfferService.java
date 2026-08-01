@@ -145,7 +145,7 @@ public class AdminOfferService {
         offer.setRating(request.rating());
         offer.setSellerScore(request.sellerScore());
         offer.setDeliveryScore(request.deliveryScore());
-        offer.setDeliveryNote(emptyIfNull(request.deliveryNote()));
+        offer.setDeliveryNote(request.deliveryNote() == null ? "" : request.deliveryNote());
         offer.setCurrency(request.currency());
         offer.setStockStatus(request.stockStatus());
         offer.setPromotionJson("{}");

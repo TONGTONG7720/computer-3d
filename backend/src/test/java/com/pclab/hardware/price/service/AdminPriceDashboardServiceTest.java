@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.pclab.hardware.mapper.HardwareMapper;
@@ -29,7 +30,8 @@ class AdminPriceDashboardServiceTest {
         when(clickMapper.selectCount(any())).thenReturn(14L);
         when(clickMapper.selectTopHardware(any(), anyInt())).thenReturn(List.of());
         when(hardwareMapper.selectCount(any())).thenReturn(4L);
-        when(alertMapper.selectCount(any())).thenReturn(5L, 2L);
+        when(alertMapper.countByStatus("ACTIVE")).thenReturn(5L);
+        when(alertMapper.countByStatus("TRIGGERED")).thenReturn(2L);
         AdminPriceDashboardService service = new AdminPriceDashboardService(
                 productMapper,
                 priceMapper,
@@ -42,5 +44,7 @@ class AdminPriceDashboardServiceTest {
 
         assertThat(dashboard.activeAlertCount()).isEqualTo(5);
         assertThat(dashboard.triggeredAlertCount()).isEqualTo(2);
+        verify(alertMapper).countByStatus("ACTIVE");
+        verify(alertMapper).countByStatus("TRIGGERED");
     }
 }

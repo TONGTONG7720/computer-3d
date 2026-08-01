@@ -5,7 +5,6 @@ import com.pclab.hardware.entity.HardwareEntity;
 import com.pclab.hardware.entity.ProductPriceEntity;
 import com.pclab.hardware.mapper.HardwareMapper;
 import com.pclab.hardware.mapper.ProductPriceMapper;
-import com.pclab.hardware.price.entity.PriceAlertEntity;
 import com.pclab.hardware.price.entity.PriceClickEventEntity;
 import com.pclab.hardware.price.entity.ProductEntity;
 import com.pclab.hardware.price.mapper.PriceAlertMapper;
@@ -69,14 +68,8 @@ public class AdminPriceDashboardService {
                 Wrappers.<PriceClickEventEntity>lambdaQuery()
                         .ge(PriceClickEventEntity::getClickedAt, now.minusHours(24))
         );
-        long activeAlerts = alertMapper.selectCount(
-                Wrappers.<PriceAlertEntity>lambdaQuery()
-                        .eq(PriceAlertEntity::getStatus, "ACTIVE")
-        );
-        long triggeredAlerts = alertMapper.selectCount(
-                Wrappers.<PriceAlertEntity>lambdaQuery()
-                        .eq(PriceAlertEntity::getStatus, "TRIGGERED")
-        );
+        long activeAlerts = alertMapper.countByStatus("ACTIVE");
+        long triggeredAlerts = alertMapper.countByStatus("TRIGGERED");
         List<TopHardwareClickView> top = clickMapper.selectTopHardware(now.minusDays(30), 5)
                 .stream()
                 .map(AdminPriceDashboardService::toTopClick)

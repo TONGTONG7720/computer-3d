@@ -13,6 +13,13 @@ import org.apache.ibatis.annotations.Update;
 
 public interface PriceAlertMapper extends BaseMapper<PriceAlertEntity> {
 
+    @Select("""
+            SELECT COUNT(*)
+            FROM price_alert
+            WHERE status = #{status}
+            """)
+    long countByStatus(@Param("status") String status);
+
     @Insert("""
             INSERT INTO price_alert (
                 public_id,

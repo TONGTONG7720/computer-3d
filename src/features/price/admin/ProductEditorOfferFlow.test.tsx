@@ -152,6 +152,7 @@ describe("ProductEditor offer flow", () => {
   });
 
   it("submits explicit delivery evidence without synthesizing a shipping promise", async () => {
+    const deliveryNote = "  京东物流 · 次日达  ";
     render(
       <ProductEditor
         adminKey="session-secret"
@@ -165,20 +166,34 @@ describe("ProductEditor offer flow", () => {
     fireEvent.change(screen.getByLabelText("商家名称"), { target: { value: "显卡旗舰店" } });
     fireEvent.change(screen.getByLabelText("物流可信分"), { target: { value: "92" } });
     fireEvent.change(screen.getByLabelText("人工物流说明"), {
-      target: { value: "京东物流 · 次日达" },
+      target: { value: deliveryNote },
     });
+    expect(screen.getByText("原样展示人工说明，不自动生成到达承诺。")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "创建报价" }));
 
     await waitFor(() => {
-      expect(createAdminOffer).toHaveBeenCalledWith(
-        "session-secret",
-        9,
-        expect.objectContaining({
-          deliveryScore: 92,
-          deliveryNote: "京东物流 · 次日达",
-        }),
-      );
+      expect(createAdminOffer).toHaveBeenCalledWith("session-secret", 9, {
+        platform: "JD",
+        seller: "显卡旗舰店",
+        shopType: "SELF_OPERATED",
+        salePrice: 0,
+        couponAmount: 0,
+        fullReductionAmount: 0,
+        memberDiscountAmount: 0,
+        platformSubsidyAmount: 0,
+        shippingFee: 0,
+        salesCount: 0,
+        rating: 4.8,
+        sellerScore: 90,
+        deliveryScore: 92,
+        deliveryNote,
+        currency: "CNY",
+        stockStatus: "IN_STOCK",
+        productUrl: "",
+        affiliateUrl: "",
+        enabled: true,
+        reviewed: false,
+      });
     });
-    expect(screen.queryByText("保证次日达")).toBeNull();
   });
 });

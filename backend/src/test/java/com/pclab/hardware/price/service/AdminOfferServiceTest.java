@@ -67,6 +67,7 @@ class AdminOfferServiceTest {
 
     @Test
     void roundTripsDeliveryEvidenceWhenCreatingAnOffer() {
+        String deliveryNote = "  京东物流 · 次日达  ";
         ProductMapper productMapper = mock(ProductMapper.class);
         ProductEntity product = new ProductEntity();
         product.setId(7L);
@@ -81,10 +82,30 @@ class AdminOfferServiceTest {
         });
         AdminOfferService service = service(productMapper, priceMapper);
 
-        var saved = service.createOffer(7L, offerRequest());
+        var saved = service.createOffer(7L, offerRequest(deliveryNote, null));
 
         assertThat(saved.deliveryScore()).isEqualByComparingTo("92");
-        assertThat(saved.deliveryNote()).isEqualTo("京东物流 · 次日达");
+        assertThat(saved.deliveryNote()).isEqualTo(deliveryNote);
+    }
+
+    @Test
+    void roundTripsDeliveryEvidenceWhenUpdatingAnOffer() {
+        String deliveryNote = "  京东物流 / 当日达  ";
+        ProductPriceMapper priceMapper = mock(ProductPriceMapper.class);
+        ProductPriceEntity offer = new ProductPriceEntity();
+        offer.setId(17L);
+        offer.setProductId(7L);
+        offer.setRecordSource("MANUAL");
+        offer.setFinalPrice(new BigDecimal("9199"));
+        offer.setVersion(1);
+        when(priceMapper.selectById(17L)).thenReturn(offer);
+        when(priceMapper.updateById(any(ProductPriceEntity.class))).thenReturn(1);
+        AdminOfferService service = service(mock(ProductMapper.class), priceMapper);
+
+        var saved = service.updateOffer(17L, offerRequest(deliveryNote, 1));
+
+        assertThat(saved.deliveryScore()).isEqualByComparingTo("92");
+        assertThat(saved.deliveryNote()).isEqualTo(deliveryNote);
     }
 
     private static AdminOfferService service(
@@ -95,7 +116,7 @@ class AdminOfferServiceTest {
                 productMapper,
                 priceMapper,
                 mock(PriceHistoryMapper.class),
-                mock(PromotionCalculator.class),
+                new PromotionCalculator(),
                 mock(PriceLinkPolicy.class)
         );
     }
@@ -107,7 +128,7 @@ class AdminOfferServiceTest {
         return product;
     }
 
-    private static UpsertOfferRequest offerRequest() {
+    private static UpsertOfferRequest offerRequest(String deliveryNote, Integer version) {
         return new UpsertOfferRequest(
                 "JD",
                 "京东自营",
@@ -122,14 +143,14 @@ class AdminOfferServiceTest {
                 new BigDecimal("4.9"),
                 new BigDecimal("98"),
                 new BigDecimal("92"),
-                "京东物流 · 次日达",
+                deliveryNote,
                 "CNY",
                 "IN_STOCK",
                 "",
                 "",
                 true,
                 false,
-                null
+                version
         );
     }
 }
