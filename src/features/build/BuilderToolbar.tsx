@@ -23,6 +23,7 @@ type BuilderToolbarProps = {
   readonly performance: number;
   readonly saveState: BuildSaveState;
   readonly onBuildNameChange: (name: string) => void;
+  readonly onBudgetChange: (budget: number) => void;
   readonly onOpenComponents?: (() => void) | undefined;
   readonly onOpenSummary?: (() => void) | undefined;
   readonly onSave: () => void;
@@ -42,13 +43,11 @@ const compatibilityLabels = {
   error: "有冲突",
 } as const satisfies Readonly<Record<CompatibilityStatus, string>>;
 
-const currencyFormatter = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 });
-const formatCurrency = (value: number): string => currencyFormatter.format(value);
-
 export function BuilderToolbar({
   budget,
   buildName,
   compatibility,
+  onBudgetChange,
   onBuildNameChange,
   onOpenComponents,
   onOpenSummary,
@@ -58,6 +57,7 @@ export function BuilderToolbar({
 }: BuilderToolbarProps) {
   const [editing, setEditing] = useState(false);
   const [draftName, setDraftName] = useState(buildName);
+  const [budgetDraft, setBudgetDraft] = useState(String(budget));
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -65,6 +65,10 @@ export function BuilderToolbar({
       setDraftName(buildName);
     }
   }, [buildName, editing]);
+
+  useEffect(() => {
+    setBudgetDraft(String(budget));
+  }, [budget]);
 
   useEffect(() => {
     if (editing) {
@@ -89,6 +93,28 @@ export function BuilderToolbar({
     if (event.key === "Escape") {
       setDraftName(buildName);
       setEditing(false);
+    }
+  };
+
+  const commitBudget = (): void => {
+    const nextBudget = Number(budgetDraft);
+    if (Number.isFinite(nextBudget) && nextBudget >= 0) {
+      if (nextBudget !== budget) {
+        onBudgetChange(nextBudget);
+      }
+      setBudgetDraft(String(nextBudget));
+      return;
+    }
+    setBudgetDraft(String(budget));
+  };
+
+  const handleBudgetKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key === "Enter") {
+      event.currentTarget.blur();
+    }
+    if (event.key === "Escape") {
+      setBudgetDraft(String(budget));
+      event.currentTarget.blur();
     }
   };
 
@@ -137,7 +163,21 @@ export function BuilderToolbar({
 
       <fieldset className={styles["health"]}>
         <legend className={styles["visuallyHidden"]}>配置健康状态</legend>
-        <span data-numeric="true">预算 ¥{formatCurrency(budget)}</span>
+        <span className={styles["budgetControl"]} data-numeric="true">
+          <label htmlFor="builder-budget">预算 ¥</label>
+          <input
+            aria-label="预算上限"
+            id="builder-budget"
+            inputMode="numeric"
+            min={0}
+            onBlur={commitBudget}
+            onChange={(event) => setBudgetDraft(event.target.value)}
+            onKeyDown={handleBudgetKeyDown}
+            step={100}
+            type="number"
+            value={budgetDraft}
+          />
+        </span>
         <span data-numeric="true">性能 {performance}</span>
         <span data-status={compatibility}>
           <CheckCircle2 aria-hidden="true" size={14} strokeWidth={1.8} />

@@ -20,6 +20,7 @@ function BuilderWorkspaceContent() {
   const performance = useBuilderWorkspaceStore((state) => state.performanceScore.overall);
   const compatibility = useBuilderWorkspaceStore((state) => state.compatibilityStatus.status);
   const budget = useBuilderWorkspaceStore((state) => state.budget);
+  const setBudget = useBuilderWorkspaceStore((state) => state.setBudget);
 
   return (
     <>
@@ -58,6 +59,7 @@ function BuilderWorkspaceContent() {
             buildName={draft.buildName}
             compatibility={compatibility}
             onBuildNameChange={draft.renameBuild}
+            onBudgetChange={setBudget}
             onOpenComponents={() => setActiveSheet("components")}
             onOpenSummary={() => setActiveSheet("summary")}
             onSave={() => void draft.saveBuild()}

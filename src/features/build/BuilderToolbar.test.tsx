@@ -11,6 +11,7 @@ const toolbarProps = {
   performance: 96,
   saveState: "dirty" as const,
   onBuildNameChange: vi.fn(),
+  onBudgetChange: vi.fn(),
   onOpenComponents: vi.fn(),
   onOpenSummary: vi.fn(),
   onSave: vi.fn(),
@@ -42,7 +43,9 @@ describe("BuilderToolbar", () => {
   it("shows health values, saving feedback, and an explicit deferred Share reason", () => {
     render(<BuilderToolbar {...toolbarProps} saveState="saving" />);
 
-    expect(screen.getByText("预算 ¥30,000")).toBeTruthy();
+    expect((screen.getByRole("spinbutton", { name: "预算上限" }) as HTMLInputElement).value).toBe(
+      "30000",
+    );
     expect(screen.getByText("性能 96")).toBeTruthy();
     expect(screen.getByText("兼容")).toBeTruthy();
     expect(screen.getByText("正在保存")).toBeTruthy();
@@ -50,5 +53,16 @@ describe("BuilderToolbar", () => {
     const share = screen.getByRole("button", { name: "分享配置" });
     expect(share.hasAttribute("disabled")).toBe(true);
     expect(share.getAttribute("title")).toContain("后续阶段");
+  });
+
+  it("commits a non-negative budget constraint", () => {
+    const onBudgetChange = vi.fn();
+    render(<BuilderToolbar {...toolbarProps} onBudgetChange={onBudgetChange} />);
+
+    const budget = screen.getByRole("spinbutton", { name: "预算上限" });
+    fireEvent.change(budget, { target: { value: "12500" } });
+    fireEvent.blur(budget);
+
+    expect(onBudgetChange).toHaveBeenCalledWith(12500);
   });
 });

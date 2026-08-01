@@ -7,6 +7,7 @@ import { HardwareCategoryIcon } from "@/features/hardware/HardwareCategoryIcon";
 import { hardwareCategoryLabels } from "@/features/hardware/hardwarePresentation";
 import styles from "./BuildPanel.module.css";
 import { CompatibilityCard } from "./CompatibilityCard";
+import { OptimizationPanel } from "./OptimizationPanel";
 import { PerformanceCard } from "./PerformanceCard";
 import { PriceCard } from "./PriceCard";
 
@@ -17,6 +18,9 @@ export function BuildPanel() {
   const totalPrice = useBuilderWorkspaceStore((state) => state.totalPrice);
   const powerUsage = useBuilderWorkspaceStore((state) => state.powerUsage);
   const feedback = useBuilderWorkspaceStore((state) => state.feedback);
+  const budgetReport = useBuilderWorkspaceStore((state) => state.budgetReport);
+  const analysisStatus = useBuilderWorkspaceStore((state) => state.analysisStatus);
+  const priceSource = useBuilderWorkspaceStore((state) => state.priceSource);
   const installedCount = hardwareCategories.filter(
     (category) => selectedComponents[category] !== null,
   ).length;
@@ -66,8 +70,16 @@ export function BuildPanel() {
       <div className={styles["analysis"]}>
         <PerformanceCard scores={performance} />
         <CompatibilityCard summary={compatibility} />
+        <OptimizationPanel />
       </div>
-      <PriceCard powerUsage={powerUsage} priceDelta={feedback.priceDelta} totalPrice={totalPrice} />
+      <PriceCard
+        analysisStatus={analysisStatus}
+        budgetReport={budgetReport}
+        powerUsage={powerUsage}
+        priceDelta={feedback.priceDelta}
+        priceSource={priceSource}
+        totalPrice={totalPrice}
+      />
     </div>
   );
 }

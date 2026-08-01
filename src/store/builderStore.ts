@@ -2,7 +2,10 @@
 
 import { useStore } from "zustand";
 import { createStore, type StoreApi } from "zustand/vanilla";
-import { fetchBuildAnalysis } from "@/features/builder/api/BuildIntelligenceApiClient";
+import {
+  fetchBuildAnalysis,
+  fetchBuildOptimization,
+} from "@/features/builder/api/BuildIntelligenceApiClient";
 import { fetchHardwareCatalogue } from "@/features/builder/api/HardwareApiClient";
 import {
   type CompatibilitySummary,
@@ -20,6 +23,8 @@ import {
   type BudgetReport,
   type BuildAnalysis,
   type BuildAnalysisInput,
+  type BuildOptimization,
+  type OptimizationGoal,
   toCompatibilitySummary,
   toPerformanceScores,
 } from "@/features/builder/domain/intelligence";
@@ -46,6 +51,11 @@ export type AnalysisLoader = (
   input: BuildAnalysisInput,
   signal: AbortSignal,
 ) => Promise<BuildAnalysis>;
+export type OptimizationStatus = "idle" | "loading" | "ready" | "error";
+export type OptimizationLoader = (
+  input: BuildAnalysisInput & { readonly goal: OptimizationGoal },
+  signal: AbortSignal,
+) => Promise<BuildOptimization>;
 
 export type BuilderStore = {
   readonly catalogue: readonly Hardware[];
@@ -57,6 +67,9 @@ export type BuilderStore = {
   readonly analysisStatus: AnalysisStatus;
   readonly analysisError: string | null;
   readonly analysisRevision: number | null;
+  readonly optimizationStatus: OptimizationStatus;
+  readonly optimization: BuildOptimization | null;
+  readonly optimizationError: string | null;
   readonly selectedComponents: SelectedComponents;
   readonly totalPrice: number;
   readonly powerUsage: number;
@@ -73,6 +86,9 @@ export type BuilderStore = {
   readonly refreshAnalysis: () => Promise<void>;
   readonly retryAnalysis: () => Promise<void>;
   readonly applyAuthoritativeAnalysis: (analysis: BuildAnalysis) => boolean;
+  readonly requestOptimization: (goal: OptimizationGoal) => Promise<void>;
+  readonly applyOptimization: () => boolean;
+  readonly clearOptimization: () => void;
 };
 
 type DerivedBuilderState = {
@@ -130,14 +146,18 @@ type CreateBuilderStoreOptions = {
   readonly initialCatalogue?: readonly Hardware[];
   readonly catalogueLoader?: CatalogueLoader;
   readonly analysisLoader?: AnalysisLoader;
+  readonly optimizationLoader?: OptimizationLoader;
   readonly initialBudget?: number;
 };
 
 const catalogueFailureMessage = "无法连接硬件数据中心，请确认 Spring Boot 服务已在 8088 端口启动。";
 const analysisFailureMessage = "配置分析暂时不可用，请重试或检查硬件数据中心。";
+const optimizationFailureMessage = "优化服务暂时不可用，当前配置不会被修改。";
 
 const defaultAnalysisLoader: AnalysisLoader = (input, signal) =>
   fetchBuildAnalysis(input, { signal });
+const defaultOptimizationLoader: OptimizationLoader = (input, signal) =>
+  fetchBuildOptimization(input, { signal });
 
 export const createBuilderStore = (
   options: CreateBuilderStoreOptions = {},
@@ -150,10 +170,22 @@ export const createBuilderStore = (
   const initialDerived = deriveBuilderState(initialSelection);
   const catalogueLoader = options.catalogueLoader ?? fetchHardwareCatalogue;
   const analysisLoader = options.analysisLoader ?? defaultAnalysisLoader;
+  const optimizationLoader = options.optimizationLoader ?? defaultOptimizationLoader;
   const initialBudget = options.initialBudget ?? 30_000;
   let analysisController: AbortController | null = null;
+  let optimizationController: AbortController | null = null;
 
   return createStore<BuilderStore>()((set, get) => {
+    const clearOptimization = (): void => {
+      optimizationController?.abort();
+      optimizationController = null;
+      set({
+        optimizationStatus: "idle",
+        optimization: null,
+        optimizationError: null,
+      });
+    };
+
     const applyAuthoritativeAnalysis = (analysis: BuildAnalysis): boolean => {
       if (analysis.revision !== get().feedback.revision) {
         return false;
@@ -204,12 +236,59 @@ export const createBuilderStore = (
       }
     };
 
+    const requestOptimization = async (goal: OptimizationGoal): Promise<void> => {
+      const state = get();
+      if (state.catalogueStatus !== "ready") {
+        return;
+      }
+      optimizationController?.abort();
+      const controller = new AbortController();
+      optimizationController = controller;
+      const revision = state.feedback.revision;
+      set({
+        optimizationStatus: "loading",
+        optimization: null,
+        optimizationError: null,
+      });
+      try {
+        const optimization = await optimizationLoader(
+          {
+            revision,
+            budget: state.budget,
+            selection: state.selectedComponents,
+            goal,
+          },
+          controller.signal,
+        );
+        if (controller.signal.aborted || optimization.revision !== get().feedback.revision) {
+          return;
+        }
+        set({
+          optimizationStatus: "ready",
+          optimization,
+          optimizationError: null,
+        });
+      } catch (error) {
+        if (controller.signal.aborted || (error instanceof Error && error.name === "AbortError")) {
+          return;
+        }
+        if (get().feedback.revision === revision) {
+          set({
+            optimizationStatus: "error",
+            optimization: null,
+            optimizationError: optimizationFailureMessage,
+          });
+        }
+      }
+    };
+
     const loadCatalogue = async (force: boolean): Promise<void> => {
       const status = get().catalogueStatus;
       if (!force && (status === "loading" || status === "ready")) {
         return;
       }
       set({ catalogueStatus: "loading", catalogueError: null });
+      clearOptimization();
       try {
         const catalogue = await catalogueLoader();
         const selectedComponents = selectDefaultComponents(catalogue);
@@ -241,6 +320,9 @@ export const createBuilderStore = (
       analysisStatus: "idle",
       analysisError: null,
       analysisRevision: null,
+      optimizationStatus: "idle",
+      optimization: null,
+      optimizationError: null,
       selectedComponents: initialSelection,
       ...initialDerived,
       activeCategory: "cpu",
@@ -251,6 +333,7 @@ export const createBuilderStore = (
         revision: 0,
       },
       selectHardware: (hardware) => {
+        clearOptimization();
         const previous = get();
         const selectedComponents = replaceSelectedHardware(previous.selectedComponents, hardware);
         const derived = deriveBuilderState(selectedComponents);
@@ -272,6 +355,7 @@ export const createBuilderStore = (
         });
       },
       applySelection: (selectedComponents) => {
+        clearOptimization();
         const previous = get();
         const derived = deriveBuilderState(selectedComponents);
         set({
@@ -301,6 +385,7 @@ export const createBuilderStore = (
         if (previous.budget === budget) {
           return;
         }
+        clearOptimization();
         set({
           budget,
           budgetReport: null,
@@ -318,6 +403,39 @@ export const createBuilderStore = (
       refreshAnalysis,
       retryAnalysis: refreshAnalysis,
       applyAuthoritativeAnalysis,
+      requestOptimization,
+      applyOptimization: () => {
+        const state = get();
+        const proposal = state.optimization;
+        if (
+          state.optimizationStatus !== "ready" ||
+          proposal === null ||
+          !proposal.changed ||
+          proposal.revision !== state.feedback.revision
+        ) {
+          return false;
+        }
+
+        let selection = emptySelectedComponents();
+        for (const category of hardwareCategories) {
+          const componentId = proposal.recommendedComponents[category];
+          const hardware = state.catalogue.find(
+            (candidate) => candidate.id === componentId && candidate.category === category,
+          );
+          if (hardware === undefined) {
+            set({
+              optimizationStatus: "error",
+              optimizationError: "优化方案包含当前硬件库中不存在的组件，未应用任何修改。",
+            });
+            return false;
+          }
+          selection = replaceSelectedHardware(selection, hardware);
+        }
+
+        get().applySelection(selection);
+        return true;
+      },
+      clearOptimization,
     };
   });
 };

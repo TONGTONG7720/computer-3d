@@ -146,6 +146,41 @@
   margin-top: var(--space-2);
 }
 
+.budgetStatus {
+  min-height: var(--space-6);
+  padding: var(--space-1) var(--space-2);
+  margin: var(--space-2) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--type-micro-size);
+  line-height: var(--type-micro-line);
+  background: var(--panel);
+  border-left: 2px solid var(--border-strong);
+  border-radius: 2px var(--radius-small) var(--radius-small) 2px;
+}
+
+.budgetStatus[data-status="within"] {
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.budgetStatus[data-status="near_limit"] {
+  color: var(--warning);
+  border-color: var(--warning);
+}
+
+.budgetStatus[data-status="over"],
+.budgetStatus[data-status="error"] {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.priceMeta > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .priceMeta > span:last-child {
   display: inline-flex;
   align-items: center;

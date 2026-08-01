@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { hardwareByCategory, mockHardware } from "@/features/builder/data/mockHardware";
 import { parseHardwareId } from "@/features/builder/domain/hardware";
-import type { BuildAnalysis } from "@/features/builder/domain/intelligence";
+import type { BuildAnalysis, BuildOptimization } from "@/features/builder/domain/intelligence";
 import { createBuilderStore } from "./builderStore";
 
 describe("builderStore", () => {
@@ -98,6 +98,23 @@ describe("builderStore", () => {
     expect(store.getState().analysisStatus).toBe("ready");
     expect(store.getState().analysisRevision).toBe(revision);
   });
+
+  it("keeps optimization as a proposal until the user applies it", async () => {
+    const base = createBuilderStore({ initialCatalogue: mockHardware });
+    const proposal = optimizationFixture(base.getState().feedback.revision);
+    const store = createBuilderStore({
+      initialCatalogue: mockHardware,
+      optimizationLoader: async () => proposal,
+    });
+    const originalStorage = store.getState().selectedComponents.storage?.id;
+
+    await store.getState().requestOptimization("gaming");
+
+    expect(store.getState().optimization?.changed).toBe(true);
+    expect(store.getState().selectedComponents.storage?.id).toBe(originalStorage);
+    expect(store.getState().applyOptimization()).toBe(true);
+    expect(store.getState().selectedComponents.storage?.id).toBe("storage-nvme-1tb");
+  });
 });
 
 const analysisFixture = (revision: number, totalPrice: number): BuildAnalysis => ({
@@ -138,4 +155,36 @@ const analysisFixture = (revision: number, totalPrice: number): BuildAnalysis =>
     overage: 0,
     utilizationPercent: 4.11,
   },
+});
+
+const optimizationFixture = (revision: number): BuildOptimization => ({
+  revision,
+  goal: "gaming",
+  recommendedComponents: {
+    cpu: parseHardwareId("cpu-intel-i9-14900k"),
+    gpu: parseHardwareId("gpu-nvidia-rtx5090"),
+    motherboard: parseHardwareId("motherboard-z790-lab"),
+    ram: parseHardwareId("ram-ddr5-64gb"),
+    storage: parseHardwareId("storage-nvme-1tb"),
+    cooling: parseHardwareId("cooling-aio-360"),
+    power_supply: parseHardwareId("psu-1200w-platinum"),
+    case: parseHardwareId("case-future-glass"),
+  },
+  projectedAnalysis: analysisFixture(revision, 12500),
+  suggestions: [
+    {
+      code: "BUDGET_REBALANCE",
+      title: "降低 storage 成本",
+      reason: "释放预算",
+      changes: { storage: parseHardwareId("storage-nvme-1tb") },
+      priceDelta: -1200,
+      profileDelta: -1,
+      applicable: true,
+    },
+  ],
+  priceDelta: -1200,
+  profileDelta: -1,
+  unresolvedBudget: 0,
+  changed: true,
+  reason: "已生成 1 项可应用优化",
 });

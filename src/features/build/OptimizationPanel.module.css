@@ -1,0 +1,203 @@
+.panel {
+  padding: var(--space-3);
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-small);
+}
+
+.header,
+.header > span,
+.controls,
+.proposalSummary,
+.error,
+.suggestions li {
+  display: flex;
+  align-items: center;
+}
+
+.header,
+.proposalSummary {
+  justify-content: space-between;
+}
+
+.header > span {
+  gap: var(--space-2);
+  color: var(--text-primary);
+}
+
+.header strong {
+  font-size: var(--type-label-size);
+  letter-spacing: 0.035em;
+}
+
+.header small,
+.hint,
+.suggestions small,
+.shortfall {
+  color: var(--text-muted);
+  font-size: var(--type-micro-size);
+  line-height: var(--type-micro-line);
+}
+
+.controls {
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.controls label {
+  display: grid;
+  flex: 1;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.controls label > span {
+  color: var(--text-muted);
+  font-size: var(--type-micro-size);
+}
+
+.controls select,
+.controls button,
+.error button,
+.applyButton {
+  height: var(--field-height);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--type-micro-size);
+  background: var(--panel);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-small);
+}
+
+.controls select {
+  width: 100%;
+  padding: 0 var(--space-2);
+}
+
+.controls button,
+.error button,
+.applyButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-3);
+  cursor: pointer;
+}
+
+.controls button {
+  align-self: end;
+  white-space: nowrap;
+}
+
+.controls button:hover:not(:disabled),
+.error button:hover,
+.applyButton:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+.controls button:disabled,
+.applyButton:disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.hint {
+  margin: var(--space-3) 0 0;
+}
+
+.error {
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  color: var(--danger);
+  font-size: var(--type-micro-size);
+}
+
+.error span {
+  flex: 1;
+}
+
+.error button {
+  height: var(--space-7);
+}
+
+.proposal {
+  margin-top: var(--space-3);
+}
+
+.proposalSummary {
+  gap: var(--space-2);
+  padding: var(--space-2);
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: var(--type-micro-size);
+  font-variant-numeric: tabular-nums;
+  background: var(--panel);
+  border-radius: var(--radius-small);
+}
+
+.proposalSummary [data-direction="up"] {
+  color: var(--success);
+}
+
+.proposalSummary [data-direction="down"] {
+  color: var(--warning);
+}
+
+.suggestions {
+  display: grid;
+  gap: var(--space-2);
+  padding: 0;
+  margin: var(--space-3) 0 0;
+  list-style: none;
+}
+
+.suggestions li {
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--success);
+}
+
+.suggestions li > span {
+  display: grid;
+  gap: 2px;
+}
+
+.suggestions strong {
+  color: var(--text-primary);
+  font-size: var(--type-micro-size);
+  font-weight: 600;
+}
+
+.shortfall {
+  padding-left: var(--space-2);
+  margin: var(--space-3) 0 0;
+  color: var(--warning);
+  border-left: 2px solid var(--warning);
+}
+
+.applyButton {
+  width: 100%;
+  margin-top: var(--space-3);
+  color: var(--v3-white);
+  background: var(--primary-pressed);
+  border-color: var(--primary-pressed);
+}
+
+.spinner {
+  animation: optimizer-spin 900ms linear infinite;
+}
+
+@keyframes optimizer-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}
