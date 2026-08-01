@@ -1,6 +1,5 @@
 package com.pclab.hardware.price.service;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.pclab.hardware.entity.HardwareEntity;
 import com.pclab.hardware.exception.DomainException;
 import com.pclab.hardware.exception.ErrorCode;
@@ -14,16 +13,22 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 public class PriceAlertService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PriceAlertService.class);
+    private static final String ALERT_CACHE = "price-alerts";
+    private static final String HASHED_OWNER_KEY =
+            "@priceAlertOwnerHasher.hash(#ownerToken)";
     private static final String ACTIVE = "ACTIVE";
     private static final String TRIGGERED = "TRIGGERED";
-    private static final String PAUSED = "PAUSED";
 
     private final HardwareQueryService hardwareService;
     private final PriceAlertMapper alertMapper;
@@ -42,6 +47,8 @@ public class PriceAlertService {
         this.ownerHasher = ownerHasher;
     }
 
+    @Transactional
+    @CacheEvict(cacheNames = ALERT_CACHE, key = HASHED_OWNER_KEY)
     public PriceAlertView upsert(
             String ownerToken,
             String hardwareKey,
@@ -50,40 +57,31 @@ public class PriceAlertService {
         String ownerHash = ownerHasher.hash(ownerToken);
         HardwareEntity hardware = hardwareService.requireHardware(hardwareKey);
         PriceComparisonView comparison = comparisonService.compareHardware(hardwareKey);
-        PriceAlertEntity alert = alertMapper.selectOne(
-                Wrappers.<PriceAlertEntity>lambdaQuery()
-                        .eq(PriceAlertEntity::getOwnerHash, ownerHash)
-                        .eq(PriceAlertEntity::getHardwareId, hardware.getId())
-        );
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-        boolean created = alert == null;
-        if (created) {
-            alert = new PriceAlertEntity();
-            alert.setPublicId(UUID.randomUUID().toString());
-            alert.setOwnerHash(ownerHash);
-            alert.setHardwareId(hardware.getId());
-            alert.setCreatedAt(now);
+        PriceAlertEntity candidate = new PriceAlertEntity();
+        candidate.setPublicId(UUID.randomUUID().toString());
+        candidate.setOwnerHash(ownerHash);
+        candidate.setHardwareId(hardware.getId());
+        candidate.setTargetPrice(targetPrice);
+        candidate.setCreatedAt(now);
+        applyPriceCheck(candidate, comparison.lowestPrice(), now);
+        candidate.setUpdatedAt(now);
+        alertMapper.upsertAlert(candidate);
+        PriceAlertEntity persisted = alertMapper.selectByOwnerHashAndHardwareId(
+                ownerHash,
+                hardware.getId()
+        );
+        if (persisted == null) {
+            throw new DomainException(ErrorCode.INTERNAL_ERROR);
         }
-        alert.setTargetPrice(targetPrice);
-        applyPriceCheck(alert, comparison.lowestPrice(), now);
-        alert.setUpdatedAt(now);
-        if (created) {
-            alertMapper.insert(alert);
-        } else {
-            alertMapper.updateById(alert);
-        }
-        return toView(alert, hardware);
+        return toView(persisted, hardware);
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = ALERT_CACHE, key = HASHED_OWNER_KEY)
     public List<PriceAlertView> list(String ownerToken) {
         String ownerHash = ownerHasher.hash(ownerToken);
-        return alertMapper.selectList(
-                        Wrappers.<PriceAlertEntity>lambdaQuery()
-                                .eq(PriceAlertEntity::getOwnerHash, ownerHash)
-                                .ne(PriceAlertEntity::getStatus, PAUSED)
-                                .orderByDesc(PriceAlertEntity::getUpdatedAt)
-                ).stream()
+        return alertMapper.selectVisibleByOwnerHash(ownerHash).stream()
                 .map(alert -> toView(
                         alert,
                         hardwareService.requireHardware(alert.getHardwareId().toString())
@@ -91,39 +89,53 @@ public class PriceAlertService {
                 .toList();
     }
 
+    @Transactional
+    @CacheEvict(cacheNames = ALERT_CACHE, key = HASHED_OWNER_KEY)
     public void cancel(String ownerToken, String publicId) {
         String ownerHash = ownerHasher.hash(ownerToken);
-        PriceAlertEntity alert = alertMapper.selectOne(
-                Wrappers.<PriceAlertEntity>lambdaQuery()
-                        .eq(PriceAlertEntity::getOwnerHash, ownerHash)
-                        .eq(PriceAlertEntity::getPublicId, publicId)
-                        .ne(PriceAlertEntity::getStatus, PAUSED)
+        int updated = alertMapper.pauseOwnedAlert(
+                ownerHash,
+                publicId,
+                LocalDateTime.now(ZoneOffset.UTC)
         );
-        if (alert == null) {
+        if (updated == 0) {
             throw new DomainException(ErrorCode.PRICE_ALERT_NOT_FOUND);
         }
-        alert.setStatus(PAUSED);
-        alert.setUpdatedAt(LocalDateTime.now(ZoneOffset.UTC));
-        alertMapper.updateById(alert);
     }
 
-    public void reevaluateActiveAlerts() {
-        List<PriceAlertEntity> activeAlerts = alertMapper.selectList(
-                Wrappers.<PriceAlertEntity>lambdaQuery()
-                        .eq(PriceAlertEntity::getStatus, ACTIVE)
-        );
-        for (PriceAlertEntity alert : activeAlerts) {
-            HardwareEntity hardware = hardwareService.requireHardware(
-                    alert.getHardwareId().toString()
-            );
-            PriceComparisonView comparison = comparisonService.compareHardware(
-                    hardware.getHardwareKey()
-            );
-            LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-            applyPriceCheck(alert, comparison.lowestPrice(), now);
-            alert.setUpdatedAt(now);
-            alertMapper.updateById(alert);
+    @CacheEvict(
+            cacheNames = ALERT_CACHE,
+            allEntries = true,
+            condition = "#result > 0"
+    )
+    public int reevaluateActiveAlerts() {
+        int updatedCount = 0;
+        for (PriceAlertEntity alert : alertMapper.selectActiveAlerts()) {
+            try {
+                BigDecimal expectedTargetPrice = alert.getTargetPrice();
+                HardwareEntity hardware = hardwareService.requireHardware(
+                        alert.getHardwareId().toString()
+                );
+                PriceComparisonView comparison = comparisonService.compareHardware(
+                        hardware.getHardwareKey()
+                );
+                LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+                applyPriceCheck(alert, comparison.lowestPrice(), now);
+                alert.setUpdatedAt(now);
+                updatedCount += alertMapper.updateIfStillActive(
+                        alert,
+                        expectedTargetPrice
+                );
+            } catch (RuntimeException exception) {
+                LOGGER.warn(
+                        "price.alert.reevaluation.failed alertId={} hardwareId={} error={}",
+                        alert.getId(),
+                        alert.getHardwareId(),
+                        exception.getClass().getSimpleName()
+                );
+            }
         }
+        return updatedCount;
     }
 
     private static void applyPriceCheck(

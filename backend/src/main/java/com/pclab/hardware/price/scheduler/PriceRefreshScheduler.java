@@ -39,6 +39,7 @@ public class PriceRefreshScheduler {
     @Scheduled(cron = "${app.price.hot-refresh-cron}")
     public void refreshHotHardwareCoverage() {
         auditCoverage("HOT", 8);
+        alertService.reevaluateActiveAlerts();
     }
 
     @Scheduled(cron = "${app.price.normal-refresh-cron}")
@@ -65,6 +66,5 @@ public class PriceRefreshScheduler {
                     hardware.size()
             );
         }
-        alertService.reevaluateActiveAlerts();
     }
 }

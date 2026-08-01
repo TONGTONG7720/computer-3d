@@ -47,6 +47,7 @@ public class RedisCacheConfig implements CachingConfigurer {
                 Map.entry("price-comparison", cacheConfiguration(Duration.ofMinutes(5), valueSerializer)),
                 Map.entry("price-history", cacheConfiguration(Duration.ofMinutes(15), valueSerializer)),
                 Map.entry("price-build", cacheConfiguration(Duration.ofMinutes(2), valueSerializer)),
+                Map.entry("price-alerts", cacheConfiguration(Duration.ofMinutes(2), valueSerializer)),
                 Map.entry("price-hot", cacheConfiguration(Duration.ofMinutes(10), valueSerializer)),
                 Map.entry("price-admin", cacheConfiguration(Duration.ofMinutes(1), valueSerializer))
         );

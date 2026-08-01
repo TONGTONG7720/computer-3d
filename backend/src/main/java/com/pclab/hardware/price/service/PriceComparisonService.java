@@ -78,7 +78,9 @@ public class PriceComparisonService {
                 .map(this::toComponentQuote)
                 .toList();
         BigDecimal internalTotal = components.stream()
-                .map(component -> valueOrZero(component.internalReferencePrice()))
+                .map(component -> component.internalReferencePrice() == null
+                        ? BigDecimal.ZERO
+                        : component.internalReferencePrice())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal lowestTotal = components.stream()
                 .map(component -> preferred(component.lowestPrice(), component.internalReferencePrice()))
@@ -269,9 +271,5 @@ public class PriceComparisonService {
             return marketPrice;
         }
         return internalPrice == null ? BigDecimal.ZERO : internalPrice;
-    }
-
-    private static BigDecimal valueOrZero(BigDecimal value) {
-        return value == null ? BigDecimal.ZERO : value;
     }
 }
