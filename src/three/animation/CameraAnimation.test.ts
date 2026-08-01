@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getCameraPreset } from "./CameraAnimation";
+import { getCameraPreset, getResponsiveCameraPreset } from "./CameraAnimation";
 
 describe("camera presets", () => {
   it("frames an installation closer than the default build view", () => {
@@ -24,5 +24,17 @@ describe("camera presets", () => {
     // Then
     expect(explodedView.position[0]).toBeGreaterThan(defaultView.position[0]);
     expect(explodedView.position[2]).toBeGreaterThan(defaultView.position[2]);
+  });
+
+  it("adds framing distance without moving the focal target on mobile", () => {
+    // Given
+    const desktop = getCameraPreset("default");
+
+    // When
+    const mobile = getResponsiveCameraPreset("default", true);
+
+    // Then
+    expect(mobile.position[2]).toBeGreaterThan(desktop.position[2]);
+    expect(mobile.target).toEqual(desktop.target);
   });
 });

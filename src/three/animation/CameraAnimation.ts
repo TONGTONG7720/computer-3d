@@ -33,3 +33,21 @@ export const cameraPresets = {
 } as const satisfies Readonly<Record<CameraView, CameraPreset>>;
 
 export const getCameraPreset = (view: CameraView): CameraPreset => cameraPresets[view];
+
+export const getResponsiveCameraPreset = (view: CameraView, mobile: boolean): CameraPreset => {
+  const preset = getCameraPreset(view);
+  if (!mobile) {
+    return preset;
+  }
+
+  const position: Vector3Tuple = [
+    preset.position[0] * 1.35,
+    preset.position[1] * 1.18,
+    preset.position[2] * 1.35,
+  ];
+  return {
+    position,
+    target: preset.target,
+    fov: preset.fov + 2,
+  };
+};
