@@ -66,6 +66,9 @@ class PriceIntelligenceControllerTest {
                 .andExpect(jsonPath("$.data.lowestOfferId").value(12))
                 .andExpect(jsonPath("$.data.offers[0].redirectPath")
                         .value("/api/price-intelligence/offers/12/go"))
+                .andExpect(jsonPath("$.data.offers[0].deliveryScore").value(96.25))
+                .andExpect(jsonPath("$.data.offers[0].deliveryNote")
+                        .value("  京东物流 · 次日达  "))
                 .andExpect(jsonPath("$.data.offers[0].affiliateUrl").doesNotExist())
                 .andExpect(jsonPath("$.data.offers[0].productUrl").doesNotExist());
     }
@@ -212,6 +215,8 @@ class PriceIntelligenceControllerTest {
                 new BigDecimal("4.9"),
                 3200,
                 new BigDecimal("98"),
+                new BigDecimal("96.25"),
+                "  京东物流 · 次日达  ",
                 new BigDecimal("94.7"),
                 new BigDecimal("0.99"),
                 false,

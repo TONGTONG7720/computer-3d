@@ -40,6 +40,8 @@ public record PriceComparisonView(
             BigDecimal rating,
             int salesCount,
             BigDecimal trustScore,
+            BigDecimal deliveryScore,
+            String deliveryNote,
             BigDecimal rankingScore,
             BigDecimal matchConfidence,
             boolean stale,

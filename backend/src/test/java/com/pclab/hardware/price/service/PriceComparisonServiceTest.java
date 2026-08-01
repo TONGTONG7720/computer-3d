@@ -154,8 +154,22 @@ class PriceComparisonServiceTest {
                 product(11L, "MANUAL", "0.99")
         ));
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        String deliveryNote = "  京东物流 · 次日达  ";
+        ProductPriceEntity jdOffer = offer(
+                101L,
+                10L,
+                "JD",
+                "MARKETPLACE",
+                "1000",
+                1000,
+                "4.5",
+                "90",
+                "100",
+                now
+        );
+        jdOffer.setDeliveryNote(deliveryNote);
         when(priceMapper.selectByHardwareId(1L)).thenReturn(List.of(
-                offer(101L, 10L, "JD", "MARKETPLACE", "1000", 1000, "4.5", "90", "100", now),
+                jdOffer,
                 offer(102L, 11L, "PDD", "MARKETPLACE", "990", 1000, "4.5", "90", "0", now)
         ));
         PriceComparisonService service = new PriceComparisonService(
@@ -169,9 +183,13 @@ class PriceComparisonServiceTest {
 
         assertThat(result.recommendedOfferId()).isEqualTo(101L);
         assertThat(result.recommendedReason()).contains("配送");
-        assertThat(result.offers()).filteredOn(offer -> offer.id().equals(101L))
-                .extracting(PriceComparisonView.OfferView::rankingScore)
-                .containsExactly(new BigDecimal("96.10"));
+        PriceComparisonView.OfferView recommended = result.offers().stream()
+                .filter(offer -> offer.id().equals(101L))
+                .findFirst()
+                .orElseThrow();
+        assertThat(recommended.rankingScore()).isEqualByComparingTo("96.10");
+        assertThat(recommended.deliveryScore()).isEqualByComparingTo("100");
+        assertThat(recommended.deliveryNote()).isEqualTo(deliveryNote);
     }
 
     private static HardwareEntity hardware() {

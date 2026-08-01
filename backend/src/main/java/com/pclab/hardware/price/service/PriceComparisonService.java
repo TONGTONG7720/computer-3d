@@ -205,6 +205,8 @@ public class PriceComparisonService {
                 offer.getRating(),
                 offer.getSalesCount(),
                 offer.getSellerScore(),
+                offer.getDeliveryScore(),
+                offer.getDeliveryNote(),
                 score.totalScore(),
                 product.getMatchConfidence(),
                 score.stale(),
