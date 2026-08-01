@@ -28,6 +28,12 @@ export function GPU({ part, selected }: GPUProps) {
     [variant],
   );
   return (
-    <PartGroup assetId={part.hardware.id} object={object} selected={selected} slotId="gpu_slot" />
+    <PartGroup
+      animateReplacement
+      assetId={part.hardware.id}
+      object={object}
+      selected={selected}
+      slotId="gpu_slot"
+    />
   );
 }

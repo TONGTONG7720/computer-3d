@@ -18,6 +18,12 @@ export function CPU({ part, selected }: CPUProps) {
     : materialTokens.brushedAluminum;
   const object = useMemo(() => normalizeProceduralPart(createCPU({ accent })), [accent]);
   return (
-    <PartGroup assetId={part.hardware.id} object={object} selected={selected} slotId="cpu_socket" />
+    <PartGroup
+      animateReplacement
+      assetId={part.hardware.id}
+      object={object}
+      selected={selected}
+      slotId="cpu_socket"
+    />
   );
 }

@@ -1,112 +1,148 @@
 "use client";
 
-import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
-import { Focus, Maximize2, MousePointer2, RotateCcw, ScanLine } from "lucide-react";
-import { useState } from "react";
+import { Focus, Maximize2, MousePointer2, RotateCcw } from "lucide-react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { useBuilderWorkspaceStore } from "@/features/builder/store/BuilderStoreProvider";
+import type { CameraView } from "@/three/animation/CameraAnimation";
+import type { ViewerMode, ViewerRuntimeStatus } from "@/three/core/engineTypes";
+import { resolveCameraView } from "@/three/core/ViewerRuntime";
+import type { RGBEffect } from "@/three/materials/RGBSettings";
+import type { PCSlotId } from "@/three/pc/slots";
+import { BuilderPCViewer } from "@/three/viewer/BuilderPCViewer";
+import { RGBStudioPanel } from "./RGBStudioPanel";
 import styles from "./ThreeDViewport.module.css";
 
-const viewportModeOrder = ["build", "exploded", "airflow", "studio"] as const;
-export type ViewportMode = (typeof viewportModeOrder)[number];
-
-const viewportModeContent = {
-  build: {
-    label: "Build",
-    title: "装机视图",
-    description: "完整机箱、插槽定位和安装反馈将在 3D 集成阶段接入。",
-  },
-  exploded: {
-    label: "Exploded",
-    title: "拆解预览",
-    description: "GPU、内存、散热和主板的物理解构轴已预留。",
-  },
-  airflow: {
-    label: "Airflow",
-    title: "风道预览",
-    description: "冷气流、热气流和预测温区将在真实场景中显示。",
-  },
-  studio: {
-    label: "Studio",
-    title: "外观工作室",
-    description: "RGB、机箱颜色和玻璃预览将在真实材质接入后启用。",
-  },
-} as const satisfies Readonly<
-  Record<
-    ViewportMode,
-    { readonly label: string; readonly title: string; readonly description: string }
-  >
->;
+const viewportModes = ["build", "exploded", "airflow", "studio"] as const;
+const modeLabels = {
+  build: "Build",
+  exploded: "Exploded",
+  airflow: "Airflow",
+  studio: "Studio",
+} as const satisfies Readonly<Record<ViewerMode, string>>;
 
 type ThreeDViewportProps = {
   readonly loading?: boolean;
 };
 
 export function ThreeDViewport({ loading = false }: ThreeDViewportProps) {
-  const [mode, setMode] = useState<ViewportMode>("build");
-  const content = viewportModeContent[mode];
+  const selectedComponents = useBuilderWorkspaceStore((state) => state.selectedComponents);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [mode, setMode] = useState<ViewerMode>("build");
+  const [detailRequested, setDetailRequested] = useState(false);
+  const [cameraRevision, setCameraRevision] = useState(0);
+  const [selectedSlot, setSelectedSlot] = useState<PCSlotId | null>(null);
+  const [status, setStatus] = useState<ViewerRuntimeStatus>({
+    kind: "loading",
+    label: "正在准备 3D 引擎",
+    progress: 0,
+  });
+  const [rgbColor, setRgbColor] = useState("#48d8ff");
+  const [rgbBrightness, setRgbBrightness] = useState(0.82);
+  const [rgbEffect, setRgbEffect] = useState<RGBEffect>("static");
+  const [rgbSpeed, setRgbSpeed] = useState(1);
+  const cameraView = useMemo<CameraView>(
+    () => resolveCameraView(mode, detailRequested, false),
+    [detailRequested, mode],
+  );
+  const updateStatus = useCallback((next: ViewerRuntimeStatus) => setStatus(next), []);
+
+  const changeMode = (nextMode: ViewerMode): void => {
+    setMode(nextMode);
+    setDetailRequested(false);
+    setCameraRevision((revision) => revision + 1);
+  };
+
+  const resetCamera = (): void => {
+    setDetailRequested(false);
+    setCameraRevision((revision) => revision + 1);
+  };
+
+  const toggleFullscreen = (): void => {
+    const viewport = viewportRef.current;
+    if (viewport === null || typeof viewport.requestFullscreen !== "function") {
+      return;
+    }
+    void viewport.requestFullscreen();
+  };
 
   return (
-    <div className={styles["viewport"]}>
+    <div className={styles["viewport"]} ref={viewportRef}>
       <nav aria-label="预览模式" className={styles["modeSwitcher"]}>
-        {viewportModeOrder.map((modeId) => (
+        {viewportModes.map((modeId) => (
           <button
-            aria-label={`${viewportModeContent[modeId].label} 模式`}
+            aria-label={`${modeLabels[modeId]} 模式`}
             aria-pressed={mode === modeId}
             data-active={mode === modeId}
             key={modeId}
-            onClick={() => setMode(modeId)}
+            onClick={() => changeMode(modeId)}
             type="button"
           >
-            {viewportModeContent[modeId].label}
+            {modeLabels[modeId]}
           </button>
         ))}
       </nav>
 
-      <section aria-label="3D 摄像机占位区域" className={styles["cameraStage"]}>
+      <section aria-label="3D 电脑工作区" className={styles["cameraStage"]}>
         <span aria-hidden="true" className={styles["cameraFrame"]}>
           <span />
         </span>
-        <LazyMotion features={domAnimation} strict>
-          <AnimatePresence mode="wait">
-            <m.div
-              animate={{ opacity: 1, y: 0 }}
-              className={styles["placeholder"]}
-              exit={{ opacity: 0, y: -4 }}
-              initial={{ opacity: 0, y: 4 }}
-              key={mode}
-              transition={{ duration: 0.18, ease: [0.2, 0.8, 0.2, 1] }}
-            >
-              <ScanLine aria-hidden="true" size={28} strokeWidth={1.25} />
-              <small>3D VIEWPORT RESERVED</small>
-              <h1>{loading ? "正在准备视口" : content.title}</h1>
-              <p>{loading ? "独立视口模块正在载入，布局尺寸保持不变。" : content.description}</p>
-              <strong>真实模型将在下一阶段接入</strong>
-            </m.div>
-          </AnimatePresence>
-        </LazyMotion>
+        <BuilderPCViewer
+          cameraRevision={cameraRevision}
+          cameraView={cameraView}
+          mode={mode}
+          onSelect={setSelectedSlot}
+          onStatus={updateStatus}
+          rgbSettings={{
+            brightness: rgbBrightness,
+            color: rgbColor,
+            effect: rgbEffect,
+            speed: rgbSpeed,
+          }}
+          selectedComponents={selectedComponents}
+          selectedSlot={selectedSlot}
+        />
       </section>
 
+      {mode === "studio" ? (
+        <RGBStudioPanel
+          brightness={rgbBrightness}
+          color={rgbColor}
+          effect={rgbEffect}
+          onBrightnessChange={setRgbBrightness}
+          onColorChange={setRgbColor}
+          onEffectChange={setRgbEffect}
+          onSpeedChange={setRgbSpeed}
+          speed={rgbSpeed}
+        />
+      ) : null}
+
       <div aria-label="摄像机控制" className={styles["cameraControls"]} role="toolbar">
-        <button disabled title="接入 3D 后可用" type="button">
+        <button aria-label="重置镜头" onClick={resetCamera} type="button">
           <RotateCcw aria-hidden="true" size={16} strokeWidth={1.6} />
           重置
         </button>
-        <button disabled title="接入 3D 后可用" type="button">
+        <button
+          aria-label="内部聚焦"
+          aria-pressed={detailRequested}
+          onClick={() => setDetailRequested((requested) => !requested)}
+          type="button"
+        >
           <Focus aria-hidden="true" size={16} strokeWidth={1.6} />
           内部聚焦
         </button>
-        <button disabled title="接入 3D 后可用" type="button">
+        <button aria-label="全屏查看" onClick={toggleFullscreen} type="button">
           <Maximize2 aria-hidden="true" size={16} strokeWidth={1.6} />
           全屏
         </button>
       </div>
 
       <div aria-live="polite" className={styles["stageStatus"]} role="status">
-        <span data-loading={loading} />
-        {loading ? "正在准备视口" : "视口占位 · UI 模式可用"}
+        <span data-state={loading ? "loading" : status.kind} />
+        {loading ? "正在准备 3D 引擎" : status.label}
       </div>
       <div className={styles["interactionHint"]}>
         <MousePointer2 aria-hidden="true" size={14} strokeWidth={1.5} />
-        旋转 / 缩放 / 平移将在 3D 阶段启用
+        左键旋转 · 滚轮缩放 · 右键平移
       </div>
     </div>
   );

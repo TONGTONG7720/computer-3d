@@ -72,16 +72,21 @@
 .cameraStage {
   position: absolute;
   inset: var(--space-16) var(--space-6) var(--space-16);
-  display: grid;
-  place-items: center;
+  overflow: hidden;
+  border-radius: var(--radius-large);
 }
 
 .cameraFrame {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
   width: min(62%, var(--camera-frame-max-width));
   aspect-ratio: 4 / 5;
+  pointer-events: none;
   border: var(--border-width) solid var(--v3-stage-line-strong);
   border-radius: var(--radius-medium);
+  transform: translate(-50%, -50%);
 }
 
 .cameraFrame::before,
@@ -120,54 +125,6 @@
   border-width: 0 var(--border-width) var(--border-width) 0;
 }
 
-.placeholder {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  justify-items: center;
-  max-width: var(--viewport-copy-max-width);
-  padding: var(--space-6);
-  text-align: center;
-}
-
-.placeholder > svg {
-  margin-bottom: var(--space-4);
-  color: var(--primary-hover);
-}
-
-.placeholder small {
-  color: var(--text-muted);
-  font-family: var(--font-ui);
-  font-size: var(--type-micro-size);
-  font-weight: 600;
-  letter-spacing: 0.12em;
-}
-
-.placeholder h1 {
-  margin: var(--space-2) 0 0;
-  color: var(--text-primary);
-  font-family: var(--font-ui);
-  font-size: var(--type-section-size);
-  line-height: var(--type-section-line);
-  text-wrap: balance;
-}
-
-.placeholder p {
-  max-width: 34ch;
-  margin: var(--space-2) 0 0;
-  color: var(--text-secondary);
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  text-wrap: pretty;
-}
-
-.placeholder strong {
-  margin-top: var(--space-4);
-  color: var(--text-muted);
-  font-size: var(--type-label-size);
-  font-weight: 500;
-}
-
 .cameraControls {
   position: absolute;
   bottom: var(--space-3);
@@ -189,9 +146,19 @@
   gap: var(--space-2);
   min-height: var(--field-height);
   padding: 0 var(--space-2);
-  color: var(--text-disabled);
+  color: var(--text-secondary);
   background: transparent;
   border: 0;
+  border-radius: calc(var(--radius-small) - var(--space-1));
+  transition:
+    color var(--duration-feedback) ease-out,
+    background var(--duration-feedback) ease-out;
+}
+
+.cameraControls button:hover,
+.cameraControls button[aria-pressed="true"] {
+  color: var(--text-primary);
+  background: var(--surface-hover);
 }
 
 .stageStatus,
@@ -217,12 +184,121 @@
   border-radius: 50%;
 }
 
-.stageStatus > span[data-loading="true"] {
+.stageStatus > span[data-state="loading"] {
   background: var(--warning);
+}
+
+.stageStatus > span[data-state="ready"] {
+  background: var(--success);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--success) 70%, transparent);
 }
 
 .interactionHint {
   right: var(--space-4);
+}
+
+.rgbPanel {
+  position: absolute;
+  top: var(--space-16);
+  right: var(--space-4);
+  z-index: 3;
+  display: grid;
+  gap: var(--space-3);
+  width: min(224px, calc(100% - var(--space-8)));
+  padding: var(--space-4);
+  background: var(--v3-control-glass);
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-overlay);
+  backdrop-filter: blur(18px);
+}
+
+.rgbHeader,
+.colorField,
+.rangeField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--type-micro-size);
+}
+
+.rgbHeader span {
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.rgbHeader strong {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.colorField input {
+  width: var(--field-height);
+  height: var(--space-6);
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius-small);
+}
+
+.effectGroup {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.effectGroup legend {
+  margin-bottom: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--type-micro-size);
+}
+
+.effectGroup > div {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-1);
+}
+
+.effectGroup label {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 30px;
+  padding: 0 var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--type-micro-size);
+  text-transform: capitalize;
+  background: var(--surface-raised);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+
+.effectGroup label[data-active="true"] {
+  color: var(--text-primary);
+  background: var(--primary-soft);
+  border-color: var(--primary);
+}
+
+.effectGroup input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.rangeField {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+}
+
+.rangeField input {
+  width: 100%;
+  accent-color: var(--primary);
 }
 
 @media (max-width: 767px) {
@@ -240,18 +316,16 @@
     width: min(72%, var(--camera-frame-mobile-max-width));
   }
 
-  .placeholder {
-    padding: var(--space-4);
-  }
-
-  .placeholder h1 {
-    font-size: var(--type-panel-size);
-    line-height: var(--type-panel-line);
-  }
-
   .cameraControls,
   .interactionHint {
     display: none;
+  }
+
+  .rgbPanel {
+    top: var(--space-12);
+    right: var(--space-3);
+    width: min(196px, calc(100% - var(--space-6)));
+    padding: var(--space-3);
   }
 
   .stageStatus {

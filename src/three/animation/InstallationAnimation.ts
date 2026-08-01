@@ -1,6 +1,7 @@
 import gsap from "gsap";
 import { type Group, Mesh, type MeshPhysicalMaterial, MeshStandardMaterial } from "three";
 import type { Vector3Tuple } from "../models/modelManifest";
+import { getComponentSlot, type PCSlotId } from "../pc/slots";
 
 export const installationPhases = [
   "waiting",
@@ -35,6 +36,28 @@ export type InstallationPlan = {
 };
 
 type InstallationListener = (phase: InstallationPhase) => void;
+
+const installationDurations = {
+  pc_case: 1200,
+  motherboard: 1300,
+  cpu_socket: 980,
+  gpu_slot: 1200,
+  ram_slots: 960,
+  storage_slots: 900,
+  cooling_mount: 1150,
+  fan_mount: 900,
+  psu_area: 1050,
+} as const satisfies Readonly<Record<PCSlotId, number>>;
+
+export const createInstallationOptions = (slotId: PCSlotId): InstallationOptions => {
+  const slot = getComponentSlot(slotId);
+  return {
+    assembledPosition: slot.position,
+    assembledRotation: slot.rotation,
+    entryOffset: slot.installEntry,
+    durationMs: installationDurations[slotId],
+  };
+};
 
 export const createInstallationPlan = (options: InstallationOptions): InstallationPlan => ({
   start: {

@@ -15,4 +15,5 @@ export const materialTokens = {
   selected: 0xb7f3ff,
   warmWhite: 0xffe5c4,
   coldBlue: 0x69b8ff,
+  heatRed: 0xff6b4a,
 } as const;
