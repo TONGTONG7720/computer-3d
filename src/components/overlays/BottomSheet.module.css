@@ -1,0 +1,122 @@
+.backdrop {
+  position: fixed;
+  inset: var(--toolbar-height) 0 0;
+  z-index: var(--z-backdrop);
+  background: var(--backdrop);
+}
+
+.sheet {
+  --sheet-enter-x: 0px;
+  --sheet-enter-y: var(--space-6);
+  position: absolute;
+  top: var(--space-2);
+  bottom: var(--space-2);
+  z-index: var(--z-sheet);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--panel);
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-overlay);
+}
+
+.sheet[data-side="left"] {
+  --sheet-enter-x: calc(var(--space-6) * -1);
+  --sheet-enter-y: 0px;
+  left: var(--space-2);
+  width: var(--sheet-left-width);
+}
+
+.sheet[data-side="right"] {
+  --sheet-enter-x: var(--space-6);
+  --sheet-enter-y: 0px;
+  right: var(--space-2);
+  width: var(--sheet-right-width);
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--space-16);
+  padding: 0 var(--space-4);
+  border-bottom: var(--border-width) solid var(--border);
+}
+
+.header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--type-panel-size);
+  line-height: var(--type-panel-line);
+}
+
+.header button {
+  display: grid;
+  padding: 0;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-small);
+  place-items: center;
+}
+
+.header button:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+
+.handle {
+  display: none;
+}
+
+.content {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 767px) {
+  .backdrop {
+    inset: 0;
+  }
+
+  .sheet,
+  .sheet[data-side="left"],
+  .sheet[data-side="right"] {
+    --sheet-enter-x: 0px;
+    --sheet-enter-y: var(--space-6);
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-height: 58dvh;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: var(--radius-large) var(--radius-large) 0 0;
+  }
+
+  .sheet[data-size="full"] {
+    height: calc(100dvh - var(--space-4));
+    max-height: calc(100dvh - var(--space-4));
+  }
+
+  .header {
+    padding-top: var(--space-2);
+  }
+
+  .handle {
+    position: absolute;
+    top: var(--space-2);
+    left: 50%;
+    display: block;
+    width: var(--space-10);
+    height: var(--space-1);
+    background: var(--border-strong);
+    border-radius: var(--radius-small);
+    transform: translateX(-50%);
+  }
+}

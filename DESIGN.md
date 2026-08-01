@@ -117,6 +117,18 @@ The visual hierarchy is fixed:
 | `--component-slot-height` | 40px | Category navigation row |
 | `--hardware-item-height` | 72px | Hardware option row |
 | `--field-height` | 36px | Dense search/edit field |
+| `--mode-switcher-width` | 392px | Four-mode Viewer control |
+| `--mode-switcher-height` | 40px | Four-mode Viewer control |
+| `--config-row-height` | 44px | Build configuration row |
+| `--config-label-width` | 76px | Build configuration label column |
+| `--performance-card-height` | 148px | Three-score analysis |
+| `--sheet-left-width` | 320px | Tablet Component sheet |
+| `--sheet-right-width` | 340px | Tablet Summary sheet |
+| `--mobile-builder-dock-height` | 128px | Mobile summary and category dock |
+| `--viewport-perspective` | 520px | Placeholder stage grid perspective |
+| `--camera-frame-max-width` | 430px | Desktop camera frame limit |
+| `--camera-frame-mobile-max-width` | 300px | Mobile camera frame limit |
+| `--viewport-copy-max-width` | 360px | Placeholder message measure |
 
 ## V3.3 — Layout contract
 

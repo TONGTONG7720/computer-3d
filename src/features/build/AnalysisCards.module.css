@@ -1,0 +1,161 @@
+.card,
+.priceCard {
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-small);
+}
+
+.card {
+  padding: var(--space-3);
+}
+
+.cardHeader,
+.priceLabel,
+.priceMeta,
+.compatibilityStatus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.cardHeader h3,
+.priceLabel strong {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+}
+
+.cardHeader span,
+.priceLabel small,
+.priceMeta,
+.compatibilityStatus small {
+  color: var(--text-muted);
+  font-size: var(--type-micro-size);
+  line-height: var(--type-micro-line);
+}
+
+.scoreList {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.scoreRow {
+  display: grid;
+  grid-template-columns: var(--space-16) minmax(0, 1fr) var(--space-6);
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.scoreRow label {
+  color: var(--text-secondary);
+  font-size: var(--type-micro-size);
+}
+
+.scoreRow meter {
+  width: 100%;
+  height: var(--space-1);
+  overflow: hidden;
+  appearance: none;
+  background: var(--border);
+  border: 0;
+  border-radius: var(--radius-small);
+}
+
+.scoreRow meter::-webkit-meter-bar {
+  background: var(--border);
+  border: 0;
+}
+
+.scoreRow meter::-webkit-meter-optimum-value {
+  background: var(--primary);
+}
+
+.scoreRow meter::-moz-meter-bar {
+  background: var(--primary);
+}
+
+.scoreRow output {
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--type-label-size);
+  text-align: right;
+}
+
+.compatibilityStatus {
+  justify-content: flex-start;
+}
+
+.compatibilityStatus > span {
+  display: grid;
+}
+
+.compatibilityStatus[data-status="success"] {
+  color: var(--success);
+}
+
+.compatibilityStatus[data-status="warning"] {
+  color: var(--warning);
+}
+
+.compatibilityStatus[data-status="error"] {
+  color: var(--danger);
+}
+
+.card > p {
+  margin: var(--space-2) 0 0;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: var(--type-micro-size);
+  line-height: var(--type-micro-line);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.priceCard {
+  padding: var(--space-4);
+}
+
+.priceLabel > span {
+  display: grid;
+}
+
+.priceLabel > span:last-child {
+  display: inline-flex;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-secondary);
+}
+
+.price {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--type-price-size);
+  font-weight: 600;
+  line-height: var(--type-price-line);
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+
+.priceMeta {
+  margin-top: var(--space-2);
+}
+
+.priceMeta > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.priceMeta [data-direction="up"] {
+  color: var(--warning);
+}
+
+.priceMeta [data-direction="down"] {
+  color: var(--success);
+}

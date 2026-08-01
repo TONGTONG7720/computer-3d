@@ -1,0 +1,262 @@
+.viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 44%, var(--surface-raised), transparent 42%), var(--bg-stage);
+  isolation: isolate;
+}
+
+.viewport::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  background-image:
+    linear-gradient(var(--v3-stage-line) var(--border-width), transparent var(--border-width)),
+    linear-gradient(
+      90deg,
+      var(--v3-stage-line) var(--border-width),
+      transparent var(--border-width)
+    );
+  background-size: var(--space-16) var(--space-16);
+  mask-image: linear-gradient(to bottom, transparent, black 26%, black 82%, transparent);
+  transform: perspective(var(--viewport-perspective)) rotateX(58deg) scale(1.6) translateY(22%);
+  transform-origin: center bottom;
+}
+
+.modeSwitcher {
+  position: absolute;
+  top: var(--space-3);
+  left: 50%;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  width: min(calc(100% - var(--space-6)), var(--mode-switcher-width));
+  height: var(--mode-switcher-height);
+  padding: var(--space-1);
+  background: var(--v3-control-glass);
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius-small);
+  backdrop-filter: blur(12px);
+  transform: translateX(-50%);
+}
+
+.modeSwitcher button {
+  min-width: 0;
+  min-height: 0;
+  padding: 0 var(--space-2);
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--type-label-size);
+  font-weight: 600;
+  background: transparent;
+  border: 0;
+  border-radius: calc(var(--radius-small) - var(--space-1));
+  transition:
+    color var(--duration-feedback) ease-out,
+    background var(--duration-feedback) ease-out;
+}
+
+.modeSwitcher button:hover {
+  color: var(--text-primary);
+}
+
+.modeSwitcher button[data-active="true"] {
+  color: var(--v3-white);
+  background: var(--primary-pressed);
+}
+
+.cameraStage {
+  position: absolute;
+  inset: var(--space-16) var(--space-6) var(--space-16);
+  display: grid;
+  place-items: center;
+}
+
+.cameraFrame {
+  position: absolute;
+  width: min(62%, var(--camera-frame-max-width));
+  aspect-ratio: 4 / 5;
+  border: var(--border-width) solid var(--v3-stage-line-strong);
+  border-radius: var(--radius-medium);
+}
+
+.cameraFrame::before,
+.cameraFrame::after,
+.cameraFrame span::before,
+.cameraFrame span::after {
+  position: absolute;
+  width: var(--space-6);
+  height: var(--space-6);
+  content: "";
+  border-color: var(--border-strong);
+  border-style: solid;
+}
+
+.cameraFrame::before {
+  top: calc(var(--border-width) * -1);
+  left: calc(var(--border-width) * -1);
+  border-width: var(--border-width) 0 0 var(--border-width);
+}
+
+.cameraFrame::after {
+  top: calc(var(--border-width) * -1);
+  right: calc(var(--border-width) * -1);
+  border-width: var(--border-width) var(--border-width) 0 0;
+}
+
+.cameraFrame span::before {
+  bottom: calc(var(--border-width) * -1);
+  left: calc(var(--border-width) * -1);
+  border-width: 0 0 var(--border-width) var(--border-width);
+}
+
+.cameraFrame span::after {
+  right: calc(var(--border-width) * -1);
+  bottom: calc(var(--border-width) * -1);
+  border-width: 0 var(--border-width) var(--border-width) 0;
+}
+
+.placeholder {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  max-width: var(--viewport-copy-max-width);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.placeholder > svg {
+  margin-bottom: var(--space-4);
+  color: var(--primary-hover);
+}
+
+.placeholder small {
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--type-micro-size);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+.placeholder h1 {
+  margin: var(--space-2) 0 0;
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--type-section-size);
+  line-height: var(--type-section-line);
+  text-wrap: balance;
+}
+
+.placeholder p {
+  max-width: 34ch;
+  margin: var(--space-2) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  text-wrap: pretty;
+}
+
+.placeholder strong {
+  margin-top: var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--type-label-size);
+  font-weight: 500;
+}
+
+.cameraControls {
+  position: absolute;
+  bottom: var(--space-3);
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--v3-control-glass);
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius-small);
+  backdrop-filter: blur(12px);
+  transform: translateX(-50%);
+}
+
+.cameraControls button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--field-height);
+  padding: 0 var(--space-2);
+  color: var(--text-disabled);
+  background: transparent;
+  border: 0;
+}
+
+.stageStatus,
+.interactionHint {
+  position: absolute;
+  bottom: var(--space-4);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--type-micro-size);
+}
+
+.stageStatus {
+  left: var(--space-4);
+}
+
+.stageStatus > span {
+  width: var(--space-2);
+  height: var(--space-2);
+  background: var(--text-muted);
+  border-radius: 50%;
+}
+
+.stageStatus > span[data-loading="true"] {
+  background: var(--warning);
+}
+
+.interactionHint {
+  right: var(--space-4);
+}
+
+@media (max-width: 767px) {
+  .modeSwitcher {
+    top: var(--space-2);
+    width: calc(100% - var(--space-8));
+    overflow-x: auto;
+  }
+
+  .cameraStage {
+    inset: var(--space-12) var(--space-3) var(--space-20);
+  }
+
+  .cameraFrame {
+    width: min(72%, var(--camera-frame-mobile-max-width));
+  }
+
+  .placeholder {
+    padding: var(--space-4);
+  }
+
+  .placeholder h1 {
+    font-size: var(--type-panel-size);
+    line-height: var(--type-panel-line);
+  }
+
+  .cameraControls,
+  .interactionHint {
+    display: none;
+  }
+
+  .stageStatus {
+    right: var(--space-4);
+    bottom: calc(var(--mobile-builder-dock-height) + var(--space-4));
+    justify-content: center;
+  }
+}

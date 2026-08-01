@@ -1,0 +1,120 @@
+.panel {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-4);
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.panelHeader > span:first-child {
+  display: grid;
+}
+
+.panelHeader small {
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--type-micro-size);
+  font-weight: 600;
+  line-height: var(--type-micro-line);
+  letter-spacing: 0.08em;
+}
+
+.panelHeader strong {
+  color: var(--text-primary);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.panelHeader > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--space-6);
+  padding: 0 var(--space-2);
+  color: var(--success);
+  font-size: var(--type-micro-size);
+  background: var(--success-soft);
+  border-radius: var(--radius-small);
+}
+
+.panelHeader > span[data-status="warning"] {
+  color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.panelHeader > span[data-status="error"] {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.configuration {
+  display: grid;
+  gap: var(--space-1);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.configuration li {
+  display: grid;
+  grid-template-columns:
+    var(--space-5) var(--config-label-width) minmax(0, 1fr)
+    var(--space-4);
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--config-row-height);
+  padding: 0 var(--space-2);
+  color: var(--text-muted);
+  border-bottom: var(--border-width) solid var(--border);
+}
+
+.configuration li > span {
+  color: var(--text-secondary);
+  font-size: var(--type-label-size);
+}
+
+.configuration li > strong {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: var(--type-label-size);
+  font-weight: 500;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.configuration li[data-issue="warning"] {
+  color: var(--warning);
+}
+
+.configuration li[data-issue="error"] {
+  color: var(--danger);
+}
+
+.analysis {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+@media (max-width: 767px) {
+  .panel {
+    padding-bottom: calc(var(--space-20) + env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+
+  .analysis {
+    overflow: visible;
+  }
+}

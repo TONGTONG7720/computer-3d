@@ -1,28 +1,7 @@
-import {
-  Box,
-  CircuitBoard,
-  Cpu,
-  Fan,
-  HardDrive,
-  type LucideIcon,
-  MemoryStick,
-  MonitorUp,
-  PlugZap,
-} from "lucide-react";
 import { hardwareCategories, type SelectedComponents } from "@/features/builder/domain/hardware";
 import styles from "./ComponentSlotRail.module.css";
+import { HardwareCategoryIcon } from "./HardwareCategoryIcon";
 import { hardwareCategoryLabels } from "./hardwarePresentation";
-
-const categoryIcons = {
-  cpu: Cpu,
-  gpu: MonitorUp,
-  motherboard: CircuitBoard,
-  ram: MemoryStick,
-  storage: HardDrive,
-  cooling: Fan,
-  power_supply: PlugZap,
-  case: Box,
-} as const satisfies Readonly<Record<(typeof hardwareCategories)[number], LucideIcon>>;
 
 type ComponentSlotRailProps = {
   readonly activeCategory: (typeof hardwareCategories)[number];
@@ -38,7 +17,6 @@ export function ComponentSlotRail({
   return (
     <nav aria-label="组件分类" className={styles["rail"]}>
       {hardwareCategories.map((category) => {
-        const Icon = categoryIcons[category];
         const selected = selectedComponents[category];
         const installed = selected !== null;
         return (
@@ -51,7 +29,7 @@ export function ComponentSlotRail({
             onClick={() => onSelectCategory(category)}
             type="button"
           >
-            <Icon aria-hidden="true" size={17} strokeWidth={1.55} />
+            <HardwareCategoryIcon category={category} />
             <span className={styles["slotCopy"]}>
               <strong>{hardwareCategoryLabels[category]}</strong>
               <small>{selected?.name ?? "选择组件"}</small>

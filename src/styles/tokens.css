@@ -72,6 +72,18 @@
   --component-slot-height: 40px;
   --hardware-item-height: 72px;
   --field-height: 36px;
+  --mode-switcher-width: 392px;
+  --mode-switcher-height: 40px;
+  --config-row-height: 44px;
+  --config-label-width: 76px;
+  --performance-card-height: 148px;
+  --sheet-left-width: 320px;
+  --sheet-right-width: 340px;
+  --mobile-builder-dock-height: 128px;
+  --viewport-perspective: 520px;
+  --camera-frame-max-width: 430px;
+  --camera-frame-mobile-max-width: 300px;
+  --viewport-copy-max-width: 360px;
   --touch-target: 44px;
   --border-width: 1px;
   --focus-ring-width: 2px;
