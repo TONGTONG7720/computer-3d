@@ -1,3 +1,4 @@
+import { PCFShadowMap } from "three";
 import type { CameraView } from "../animation/CameraAnimation";
 import type { RGBEffect } from "../materials/RGBSettings";
 import type { ViewerMode } from "./engineTypes";
@@ -18,3 +19,5 @@ export const resolveCameraView = (
 
 export const shouldRenderContinuously = (mode: ViewerMode, effect: RGBEffect): boolean =>
   mode === "airflow" || (mode === "studio" && effect !== "static");
+
+export const getViewerShadowMapType = (): typeof PCFShadowMap => PCFShadowMap;

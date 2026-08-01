@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { useEffect } from "react";
 import { PerspectiveCamera } from "three";
 import { type CameraView, getResponsiveCameraPreset } from "../animation/CameraAnimation";
+import { applyPerspectiveFov } from "./CameraProjection";
 
 type CameraSystemProps = {
   readonly mobile: boolean;
@@ -34,7 +35,7 @@ export function CameraSystem({ mobile, reducedMotion, revision, view }: CameraSy
     if (reducedMotion) {
       camera.position.set(...preset.position);
       if (camera instanceof PerspectiveCamera) {
-        camera.fov = preset.fov;
+        applyPerspectiveFov(camera, preset.fov);
       }
       update();
       return;

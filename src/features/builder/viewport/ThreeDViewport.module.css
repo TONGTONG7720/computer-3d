@@ -305,11 +305,15 @@
   .modeSwitcher {
     top: var(--space-2);
     width: calc(100% - var(--space-8));
-    overflow-x: auto;
+    height: calc(var(--touch-target) + var(--space-2) + (var(--border-width) * 2));
+  }
+
+  .modeSwitcher button {
+    min-height: var(--touch-target);
   }
 
   .cameraStage {
-    inset: var(--space-12) var(--space-3) var(--space-20);
+    inset: var(--space-16) var(--space-3) var(--space-20);
   }
 
   .cameraFrame {

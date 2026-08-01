@@ -1,14 +1,18 @@
 # PC LAB 3D
 
-PC LAB 3D 是一个汽车配置器式的沉浸式电脑装机平台。当前仓库已完成
-`AI Builder System V1.0`：用户可以用自然语言描述预算、用途与外观偏好，
-系统通过确定性规则、审核知识与可选 LLM 解析生成可解释配置，并在用户确认后
-驱动 Builder 状态与 3D 安装动画。
+PC LAB 3D 是一个汽车配置器式的沉浸式电脑装机平台。当前前端基线为
+`Builder UI V3.0 + Three.js Engine V2.0`：Builder 的硬件选择会直接驱动模块化
+PC 场景、零件替换动画、拆解、风道和 RGB Studio。仓库既有价格与 AI 模块继续
+保留，但本阶段没有扩展商城、AI 聊天或社区能力。
 
 ## 当前能力
 
 - 八类硬件：CPU、GPU、主板、内存、硬盘、散热、电源、机箱
-- React Three Fiber 3D 装机、零件替换、爆炸视图与 RGB 控制
+- React Three Fiber 模块化 PC 场景、360° 轨道控制与内部聚焦镜头
+- GPU / CPU 卸载、安装、锁定与发光反馈，支持 Exploded 插槽连接线
+- Airflow 冷热粒子路径与 RGB Studio 颜色、亮度、灯效和速度控制
+- GLB / Draco / Meshopt / KTX2 加载管线、引用缓存、进度、错误与资源释放
+- 桌面按需 60 FPS 目标、移动端自适应 DPR / 粒子预算与 30 FPS 降级目标
 - Spring Boot 硬件数据中心、MySQL 迁移与 Redis 缓存
 - Builder 实时价格、功耗、性能、兼容性与配置保存
 - 自有 `product` 商品库与多平台人工报价
@@ -86,7 +90,7 @@ flowchart LR
    pnpm dev
    ```
 
-   前端默认运行在 `http://127.0.0.1:3000`，Builder 位于 `/`，价格与 AI 运营台
+   前端默认运行在 `http://127.0.0.1:3000`，Builder 位于 `/builder`，价格与 AI 运营台
    分别位于 `/admin/prices`、`/admin/ai`。运营台要求输入与后端一致的 Admin Key；
    密钥只保存在当前标签页的 `sessionStorage`，不会写入 URL 或长期本地存储。
 
@@ -167,6 +171,9 @@ pnpm backend:test
 pnpm build
 pnpm start
 ```
+
+当前仓库未提交第三方商业 GLB。`public/models/README.md` 定义生产资源规范；在模型
+登记为 `source: "glb"` 前，Builder 使用模块化程序几何占位模型，避免缺失资源 404。
 
 ## 后续扩展边界
 

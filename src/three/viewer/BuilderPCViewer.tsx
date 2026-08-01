@@ -3,14 +3,14 @@
 import { AdaptiveDpr, Html } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useCallback, useMemo, useState } from "react";
-import { ACESFilmicToneMapping, PCFSoftShadowMap, SRGBColorSpace } from "three";
+import { ACESFilmicToneMapping, SRGBColorSpace } from "three";
 import type { SelectedComponents } from "@/features/builder/domain/hardware";
 import type { CameraView } from "../animation/CameraAnimation";
 import { CameraSystem } from "../core/CameraSystem";
 import type { ViewerMode, ViewerRuntimeStatus } from "../core/engineTypes";
 import { LightingSystem } from "../core/LightingSystem";
 import { useViewerEnvironment } from "../core/useViewerEnvironment";
-import { shouldRenderContinuously } from "../core/ViewerRuntime";
+import { getViewerShadowMapType, shouldRenderContinuously } from "../core/ViewerRuntime";
 import { OrbitController } from "../interaction/OrbitController";
 import type { RGBSettings } from "../materials/RGBSettings";
 import { RGBSystem } from "../materials/RGBSystem";
@@ -101,7 +101,7 @@ export function BuilderPCViewer({
         }}
         onPointerMissed={() => onSelect(null)}
         performance={{ debounce: 220, max: 1, min: 0.62 }}
-        shadows={profile.shadows ? { type: PCFSoftShadowMap } : false}
+        shadows={profile.shadows ? { type: getViewerShadowMapType() } : false}
       >
         <Suspense fallback={<SceneLoader />}>
           <LightingSystem profile={profile} />

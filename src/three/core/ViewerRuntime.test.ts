@@ -1,5 +1,10 @@
+import { PCFShadowMap } from "three";
 import { describe, expect, it } from "vitest";
-import { resolveCameraView, shouldRenderContinuously } from "./ViewerRuntime";
+import {
+  getViewerShadowMapType,
+  resolveCameraView,
+  shouldRenderContinuously,
+} from "./ViewerRuntime";
 
 describe("ViewerRuntime", () => {
   it("maps presentation modes and active installation to intentional camera views", () => {
@@ -14,5 +19,9 @@ describe("ViewerRuntime", () => {
     expect(shouldRenderContinuously("airflow", "static")).toBe(true);
     expect(shouldRenderContinuously("studio", "pulse")).toBe(true);
     expect(shouldRenderContinuously("studio", "wave")).toBe(true);
+  });
+
+  it("uses the supported PCF shadow path without Three.js deprecation warnings", () => {
+    expect(getViewerShadowMapType()).toBe(PCFShadowMap);
   });
 });
