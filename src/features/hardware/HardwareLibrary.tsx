@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { AlertTriangle, LoaderCircle, RefreshCw, Search, SlidersHorizontal, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   type CompatibilityResult,
@@ -41,6 +41,9 @@ const matchesSearch = (hardware: Hardware, query: string): boolean => {
 
 export function HardwareLibrary() {
   const catalogue = useBuilderWorkspaceStore((state) => state.catalogue);
+  const catalogueStatus = useBuilderWorkspaceStore((state) => state.catalogueStatus);
+  const catalogueError = useBuilderWorkspaceStore((state) => state.catalogueError);
+  const retryCatalogue = useBuilderWorkspaceStore((state) => state.retryCatalogue);
   const activeCategory = useBuilderWorkspaceStore((state) => state.activeCategory);
   const selectedComponents = useBuilderWorkspaceStore((state) => state.selectedComponents);
   const selectHardware = useBuilderWorkspaceStore((state) => state.selectHardware);
@@ -111,7 +114,23 @@ export function HardwareLibrary() {
         aria-label={`${hardwareCategoryCodes[activeCategory]} 可选硬件`}
         className={styles["options"]}
       >
-        {options.length > 0 ? (
+        {catalogueStatus === "idle" || catalogueStatus === "loading" ? (
+          <li aria-live="polite" className={styles["state"]} role="status">
+            <LoaderCircle aria-hidden="true" data-spin="true" size={20} strokeWidth={1.5} />
+            <strong>正在连接硬件数据中心</strong>
+            <span>加载规格、性能档案与 3D 模型绑定…</span>
+          </li>
+        ) : catalogueStatus === "error" ? (
+          <li className={styles["state"]} data-state="error">
+            <AlertTriangle aria-hidden="true" size={20} strokeWidth={1.5} />
+            <strong>硬件目录加载失败</strong>
+            <span>{catalogueError}</span>
+            <button onClick={() => void retryCatalogue()} type="button">
+              <RefreshCw aria-hidden="true" size={14} />
+              重新连接
+            </button>
+          </li>
+        ) : options.length > 0 ? (
           options.map((hardware) => {
             const installed = selectedComponents[hardware.category]?.id === hardware.id;
             const compatibility = findOptionIssue(hardware, selectedComponents);

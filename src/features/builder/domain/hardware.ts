@@ -20,6 +20,31 @@ export type CpuSocket = "LGA1700" | "AM5";
 export type RamGeneration = "DDR4" | "DDR5";
 export type MotherboardFormFactor = "ATX" | "Micro-ATX";
 
+export type HardwarePerformanceProfile = {
+  readonly gaming: number;
+  readonly creator: number;
+  readonly ai: number;
+  readonly source: string;
+  readonly version: number;
+};
+
+export type HardwareModelDescriptor = {
+  readonly id: number;
+  readonly name: string;
+  readonly glbUrl: string;
+  readonly textureUrl: string;
+  readonly previewUrl: string;
+  readonly scale: Readonly<{ x: number; y: number; z: number }>;
+  readonly position: Readonly<{ x: number; y: number; z: number }>;
+  readonly rotation: Readonly<{ x: number; y: number; z: number }>;
+  readonly animationConfig: Readonly<Record<string, unknown>>;
+  readonly lodLevel: number;
+  readonly fileSizeBytes: number;
+  readonly checksumSha256: string;
+  readonly primary: boolean;
+  readonly status: "PROCESSING" | "READY" | "FAILED";
+};
+
 type HardwareBase<Category extends HardwareCategory> = {
   readonly id: HardwareId;
   readonly name: string;
@@ -30,6 +55,11 @@ type HardwareBase<Category extends HardwareCategory> = {
   readonly power: number;
   readonly modelUrl: string;
   readonly modelVariant: string;
+  readonly description?: string;
+  readonly coverUrl?: string;
+  readonly popularity?: number;
+  readonly performanceProfile?: HardwarePerformanceProfile;
+  readonly primaryModel?: HardwareModelDescriptor;
 };
 
 export type CpuHardware = HardwareBase<"cpu"> & {
@@ -37,17 +67,21 @@ export type CpuHardware = HardwareBase<"cpu"> & {
   readonly cores: number;
   readonly threads: number;
   readonly tdp: number;
+  readonly generation?: string;
 };
 
 export type GpuHardware = HardwareBase<"gpu"> & {
   readonly vram: number;
   readonly length: number;
+  readonly pcieInterface?: string;
+  readonly resolutionSupport?: readonly string[];
 };
 
 export type MotherboardHardware = HardwareBase<"motherboard"> & {
   readonly socket: CpuSocket;
   readonly ramType: RamGeneration;
   readonly formFactor: MotherboardFormFactor;
+  readonly chipset?: string;
 };
 
 export type RamHardware = HardwareBase<"ram"> & {
@@ -71,6 +105,7 @@ export type CoolingHardware = HardwareBase<"cooling"> & {
 export type PsuHardware = HardwareBase<"power_supply"> & {
   readonly wattage: number;
   readonly certification: "Gold" | "Platinum";
+  readonly connectors?: readonly string[];
 };
 
 export type CaseHardware = HardwareBase<"case"> & {

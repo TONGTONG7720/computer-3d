@@ -148,6 +148,54 @@
   border-radius: var(--radius-small);
 }
 
+.state {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-3);
+  color: var(--text-muted);
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-small);
+}
+
+.state strong {
+  color: var(--text-primary);
+  font-size: var(--type-body-size);
+}
+
+.state span {
+  font-size: var(--type-label-size);
+  line-height: var(--type-body-line);
+}
+
+.state[data-state="error"] > svg {
+  color: var(--danger);
+}
+
+.state svg[data-spin="true"] {
+  color: var(--primary);
+  animation: library-spin 900ms linear infinite;
+}
+
+.state button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  color: var(--text-primary);
+  background: var(--surface-hover);
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius-small);
+}
+
+@keyframes library-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 767px) {
   .library {
     gap: var(--space-3);
@@ -165,5 +213,11 @@
 
   .options {
     padding-right: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .state svg[data-spin="true"] {
+    animation: none;
   }
 }

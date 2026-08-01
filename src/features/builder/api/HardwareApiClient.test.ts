@@ -7,11 +7,37 @@ const baseHardware = {
   brand: "Intel",
   category: "CPU",
   builderCategory: "cpu",
+  description: "24 核旗舰处理器",
   price: 3999,
   performance: 96,
+  popularity: 94,
+  performanceProfile: {
+    gaming: 94,
+    creator: 100,
+    ai: 96,
+    source: "PC LAB reviewed index V1",
+    version: 1,
+  },
   power: 253,
   modelUrl: "/models/cpu_i9_14900k.glb",
   modelVariant: "intel-i9",
+  coverUrl: "",
+  primaryModel: {
+    id: 1,
+    name: "Intel Core i9-14900K Primary",
+    glbUrl: "/models/cpu_i9_14900k.glb",
+    textureUrl: "",
+    previewUrl: "",
+    scale: { x: 1, y: 1, z: 1 },
+    position: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0 },
+    animationConfig: '{"durationMs":1200}',
+    lodLevel: 0,
+    fileSizeBytes: 0,
+    checksumSha256: "",
+    primary: true,
+    status: "READY",
+  },
 };
 
 describe("HardwareApiClient", () => {
@@ -19,11 +45,15 @@ describe("HardwareApiClient", () => {
     const catalogue = parseHardwareCatalogue({
       code: "OK",
       data: {
+        page: 1,
+        size: 100,
         total: 2,
+        pages: 1,
         items: [
           {
             ...baseHardware,
             socket: "LGA1700",
+            cpuGeneration: "Raptor Lake Refresh",
             cores: 24,
             threads: 32,
             tdp: 253,
@@ -53,6 +83,9 @@ describe("HardwareApiClient", () => {
       category: "cpu",
       socket: "LGA1700",
       cores: 24,
+      popularity: 94,
+      performanceProfile: { creator: 100 },
+      primaryModel: { animationConfig: { durationMs: 1200 } },
     });
     expect(catalogue[1]).toMatchObject({
       category: "case",
@@ -66,7 +99,10 @@ describe("HardwareApiClient", () => {
       parseHardwareCatalogue({
         code: "OK",
         data: {
+          page: 1,
+          size: 100,
           total: 1,
+          pages: 1,
           items: [{ ...baseHardware, cores: 24 }],
         },
       }),

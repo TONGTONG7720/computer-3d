@@ -37,6 +37,12 @@ function StoreProbe() {
   );
 }
 
+function CatalogueProbe() {
+  const catalogue = useBuilderWorkspaceStore((state) => state.catalogue);
+  const status = useBuilderWorkspaceStore((state) => state.catalogueStatus);
+  return <output aria-label="目录状态">{`${status}:${catalogue.length}`}</output>;
+}
+
 describe("BuilderStoreProvider", () => {
   afterEach(() => cleanup());
 
@@ -58,5 +64,15 @@ describe("BuilderStoreProvider", () => {
     expect(Number(screen.getByLabelText("整机价格").textContent)).not.toBe(initialPrice);
     expect(screen.getByLabelText("兼容状态").textContent).toBe("error");
     expect(store.getState().feedback.revision).toBe(1);
+  });
+
+  it("does not inject mock hardware into the runtime provider", () => {
+    render(
+      <BuilderStoreProvider>
+        <CatalogueProbe />
+      </BuilderStoreProvider>,
+    );
+
+    expect(screen.getByLabelText("目录状态").textContent).toBe("idle:0");
   });
 });

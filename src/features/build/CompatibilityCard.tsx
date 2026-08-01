@@ -39,7 +39,7 @@ export function CompatibilityCard({ summary }: CompatibilityCardProps) {
           <strong id="compatibility-title">{statusLabels[summary.status]}</strong>
           <small>
             {summary.status === "success"
-              ? `${summary.results.length} 条规则已检查`
+              ? `${summary.checkedRuleCount ?? summary.results.length} 条规则已检查`
               : `${issues.length} 项需要处理`}
           </small>
         </span>

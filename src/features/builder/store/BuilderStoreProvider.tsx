@@ -3,7 +3,6 @@
 import { createContext, type ReactNode, useContext, useState } from "react";
 import { useStore } from "zustand";
 import type { StoreApi } from "zustand/vanilla";
-import { mockHardware } from "@/features/builder/data/mockHardware";
 import { type BuilderStore, createBuilderStore } from "@/store/builderStore";
 import { MissingBuilderStoreProviderError } from "./BuilderStoreErrors";
 
@@ -15,9 +14,7 @@ type BuilderStoreProviderProps = {
 };
 
 export function BuilderStoreProvider({ children, store }: BuilderStoreProviderProps) {
-  const [workspaceStore] = useState(
-    () => store ?? createBuilderStore({ initialCatalogue: mockHardware }),
-  );
+  const [workspaceStore] = useState(() => store ?? createBuilderStore());
 
   return (
     <BuilderStoreContext.Provider value={workspaceStore}>{children}</BuilderStoreContext.Provider>

@@ -1,6 +1,11 @@
 import type { KyInstance } from "ky";
 import { z } from "zod";
-import { type Hardware, hardwareCategorySchema, hardwareIdSchema } from "../domain/hardware";
+import {
+  type Hardware,
+  type HardwareModelDescriptor,
+  hardwareCategorySchema,
+  hardwareIdSchema,
+} from "../domain/hardware";
 import {
   hardwarePlatformApiUrl,
   hardwarePlatformClient,
@@ -11,6 +16,43 @@ const socketSchema = z.enum(["LGA1700", "AM5"]);
 const ramGenerationSchema = z.enum(["DDR4", "DDR5"]);
 const formFactorSchema = z.enum(["ATX", "Micro-ATX"]);
 const radiatorSizeSchema = z.union([z.literal(0), z.literal(240), z.literal(360)]);
+const vectorSchema = z.object({
+  x: z.number(),
+  y: z.number(),
+  z: z.number(),
+});
+const animationConfigSchema = z.string().transform((value, context) => {
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return z.record(z.string(), z.unknown()).parse(parsed);
+  } catch {
+    context.addIssue({ code: "custom", message: "Invalid model animation config" });
+    return z.NEVER;
+  }
+});
+const hardwareModelSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string().min(1),
+  glbUrl: z.string(),
+  textureUrl: z.string(),
+  previewUrl: z.string(),
+  scale: vectorSchema,
+  position: vectorSchema,
+  rotation: vectorSchema,
+  animationConfig: animationConfigSchema,
+  lodLevel: z.number().int().nonnegative(),
+  fileSizeBytes: z.number().int().nonnegative(),
+  checksumSha256: z.string(),
+  primary: z.boolean(),
+  status: z.enum(["PROCESSING", "READY", "FAILED"]),
+});
+const performanceProfileSchema = z.object({
+  gaming: z.number().int().min(0).max(100),
+  creator: z.number().int().min(0).max(100),
+  ai: z.number().int().min(0).max(100),
+  source: z.string().min(1),
+  version: z.number().int().positive(),
+});
 
 const baseHardwareShape = {
   id: hardwareIdSchema,
@@ -18,11 +60,16 @@ const baseHardwareShape = {
   brand: z.string().min(1),
   category: z.string().min(1),
   builderCategory: hardwareCategorySchema,
+  description: z.string(),
   price: z.number().nonnegative(),
   performance: z.number().int().min(0).max(100),
+  popularity: z.number().int().nonnegative(),
+  performanceProfile: performanceProfileSchema,
   power: z.number().int().nonnegative(),
   modelUrl: z.string(),
   modelVariant: z.string(),
+  coverUrl: z.string(),
+  primaryModel: hardwareModelSchema.optional(),
 };
 
 const serverHardwareSchema = z.discriminatedUnion("builderCategory", [
@@ -30,6 +77,7 @@ const serverHardwareSchema = z.discriminatedUnion("builderCategory", [
     ...baseHardwareShape,
     builderCategory: z.literal("cpu"),
     socket: socketSchema,
+    cpuGeneration: z.string().min(1),
     cores: z.number().int().positive(),
     threads: z.number().int().positive(),
     tdp: z.number().int().nonnegative(),
@@ -39,6 +87,8 @@ const serverHardwareSchema = z.discriminatedUnion("builderCategory", [
     builderCategory: z.literal("gpu"),
     vram: z.number().int().positive(),
     length: z.number().int().positive(),
+    interface: z.string().min(1),
+    resolutionSupport: z.array(z.string().min(1)),
   }),
   z.object({
     ...baseHardwareShape,
@@ -46,6 +96,7 @@ const serverHardwareSchema = z.discriminatedUnion("builderCategory", [
     socket: socketSchema,
     ramType: ramGenerationSchema,
     formFactor: formFactorSchema,
+    chipset: z.string().min(1),
   }),
   z.object({
     ...baseHardwareShape,
@@ -73,6 +124,7 @@ const serverHardwareSchema = z.discriminatedUnion("builderCategory", [
     builderCategory: z.literal("power_supply"),
     wattage: z.number().int().positive(),
     certification: z.enum(["Gold", "Platinum"]),
+    connectors: z.array(z.string().min(1)),
   }),
   z.object({
     ...baseHardwareShape,
@@ -86,12 +138,23 @@ const serverHardwareSchema = z.discriminatedUnion("builderCategory", [
 const hardwareCatalogueResponseSchema = z.object({
   code: z.literal("OK"),
   data: z.object({
+    page: z.number().int().positive(),
+    size: z.number().int().positive(),
     items: z.array(serverHardwareSchema),
     total: z.number().int().nonnegative(),
+    pages: z.number().int().nonnegative(),
   }),
 });
 
 type ServerHardware = z.infer<typeof serverHardwareSchema>;
+
+const toHardwareModel = (
+  model: z.infer<typeof hardwareModelSchema>,
+  apiUrl: string,
+): HardwareModelDescriptor => ({
+  ...model,
+  glbUrl: resolveHardwareModelUrl(model.glbUrl, apiUrl),
+});
 
 const toHardware = (server: ServerHardware, apiUrl: string): Hardware => {
   const common = {
@@ -103,6 +166,13 @@ const toHardware = (server: ServerHardware, apiUrl: string): Hardware => {
     power: server.power,
     modelUrl: resolveHardwareModelUrl(server.modelUrl, apiUrl),
     modelVariant: server.modelVariant,
+    description: server.description,
+    coverUrl: server.coverUrl,
+    popularity: server.popularity,
+    performanceProfile: server.performanceProfile,
+    ...(server.primaryModel === undefined
+      ? {}
+      : { primaryModel: toHardwareModel(server.primaryModel, apiUrl) }),
   };
 
   switch (server.builderCategory) {
@@ -114,6 +184,7 @@ const toHardware = (server: ServerHardware, apiUrl: string): Hardware => {
         cores: server.cores,
         threads: server.threads,
         tdp: server.tdp,
+        generation: server.cpuGeneration,
       };
     case "gpu":
       return {
@@ -121,6 +192,8 @@ const toHardware = (server: ServerHardware, apiUrl: string): Hardware => {
         category: "gpu",
         vram: server.vram,
         length: server.length,
+        pcieInterface: server.interface,
+        resolutionSupport: server.resolutionSupport,
       };
     case "motherboard":
       return {
@@ -129,6 +202,7 @@ const toHardware = (server: ServerHardware, apiUrl: string): Hardware => {
         socket: server.socket,
         ramType: server.ramType,
         formFactor: server.formFactor,
+        chipset: server.chipset,
       };
     case "ram":
       return {
@@ -160,6 +234,7 @@ const toHardware = (server: ServerHardware, apiUrl: string): Hardware => {
         category: "power_supply",
         wattage: server.wattage,
         certification: server.certification,
+        connectors: server.connectors,
       };
     case "case":
       return {

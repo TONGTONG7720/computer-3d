@@ -21,6 +21,7 @@ export type CompatibilityResult = {
 export type CompatibilitySummary = {
   readonly status: CompatibilityStatus;
   readonly results: readonly CompatibilityResult[];
+  readonly checkedRuleCount?: number;
 };
 
 const missing = (rule: CompatibilityRule, message: string): CompatibilityResult => ({
@@ -168,5 +169,6 @@ export const evaluateCompatibility = (selection: SelectedComponents): Compatibil
   return {
     status: highestStatus(results),
     results,
+    checkedRuleCount: results.length,
   };
 };
