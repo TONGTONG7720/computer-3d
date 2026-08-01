@@ -1,5 +1,6 @@
 import { PackageSearch, ShieldCheck } from "lucide-react";
 import type { PriceComparison, PriceHistory, PriceRange } from "../domain/price";
+import { PriceAlertControl } from "./PriceAlertControl";
 import contentStyles from "./PriceComparisonContent.module.css";
 import historyStyles from "./PriceHistoryPanel.module.css";
 import { PriceOfferCard } from "./PriceOfferCard";
@@ -34,13 +35,13 @@ export function PriceComparisonContent({
     <div className={contentStyles["dialogBody"]}>
       <section className={contentStyles["marketColumn"]}>
         <div className={contentStyles["mobilePriceSummary"]}>
-          <span>当前最低</span>
+          <span>最低到手</span>
           <strong>{lowestPrice}</strong>
           <small>{recommendedOffer?.seller ?? "可靠商家待补充"}</small>
         </div>
         <div className={contentStyles["priceSummary"]}>
           <div>
-            <span>当前最低价</span>
+            <span>最低到手</span>
             <strong>{lowestPrice}</strong>
           </div>
           <div>
@@ -48,7 +49,7 @@ export function PriceComparisonContent({
             <strong>{formatPriceMoney(comparison.internalReferencePrice)}</strong>
           </div>
           <div>
-            <span>可靠商家</span>
+            <span>可靠推荐</span>
             <strong>{recommendedOffer?.seller ?? "待补充"}</strong>
           </div>
         </div>
@@ -90,10 +91,21 @@ export function PriceComparisonContent({
             >
               30 天
             </button>
+            <button
+              aria-pressed={range === "90D"}
+              onClick={() => onRangeChange("90D")}
+              type="button"
+            >
+              90 天
+            </button>
           </div>
         </div>
         {historyStatus === "loading" && history === null ? (
           <div className={historyStyles["chartLoading"]}>正在读取价格历史</div>
+        ) : historyStatus === "error" ? (
+          <div className={historyStyles["chartLoading"]} role="alert">
+            价格趋势暂不可用，请稍后重试。
+          </div>
         ) : history ? (
           <PriceTrendChart ariaLabel={chartLabel(comparison.hardwareName)} history={history} />
         ) : (
@@ -104,10 +116,14 @@ export function PriceComparisonContent({
           <p>
             <strong className={historyStyles["trustTitle"]}>推荐逻辑透明</strong>
             <span className={historyStyles["trustBody"]}>
-              综合价格、销量、评价与店铺信誉，不保证最低价就是最佳选择。
+              价格 40% · 商家信誉 25% · 销量 15% · 评价 10% · 物流 10%。最低价不等于推荐购买。
             </span>
           </p>
         </div>
+        <PriceAlertControl
+          hardwareKey={comparison.hardwareKey}
+          hardwareName={comparison.hardwareName}
+        />
       </section>
     </div>
   );

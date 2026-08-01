@@ -36,8 +36,8 @@
 }
 
 .rangeSwitch button {
-  min-width: 52px;
-  min-height: 44px;
+  min-width: var(--size-touch-target);
+  min-height: var(--size-touch-target);
   border: 0;
   border-radius: var(--radius-small);
   color: var(--color-text-muted);
@@ -50,6 +50,11 @@
 .rangeSwitch button[aria-pressed="true"] {
   color: var(--color-primary);
   background: var(--color-primary-subtle);
+}
+
+.rangeSwitch button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .chartLoading {
@@ -97,6 +102,15 @@
 
 @media (max-width: 767px) {
   .historyHeader {
-    align-items: center;
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .rangeSwitch {
+    width: 100%;
+  }
+
+  .rangeSwitch button {
+    flex: 1;
   }
 }

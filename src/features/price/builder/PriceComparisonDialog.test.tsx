@@ -4,15 +4,25 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { emptySelectedComponents } from "@/features/builder/domain/hardware";
-import { getOfferRedirectUrl, getPriceComparison, getPriceHistory } from "../api/PriceApiClient";
+import {
+  deletePriceAlert,
+  getOfferRedirectUrl,
+  getPriceAlerts,
+  getPriceComparison,
+  getPriceHistory,
+  upsertPriceAlert,
+} from "../api/PriceApiClient";
 import type { PriceComparison, PriceHistory } from "../domain/price";
 import { PriceComparisonDialog } from "./PriceComparisonDialog";
 import { comparison, cpu, deferred, gpu, history, nextGpu } from "./PriceComparisonDialog.fixtures";
 
 vi.mock("../api/PriceApiClient", () => ({
+  deletePriceAlert: vi.fn(),
   getOfferRedirectUrl: vi.fn((path: string) => `http://127.0.0.1:8088${path}?source=BUILDER`),
+  getPriceAlerts: vi.fn(),
   getPriceComparison: vi.fn(),
   getPriceHistory: vi.fn(),
+  upsertPriceAlert: vi.fn(),
 }));
 
 const selectedComponents = {
@@ -29,9 +39,13 @@ describe("PriceComparisonDialog", () => {
   beforeEach(() => {
     vi.mocked(getPriceComparison).mockReset();
     vi.mocked(getPriceHistory).mockReset();
+    vi.mocked(getPriceAlerts).mockReset();
+    vi.mocked(upsertPriceAlert).mockReset();
+    vi.mocked(deletePriceAlert).mockReset();
     vi.mocked(getOfferRedirectUrl).mockClear();
     vi.mocked(getPriceComparison).mockResolvedValue(comparison);
     vi.mocked(getPriceHistory).mockResolvedValue(history);
+    vi.mocked(getPriceAlerts).mockResolvedValue([]);
   });
 
   it("distinguishes the lowest offer from the reliable recommendation", async () => {
@@ -40,30 +54,38 @@ describe("PriceComparisonDialog", () => {
     );
 
     expect(await screen.findByRole("heading", { name: "NVIDIA GeForce RTX 5090" })).toBeTruthy();
-    expect(screen.getByText("最低价")).toBeTruthy();
-    expect(screen.getByText("可靠推荐")).toBeTruthy();
-    expect(screen.getByText("数据可能过期")).toBeTruthy();
+    expect(screen.getAllByText("最低到手").length).toBeGreaterThan(0);
+    expect(screen.getByText("推荐购买")).toBeTruthy();
+    expect(screen.getByText("待核验")).toBeTruthy();
     expect(screen.getAllByText(/免运费/).length).toBeGreaterThan(0);
     expect(screen.getByText(/销量 428/)).toBeTruthy();
-    expect(screen.getByText(/更新于/)).toBeTruthy();
+    expect(screen.getByText("京东物流 · 次日达（人工核验）")).toBeTruthy();
+    expect(screen.getByText(/履约评分 88\/100/)).toBeTruthy();
+    expect(screen.getAllByText(/人工演示数据/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/40%/)).toBeTruthy();
+    expect(screen.getByText(/25%/)).toBeTruthy();
+    expect(screen.getByText(/15%/)).toBeTruthy();
+    expect(screen.getAllByText(/10%/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/更新于/).length).toBeGreaterThan(0);
     expect(screen.getByText(/联盟跳转/)).toBeTruthy();
 
-    const purchaseLink = screen.getByRole("link", { name: "前往京东购买" });
+    const purchaseLink = screen.getByRole("link", { name: "查看京东购买" });
+    expect(purchaseLink.textContent).toContain("查看购买");
     expect(purchaseLink.getAttribute("href")).toContain("/offers/2/go?source=BUILDER");
     expect(purchaseLink.getAttribute("target")).toBe("_blank");
     expect(purchaseLink.getAttribute("rel")).toBe("noopener noreferrer");
   });
 
-  it("reloads trend data when switching between 30 and 7 days", async () => {
+  it("reloads trend data when switching to the 90-day range", async () => {
     render(
       <PriceComparisonDialog onClose={vi.fn()} open selectedComponents={selectedComponents} />,
     );
     await screen.findByLabelText("RTX 5090 价格趋势");
 
-    fireEvent.click(screen.getByRole("button", { name: "7 天" }));
+    fireEvent.click(screen.getByRole("button", { name: "90 天" }));
 
     await waitFor(() => {
-      expect(getPriceHistory).toHaveBeenLastCalledWith("gpu-nvidia-rtx5090", "7D");
+      expect(getPriceHistory).toHaveBeenLastCalledWith("gpu-nvidia-rtx5090", "90D");
     });
   });
 

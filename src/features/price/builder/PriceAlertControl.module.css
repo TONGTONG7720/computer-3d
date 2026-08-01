@@ -1,0 +1,197 @@
+.alertControl {
+  display: grid;
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-card-gradient);
+}
+
+.alertHeader,
+.alertHeader > div,
+.alertActions,
+.alertState {
+  display: flex;
+  align-items: center;
+}
+
+.alertHeader {
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.alertHeader > div {
+  min-width: 0;
+  gap: var(--space-2);
+  color: var(--color-primary);
+}
+
+.alertHeader > div > div {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+}
+
+.alertHeader strong,
+.alertSummary strong,
+.alertError strong {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 12px;
+}
+
+.alertHeader span,
+.alertHeader small,
+.alertSummary span,
+.alertIntro,
+.alertError span,
+.alertState {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-micro);
+  line-height: 1.5;
+}
+
+.alertHeader small {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-small);
+  color: var(--color-success);
+  background: var(--color-success-subtle);
+}
+
+.alertHeader small[data-triggered="true"] {
+  border-color: var(--color-primary-border);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+
+.alertSummary,
+.alertError {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.alertIntro {
+  margin: 0;
+}
+
+.alertForm {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.alertForm label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+}
+
+.alertForm label span {
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+}
+
+.alertActions {
+  gap: var(--space-2);
+}
+
+.alertActions input {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-small);
+  color: var(--color-text-primary);
+  background: var(--color-surface-card);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.alertActions button,
+.alertError button {
+  display: inline-flex;
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-3);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-small);
+  color: var(--color-bg-canvas);
+  background: var(--color-primary);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.alertActions .deleteButton {
+  width: var(--size-touch-target);
+  padding: 0;
+  color: var(--color-danger);
+  background: var(--color-danger-subtle);
+  border-color: var(--color-danger-border);
+}
+
+.alertActions button:disabled,
+.alertActions input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.alertActions input:focus-visible,
+.alertActions button:focus-visible,
+.alertError button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.alertState {
+  min-height: var(--size-touch-target);
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.spinner {
+  color: var(--color-primary);
+  animation: price-alert-spin 900ms linear infinite;
+}
+
+.alertError {
+  color: var(--color-danger);
+}
+
+.alertError button {
+  width: fit-content;
+  margin-top: var(--space-2);
+}
+
+@keyframes price-alert-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 767px) {
+  .alertActions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+  }
+
+  .alertActions input {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}

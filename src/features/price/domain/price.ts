@@ -2,8 +2,9 @@ import { z } from "zod";
 
 export const pricePlatformSchema = z.enum(["JD", "TAOBAO", "PDD", "TMALL", "AMAZON", "SUNING"]);
 
-export const priceRangeSchema = z.enum(["7D", "30D"]);
+export const priceRangeSchema = z.enum(["7D", "30D", "90D"]);
 export const apiDateTimeSchema = z.iso.datetime({ local: true });
+export const priceAlertOwnerSchema = z.uuid().brand<"PriceAlertOwner">();
 
 const nullablePriceSchema = z.number().nonnegative().nullable();
 const identifierSchema = z.number().int().positive();
@@ -22,6 +23,8 @@ export const priceOfferSchema = z.strictObject({
   salesCount: z.number().int().nonnegative(),
   trustScore: z.number().min(0).max(100),
   rankingScore: z.number().min(0).max(100),
+  deliveryScore: z.number().min(0).max(100),
+  deliveryNote: z.string().max(160),
   matchConfidence: z.number().min(0).max(1),
   stale: z.boolean(),
   tags: z.array(z.string().min(1)),
@@ -99,6 +102,18 @@ const buildQuoteDataSchema = z.strictObject({
   updatedAt: apiDateTimeSchema,
 });
 
+export const priceAlertSchema = z.strictObject({
+  publicId: z.uuid(),
+  hardwareKey: z.string().min(1),
+  hardwareName: z.string().min(1),
+  targetPrice: z.number().min(0.01).max(9_999_999.99),
+  currentBestPrice: nullablePriceSchema,
+  status: z.enum(["ACTIVE", "TRIGGERED"]),
+  triggeredAt: apiDateTimeSchema.nullable(),
+  checkedAt: apiDateTimeSchema.nullable(),
+  updatedAt: apiDateTimeSchema,
+});
+
 const apiEnvelope = <Schema extends z.ZodType>(data: Schema) =>
   z.strictObject({
     code: z.literal("OK"),
@@ -111,6 +126,9 @@ const apiEnvelope = <Schema extends z.ZodType>(data: Schema) =>
 export const priceComparisonResponseSchema = apiEnvelope(comparisonDataSchema);
 export const priceHistoryResponseSchema = apiEnvelope(historyDataSchema);
 export const buildQuoteResponseSchema = apiEnvelope(buildQuoteDataSchema);
+export const priceAlertResponseSchema = apiEnvelope(priceAlertSchema);
+export const priceAlertListResponseSchema = apiEnvelope(z.array(priceAlertSchema));
+export const emptyPriceAlertResponseSchema = apiEnvelope(z.null());
 
 export type PricePlatform = z.infer<typeof pricePlatformSchema>;
 export type PriceRange = z.infer<typeof priceRangeSchema>;
@@ -118,3 +136,5 @@ export type PriceOffer = z.infer<typeof priceOfferSchema>;
 export type PriceComparison = z.infer<typeof comparisonDataSchema>;
 export type PriceHistory = z.infer<typeof historyDataSchema>;
 export type BuildQuote = z.infer<typeof buildQuoteDataSchema>;
+export type PriceAlert = z.infer<typeof priceAlertSchema>;
+export type PriceAlertOwner = z.infer<typeof priceAlertOwnerSchema>;

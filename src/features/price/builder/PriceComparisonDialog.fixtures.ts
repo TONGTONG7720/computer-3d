@@ -61,6 +61,8 @@ export const comparison: PriceComparison = {
       salesCount: 86,
       trustScore: 78,
       rankingScore: 84,
+      deliveryScore: 72,
+      deliveryNote: "商家发货 · 时效待人工复核",
       matchConfidence: 0.96,
       stale: true,
       tags: ["最低价"],
@@ -81,6 +83,8 @@ export const comparison: PriceComparison = {
       salesCount: 428,
       trustScore: 96,
       rankingScore: 92,
+      deliveryScore: 88,
+      deliveryNote: "京东物流 · 次日达（人工核验）",
       matchConfidence: 0.98,
       stale: false,
       tags: ["自营"],
@@ -129,11 +133,19 @@ export const history: PriceHistory = {
 
 export const deferred = <Value>() => {
   let resolveValue: ((value: Value) => void) | null = null;
-  const promise = new Promise<Value>((resolve) => {
+  let rejectValue: ((reason?: unknown) => void) | null = null;
+  const promise = new Promise<Value>((resolve, reject) => {
     resolveValue = resolve;
+    rejectValue = reject;
   });
   return {
     promise,
+    reject(reason?: unknown) {
+      if (rejectValue === null) {
+        throw new Error("Deferred promise is not initialized");
+      }
+      rejectValue(reason);
+    },
     resolve(value: Value) {
       if (resolveValue === null) {
         throw new Error("Deferred promise is not initialized");

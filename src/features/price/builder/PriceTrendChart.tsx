@@ -3,7 +3,7 @@
 import { useId } from "react";
 import type { PriceHistory } from "../domain/price";
 import styles from "./PriceTrendChart.module.css";
-import { formatPriceMoney } from "./priceFormat";
+import { formatPriceMoney, formatPriceTimestamp } from "./priceFormat";
 
 type PriceTrendChartProps = {
   readonly ariaLabel: string;
@@ -77,7 +77,8 @@ export function PriceTrendChart({ ariaLabel, history }: PriceTrendChartProps) {
         <title>{ariaLabel}</title>
         <desc>
           {history.range} 最低价 {formatPriceMoney(history.lowestPrice ?? firstPoint.value)}，最高价{" "}
-          {formatPriceMoney(history.highestPrice ?? firstPoint.value)}。
+          {formatPriceMoney(history.highestPrice ?? firstPoint.value)}，最新价{" "}
+          {formatPriceMoney(lastPoint.value)}。
         </desc>
         <defs>
           <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
@@ -110,6 +111,10 @@ export function PriceTrendChart({ ariaLabel, history }: PriceTrendChartProps) {
           区间最高
           <strong>{formatPriceMoney(history.highestPrice ?? firstPoint.value)}</strong>
         </span>
+        <span>
+          最新记录
+          <strong>{formatPriceMoney(lastPoint.value)}</strong>
+        </span>
         <span data-positive={history.changePercent <= 0}>
           区间变化
           <strong>
@@ -118,6 +123,7 @@ export function PriceTrendChart({ ariaLabel, history }: PriceTrendChartProps) {
           </strong>
         </span>
       </div>
+      <p className={styles["chartFreshness"]}>{formatPriceTimestamp(history.updatedAt)}</p>
     </div>
   );
 }

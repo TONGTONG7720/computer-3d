@@ -40,7 +40,7 @@
 .chartSummary {
   display: grid;
   margin-top: var(--space-4);
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-2);
 }
 
@@ -68,6 +68,13 @@
   color: var(--color-success);
 }
 
+.chartFreshness {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-micro);
+  text-align: right;
+}
+
 .chartEmpty {
   display: grid;
   min-height: 240px;
@@ -90,6 +97,7 @@
 
 @media (max-width: 767px) {
   .chartSummary {
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--space-1);
   }
 

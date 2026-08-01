@@ -103,6 +103,23 @@
   font-size: 14px;
 }
 
+@media (min-width: 768px) and (max-width: 1100px) {
+  .dialogBody {
+    display: block;
+    overflow: auto;
+  }
+
+  .marketColumn,
+  .historyColumn {
+    overflow: visible;
+  }
+
+  .marketColumn {
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
 @media (max-width: 767px) {
   .dialogBody {
     display: block;

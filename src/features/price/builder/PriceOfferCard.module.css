@@ -1,12 +1,12 @@
 .offerCard {
   display: grid;
-  min-height: 118px;
+  min-height: 132px;
   padding: var(--space-3);
   align-items: center;
   grid-template-columns: 74px minmax(124px, 1fr) 104px 92px;
   grid-template-areas:
     "platform seller price buy"
-    "trust trust price buy";
+    "evidence evidence price buy";
   gap: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-medium);
@@ -64,6 +64,10 @@
   color: var(--color-primary);
 }
 
+.offerPlatform strong[data-pending] {
+  color: var(--color-warning);
+}
+
 .offerSeller {
   display: grid;
   min-width: 0;
@@ -81,22 +85,48 @@
 }
 
 .offerSeller span,
-.offerSeller small,
-.offerTrust span {
+.offerSeller small {
   color: var(--color-text-muted);
-  font-size: 11px;
+  font-size: var(--font-size-micro);
+}
+
+.offerEvidence {
+  display: grid;
+  align-items: center;
+  grid-area: evidence;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-micro);
+}
+
+.offerTrust,
+.offerLogistics {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-1);
 }
 
 .offerTrust {
-  display: flex;
-  align-items: center;
-  grid-area: trust;
-  gap: var(--space-1);
   color: var(--color-success);
 }
 
-.offerCard[data-stale="true"] .offerTrust {
+.offerCard[data-stale="true"] .offerTrust,
+.offerCard[data-stale="true"] .offerLogistics {
   color: var(--color-warning);
+}
+
+.offerLogistics {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.offerEvidence small {
+  grid-column: 1 / -1;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-micro);
 }
 
 .offerPrice {
@@ -146,12 +176,17 @@
   transform: scale(0.98);
 }
 
+.purchaseButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
 @media (max-width: 767px) {
   .offerCard {
     grid-template-columns: 64px 1fr auto;
     grid-template-areas:
       "platform seller price"
-      "trust trust price"
+      "evidence evidence evidence"
       "buy buy buy";
   }
 

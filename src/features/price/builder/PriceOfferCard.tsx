@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, ShieldCheck, TriangleAlert } from "lucide-react";
+import { ExternalLink, ShieldCheck, TriangleAlert, Truck } from "lucide-react";
 import { getOfferRedirectUrl } from "../api/PriceApiClient";
 import type { PriceOffer } from "../domain/price";
 import styles from "./PriceOfferCard.module.css";
@@ -15,6 +15,12 @@ type PriceOfferCardProps = {
 export function PriceOfferCard({ lowestOfferId, offer, recommendedOfferId }: PriceOfferCardProps) {
   const isLowest = offer.id === lowestOfferId;
   const isRecommended = offer.id === recommendedOfferId;
+  const provenance =
+    offer.recordSource === "MANUAL_DEMO"
+      ? "人工演示数据"
+      : offer.recordSource === "MANUAL"
+        ? "人工核验数据"
+        : "平台记录";
 
   return (
     <article
@@ -25,8 +31,9 @@ export function PriceOfferCard({ lowestOfferId, offer, recommendedOfferId }: Pri
       <div className={styles["offerPlatform"]}>
         <span>{offer.platformLabel}</span>
         <div>
-          {isLowest ? <strong>最低价</strong> : null}
-          {isRecommended ? <strong data-recommended>可靠推荐</strong> : null}
+          {isLowest ? <strong>最低到手</strong> : null}
+          {isRecommended ? <strong data-recommended>推荐购买</strong> : null}
+          {offer.stale ? <strong data-pending>待核验</strong> : null}
         </div>
       </div>
       <div className={styles["offerSeller"]}>
@@ -40,22 +47,35 @@ export function PriceOfferCard({ lowestOfferId, offer, recommendedOfferId }: Pri
           {offer.salesCount.toLocaleString("zh-CN")}
         </small>
       </div>
-      <div className={styles["offerTrust"]}>
-        {offer.stale ? <TriangleAlert size={14} /> : <ShieldCheck size={14} />}
-        <span>{offer.stale ? "数据可能过期" : `可信分 ${offer.trustScore.toFixed(0)}`}</span>
+      <div className={styles["offerEvidence"]}>
+        <span className={styles["offerTrust"]}>
+          {offer.stale ? (
+            <TriangleAlert aria-hidden="true" size={14} />
+          ) : (
+            <ShieldCheck aria-hidden="true" size={14} />
+          )}
+          {offer.stale ? "报价已过核验时效" : `可信分 ${offer.trustScore.toFixed(0)}`}
+        </span>
+        <span className={styles["offerLogistics"]}>
+          <Truck aria-hidden="true" size={14} />
+          {offer.deliveryNote || "物流证据待人工补充"}
+        </span>
+        <small>
+          履约评分 {offer.deliveryScore.toFixed(0)}/100 · {provenance}
+        </small>
       </div>
       <div className={styles["offerPrice"]}>
         {offer.discount > 0 ? <small>已优惠 {formatPriceMoney(offer.discount)}</small> : null}
         <strong>{formatPriceMoney(offer.finalPrice)}</strong>
       </div>
       <a
-        aria-label={`前往${offer.platformLabel}购买`}
+        aria-label={`查看${offer.platformLabel}购买`}
         className={styles["purchaseButton"]}
         href={getOfferRedirectUrl(offer.redirectPath)}
         rel="noopener noreferrer"
         target="_blank"
       >
-        <span>前往购买</span>
+        <span>查看购买</span>
         <ExternalLink size={14} strokeWidth={1.7} />
       </a>
     </article>
