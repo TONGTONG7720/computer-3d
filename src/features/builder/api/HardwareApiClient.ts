@@ -143,7 +143,7 @@ const hardwareCatalogueResponseSchema = z.object({
     size: z.number().int().positive(),
     items: z.array(serverHardwareSchema),
     total: z.number().int().nonnegative(),
-    pages: z.number().int().nonnegative(),
+    totalPages: z.number().int().nonnegative(),
   }),
 });
 
@@ -307,7 +307,10 @@ export const parseHardwarePage = (
 ): HardwarePage => {
   const response = hardwareCatalogueResponseSchema.parse(payload);
   return {
-    ...response.data,
+    page: response.data.page,
+    size: response.data.size,
+    total: response.data.total,
+    pages: response.data.totalPages,
     items: response.data.items.map((hardware) => toHardware(hardware, apiUrl)),
   };
 };

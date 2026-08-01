@@ -189,6 +189,7 @@
 
 .filterFields label {
   display: grid;
+  min-width: 0;
   gap: var(--space-1);
 }
 
@@ -198,8 +199,11 @@
 }
 
 .filterFields input,
+.filterFields select,
 .queryBar input,
 .queryBar select {
+  width: 100%;
+  min-width: 0;
   height: var(--field-height);
   padding: 0 var(--space-3);
   color: var(--text-primary);
@@ -210,12 +214,13 @@
 
 .filterFields input::placeholder,
 .queryBar input::placeholder {
-  color: var(--text-disabled);
+  color: var(--text-placeholder);
 }
 
 .fieldPair {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
   gap: var(--space-2);
 }
 
@@ -639,6 +644,16 @@
 
   .filterFields {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .filterFields input,
+  .filterFields select,
+  .filterFields .resetButton,
+  .queryBar input,
+  .queryBar select,
+  .queryBar > button {
+    height: var(--touch-target);
+    min-height: var(--touch-target);
   }
 
   .fieldPair {

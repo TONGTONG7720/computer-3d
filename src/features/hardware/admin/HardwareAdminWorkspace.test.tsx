@@ -48,9 +48,11 @@ describe("HardwareAdminWorkspace", () => {
     await waitFor(() => expect(fetchAdminHardware).toHaveBeenCalled());
 
     const tabs = screen.getByRole("tablist", { name: "硬件后台工作区" });
+    const hardwareTab = screen.getByRole("tab", { name: "硬件档案" });
+    const modelTab = screen.getByRole("tab", { name: "模型管理" });
+    hardwareTab.focus();
     fireEvent.keyDown(tabs, { key: "ArrowRight" });
-    expect(screen.getByRole("tab", { name: "模型管理" }).getAttribute("aria-selected")).toBe(
-      "true",
-    );
+    expect(modelTab.getAttribute("aria-selected")).toBe("true");
+    expect(document.activeElement).toBe(modelTab);
   });
 });

@@ -143,7 +143,7 @@ type HardwareEditorProps = {
 
 export function HardwareEditor({ adminKey, creating, detail, onSaved }: HardwareEditorProps) {
   const [form, setForm] = useState<EditorForm>(blankForm);
-  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "dirty" | "saving" | "saved" | "error">("idle");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -152,8 +152,15 @@ export function HardwareEditor({ adminKey, creating, detail, onSaved }: Hardware
     setMessage("");
   }, [detail]);
 
-  const set = (key: keyof EditorForm, value: string): void =>
+  const markDirty = (): void => {
+    setStatus("dirty");
+    setMessage("");
+  };
+
+  const set = (key: keyof EditorForm, value: string): void => {
     setForm((current) => ({ ...current, [key]: value }));
+    markDirty();
+  };
 
   const save = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
@@ -214,6 +221,8 @@ export function HardwareEditor({ adminKey, creating, detail, onSaved }: Hardware
             <LoaderCircle className={styles["spin"]} size={13} />
           ) : status === "error" ? (
             <AlertTriangle size={13} />
+          ) : status === "dirty" ? (
+            <Save size={13} />
           ) : (
             <Check size={13} />
           )}
@@ -223,7 +232,9 @@ export function HardwareEditor({ adminKey, creating, detail, onSaved }: Hardware
               ? "已保存"
               : status === "error"
                 ? "需处理"
-                : "未修改"}
+                : status === "dirty"
+                  ? "未保存"
+                  : "未修改"}
         </span>
       </div>
 
@@ -261,6 +272,7 @@ export function HardwareEditor({ adminKey, creating, detail, onSaved }: Hardware
                 category,
                 specification: JSON.stringify(defaultSpecifications[category], null, 2),
               }));
+              markDirty();
             }}
           >
             {adminHardwareCategories.map((category) => (

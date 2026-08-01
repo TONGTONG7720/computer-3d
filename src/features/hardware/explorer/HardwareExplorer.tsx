@@ -21,7 +21,12 @@ import {
   type HardwareSearchSort,
   hardwareSearchCategories,
 } from "@/features/builder/api/HardwareApiClient";
-import { readHardwareSearch, writeHardwareSearch } from "./explorerSearch";
+import {
+  type HardwareSearchDraft,
+  mergeHardwareSearchDraft,
+  readHardwareSearch,
+  writeHardwareSearch,
+} from "./explorerSearch";
 import styles from "./HardwareExplorer.module.css";
 import { HardwareResultRow } from "./HardwareResultRow";
 
@@ -45,14 +50,7 @@ const sortLabels = {
   newest: "最新录入",
 } as const satisfies Readonly<Record<HardwareSearchSort, string>>;
 
-type DraftFilters = {
-  keyword: string;
-  brand: string;
-  minPrice: string;
-  maxPrice: string;
-  minPerformance: string;
-  maxPower: string;
-};
+type DraftFilters = HardwareSearchDraft;
 
 const emptyPage: HardwarePage = { page: 1, size: 24, total: 0, pages: 0, items: [] };
 
@@ -65,24 +63,51 @@ const toDraft = (filters: HardwareSearchFilters): DraftFilters => ({
   maxPower: filters.maxPower === undefined ? "" : String(filters.maxPower),
 });
 
-const optionalNumber = (value: string): number | undefined => {
-  const parsed = Number(value);
-  return value.trim() !== "" && Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
-};
-
 type FilterControlsProps = {
+  readonly category?: HardwareSearchCategory | undefined;
   readonly draft: DraftFilters;
   readonly prefix: string;
+  readonly onCategoryChange?: (category: HardwareSearchCategory | undefined) => void;
   readonly onChange: (draft: DraftFilters) => void;
   readonly onReset: () => void;
 };
 
-function FilterControls({ draft, onChange, onReset, prefix }: FilterControlsProps) {
+function FilterControls({
+  category,
+  draft,
+  onCategoryChange,
+  onChange,
+  onReset,
+  prefix,
+}: FilterControlsProps) {
   const update = (key: keyof DraftFilters, value: string): void => {
     onChange({ ...draft, [key]: value });
   };
   return (
     <div className={styles["filterFields"]}>
+      {onCategoryChange ? (
+        <label htmlFor={`${prefix}-category`}>
+          <span>组件分类</span>
+          <select
+            id={`${prefix}-category`}
+            onChange={(event) =>
+              onCategoryChange(
+                event.target.value === ""
+                  ? undefined
+                  : (event.target.value as HardwareSearchCategory),
+              )
+            }
+            value={category ?? ""}
+          >
+            <option value="">全部组件</option>
+            {hardwareSearchCategories.map((item) => (
+              <option key={item} value={item}>
+                {categoryLabels[item]}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <label htmlFor={`${prefix}-brand`}>
         <span>品牌</span>
         <input
@@ -197,31 +222,17 @@ export function HardwareExplorer() {
 
   const applyDraft = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    const keyword = draft.keyword.trim();
-    const brand = draft.brand.trim();
-    const minPrice = optionalNumber(draft.minPrice);
-    const maxPrice = optionalNumber(draft.maxPrice);
-    const minPerformance = optionalNumber(draft.minPerformance);
-    const maxPower = optionalNumber(draft.maxPower);
-    const {
-      keyword: _keyword,
-      brands: _brands,
-      minPrice: _minPrice,
-      maxPrice: _maxPrice,
-      minPerformance: _minPerformance,
-      maxPower: _maxPower,
-      ...stableFilters
-    } = filters;
-    navigate({
-      ...stableFilters,
-      ...(keyword ? { keyword } : {}),
-      ...(brand ? { brands: [brand] } : {}),
-      ...(minPrice === undefined ? {} : { minPrice }),
-      ...(maxPrice === undefined ? {} : { maxPrice }),
-      ...(minPerformance === undefined ? {} : { minPerformance }),
-      ...(maxPower === undefined ? {} : { maxPower }),
-      page: 1,
-    });
+    navigate({ ...mergeHardwareSearchDraft(filters, draft), page: 1 });
+  };
+
+  const selectCategory = (category: HardwareSearchCategory | undefined): void => {
+    const merged = mergeHardwareSearchDraft(filters, draft);
+    if (category) {
+      navigate({ ...merged, category, page: 1 });
+      return;
+    }
+    const { category: _category, ...rest } = merged;
+    navigate({ ...rest, page: 1 });
   };
 
   const reset = (): void => navigate({ page: 1, size: 24, sort: "relevance" });
@@ -265,10 +276,7 @@ export function HardwareExplorer() {
           <fieldset aria-label="硬件分类" className={styles["categories"]}>
             <button
               aria-pressed={filters.category === undefined}
-              onClick={() => {
-                const { category: _category, ...rest } = filters;
-                navigate({ ...rest, page: 1 });
-              }}
+              onClick={() => selectCategory(undefined)}
               type="button"
             >
               全部组件
@@ -277,7 +285,7 @@ export function HardwareExplorer() {
               <button
                 aria-pressed={filters.category === category}
                 key={category}
-                onClick={() => navigate({ ...filters, category, page: 1 })}
+                onClick={() => selectCategory(category)}
                 type="button"
               >
                 {categoryLabels[category]}
@@ -308,7 +316,14 @@ export function HardwareExplorer() {
               筛选条件 <b>{activeFilterCount}</b>
             </summary>
             <form onSubmit={applyDraft}>
-              <FilterControls draft={draft} onChange={setDraft} onReset={reset} prefix="mobile" />
+              <FilterControls
+                category={filters.category}
+                draft={draft}
+                onCategoryChange={selectCategory}
+                onChange={setDraft}
+                onReset={reset}
+                prefix="mobile"
+              />
               <button className={styles["applyButton"]} type="submit">
                 应用筛选
               </button>
@@ -321,14 +336,18 @@ export function HardwareExplorer() {
               <input
                 aria-label="搜索硬件"
                 onChange={(event) => setDraft({ ...draft, keyword: event.target.value })}
-                placeholder="搜索 RTX 5090、7800X3D、O11…"
+                placeholder="搜索型号，如 RTX 5090"
                 value={draft.keyword}
               />
             </label>
             <select
               aria-label="排序"
               onChange={(event) =>
-                navigate({ ...filters, sort: event.target.value as HardwareSearchSort, page: 1 })
+                navigate({
+                  ...mergeHardwareSearchDraft(filters, draft),
+                  sort: event.target.value as HardwareSearchSort,
+                  page: 1,
+                })
               }
               value={filters.sort}
             >

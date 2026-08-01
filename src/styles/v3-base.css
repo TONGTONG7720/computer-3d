@@ -18,6 +18,12 @@
   min-height: var(--touch-target);
 }
 
+[data-ui-version="v3"] input::placeholder,
+[data-ui-version="v3"] textarea::placeholder {
+  color: var(--text-placeholder);
+  opacity: 1;
+}
+
 [data-ui-version="v3"] :focus-visible {
   outline: var(--focus-ring-width) solid var(--primary);
   outline-offset: var(--focus-ring-width);

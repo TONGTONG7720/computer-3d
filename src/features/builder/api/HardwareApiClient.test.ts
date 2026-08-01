@@ -50,7 +50,7 @@ describe("HardwareApiClient", () => {
         page: 1,
         size: 100,
         total: 2,
-        pages: 1,
+        totalPages: 1,
         items: [
           {
             ...baseHardware,
@@ -104,7 +104,7 @@ describe("HardwareApiClient", () => {
           page: 1,
           size: 100,
           total: 1,
-          pages: 1,
+          totalPages: 1,
           items: [{ ...baseHardware, cores: 24 }],
         },
       }),
@@ -120,7 +120,7 @@ describe("HardwareApiClient", () => {
         return new Response(
           JSON.stringify({
             code: "OK",
-            data: { page: 2, size: 24, total: 0, pages: 0, items: [] },
+            data: { page: 2, size: 24, total: 0, totalPages: 0, items: [] },
           }),
           { headers: { "Content-Type": "application/json" } },
         );
@@ -144,6 +144,7 @@ describe("HardwareApiClient", () => {
     );
 
     expect(page.page).toBe(2);
+    expect(page.pages).toBe(0);
     expect(requestedUrl).toContain("keyword=RTX+5090");
     expect(requestedUrl).toContain("category=GPU");
     expect(requestedUrl).toContain("brand=NVIDIA");

@@ -6,6 +6,15 @@ import {
   hardwareSearchSorts,
 } from "@/features/builder/api/HardwareApiClient";
 
+export type HardwareSearchDraft = {
+  readonly keyword: string;
+  readonly brand: string;
+  readonly minPrice: string;
+  readonly maxPrice: string;
+  readonly minPerformance: string;
+  readonly maxPower: string;
+};
+
 const positiveNumber = (value: string | null): number | undefined => {
   if (value === null || value.trim() === "") {
     return undefined;
@@ -17,6 +26,41 @@ const positiveNumber = (value: string | null): number | undefined => {
 const positiveInteger = (value: string | null, fallback: number): number => {
   const parsed = positiveNumber(value);
   return parsed === undefined ? fallback : Math.max(1, Math.trunc(parsed));
+};
+
+const draftNumber = (value: string): number | undefined => {
+  const parsed = Number(value);
+  return value.trim() !== "" && Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
+};
+
+export const mergeHardwareSearchDraft = (
+  filters: HardwareSearchFilters,
+  draft: HardwareSearchDraft,
+): HardwareSearchFilters => {
+  const keyword = draft.keyword.trim();
+  const brand = draft.brand.trim();
+  const minPrice = draftNumber(draft.minPrice);
+  const maxPrice = draftNumber(draft.maxPrice);
+  const minPerformance = draftNumber(draft.minPerformance);
+  const maxPower = draftNumber(draft.maxPower);
+  const {
+    keyword: _keyword,
+    brands: _brands,
+    minPrice: _minPrice,
+    maxPrice: _maxPrice,
+    minPerformance: _minPerformance,
+    maxPower: _maxPower,
+    ...stableFilters
+  } = filters;
+  return {
+    ...stableFilters,
+    ...(keyword ? { keyword } : {}),
+    ...(brand ? { brands: [brand] } : {}),
+    ...(minPrice === undefined ? {} : { minPrice }),
+    ...(maxPrice === undefined ? {} : { maxPrice }),
+    ...(minPerformance === undefined ? {} : { minPerformance }),
+    ...(maxPower === undefined ? {} : { maxPower }),
+  };
 };
 
 export const readHardwareSearch = (params: URLSearchParams): HardwareSearchFilters => {

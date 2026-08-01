@@ -1,9 +1,10 @@
 # PC LAB 3D
 
-PC LAB 3D 是一个汽车配置器式的沉浸式电脑装机平台。当前前端基线为
-`Builder UI V3.0 + Three.js Engine V2.0`：Builder 的硬件选择会直接驱动模块化
-PC 场景、零件替换动画、拆解、风道和 RGB Studio。仓库既有价格与 AI 模块继续
-保留，但本阶段没有扩展商城、AI 聊天或社区能力。
+PC LAB 3D 是一个汽车配置器式的沉浸式电脑装机平台。当前产品基线为
+`Builder UI V3.0 + Three.js Engine V2.0 + Hardware Intelligence V1.0`：Builder
+从真实硬件 API 读取目录，硬件选择会同时驱动模块化 PC 场景、服务端兼容检测、
+性能评分、预算状态与可解释优化建议。仓库既有价格与 AI 模块继续保留；本次硬件
+智能分支没有扩展电商、AI 聊天或社区能力。
 
 ## 当前能力
 
@@ -14,7 +15,12 @@ PC 场景、零件替换动画、拆解、风道和 RGB Studio。仓库既有价
 - GLB / Draco / Meshopt / KTX2 加载管线、引用缓存、进度、错误与资源释放
 - 桌面按需 60 FPS 目标、移动端自适应 DPR / 粒子预算与 30 FPS 降级目标
 - Spring Boot 硬件数据中心、MySQL 迁移与 Redis 缓存
-- Builder 实时价格、功耗、性能、兼容性与配置保存
+- CPU / GPU / 主板 / 内存 / 硬盘 / 散热 / 电源 / 机箱的分类规格与 3D 模型绑定
+- `/hardware` 技术数据库：关键词、品牌、分类、价格、性能、功耗过滤与排序
+- 服务端兼容规则：插槽、内存代际、显卡净空、散热能力、机箱规格与电源余量
+- Gaming / Creator / AI 三类性能评分、瓶颈提示和服务端权威预算分析
+- Builder 实时价格、剩余预算、功耗、兼容性、性能与显式“建议后应用”优化流程
+- `/admin/hardware` 硬件档案、模型变换和兼容规则管理工作区
 - 自有 `product` 商品库与多平台人工报价
 - 商品标题标准化、硬件匹配置信度与可解释结果
 - 优惠券、满减、会员优惠、平台补贴、运费的到手价计算
@@ -37,6 +43,8 @@ AI V1 默认完全使用本地规则与审核数据，OpenAI-compatible LLM 和 
 flowchart LR
   UI["Next.js 3D Builder / Admin"] --> API["Spring Boot REST API"]
   API --> HW["Hardware Domain"]
+  HW --> FACTS["Typed Specifications + Model Registry"]
+  HW --> INTEL["Compatibility + Performance + Budget + Optimizer"]
   API --> PRICE["Price Intelligence Domain"]
   PRICE --> MATCH["Matching Engine"]
   PRICE --> RANK["Promotion + Ranking"]
@@ -61,11 +69,13 @@ flowchart LR
 完整 AI 架构、Prompt、RAG、接口、UI 与数据流见
 [AI Builder V1 规格](docs/superpowers/specs/2026-08-01-pc-lab-ai-builder-v1-design.md)；
 价格领域见
-[Price Intelligence V1 规格](docs/superpowers/specs/2026-07-31-pc-lab-price-intelligence-v1-design.md)。
+[Price Intelligence V1 规格](docs/superpowers/specs/2026-07-31-pc-lab-price-intelligence-v1-design.md)；
+本阶段的数据库、规则引擎、API 与 UI 边界见
+[Hardware Intelligence V1 规格](docs/superpowers/specs/2026-08-01-pc-lab-hardware-intelligence-v1-design.md)。
 
 ## 本地启动
 
-前置条件：Java 21、Maven、Node.js、pnpm、MySQL、Redis。
+前置条件：Java 21、Maven、Node.js、pnpm、MySQL 8（或兼容的新版本）、Redis。
 
 1. 启动 MySQL 与 Redis。Flyway 会创建或升级 `pc_lab_3d`，保留原有内部
    价格并迁移为只读的 `INTERNAL` 参考报价。
@@ -90,9 +100,10 @@ flowchart LR
    pnpm dev
    ```
 
-   前端默认运行在 `http://127.0.0.1:3000`，Builder 位于 `/builder`，价格与 AI 运营台
-   分别位于 `/admin/prices`、`/admin/ai`。运营台要求输入与后端一致的 Admin Key；
-   密钥只保存在当前标签页的 `sessionStorage`，不会写入 URL 或长期本地存储。
+   前端默认运行在 `http://127.0.0.1:3000`。Builder 位于 `/builder`，硬件数据库
+   位于 `/hardware`，硬件管理台位于 `/admin/hardware`；既有价格与 AI 运营台位于
+   `/admin/prices`、`/admin/ai`。运营台要求输入与后端一致的 Admin Key；密钥只
+   保存在当前标签页的 `sessionStorage`，不会写入 URL 或长期本地存储。
 
 ### 可选模型与向量检索
 
@@ -131,6 +142,9 @@ pnpm start
 |---|---|
 | 硬件搜索/过滤 | `GET /api/hardware` |
 | 硬件详情 | `GET /api/hardware/{idOrKey}` |
+| 独立兼容检查 | `GET /api/compatibility/check` |
+| 配置权威分析 | `POST /api/build/analyze` |
+| 预算约束优化 | `POST /api/build/optimize` |
 | 配置保存/读取 | `POST /api/build`、`GET /api/build/{publicId}` |
 | AI 生成装机方案 | `POST /api/ai/build` |
 | 硬件价格摘要 | `GET /api/price-intelligence/hardware/{idOrKey}` |
@@ -139,6 +153,9 @@ pnpm start
 | 搜索事件 | `POST /api/price-intelligence/search-events` |
 | 受控购买跳转 | `GET /api/price-intelligence/offers/{offerId}/go` |
 | Admin 商品 CRUD | `/api/admin/products/**` |
+| Admin 硬件档案 | `GET/POST /api/admin/hardware`、`GET/PUT/DELETE /api/admin/hardware/{id}` |
+| Admin 3D 模型 | `POST /api/admin/hardware/{id}/models`、`PUT /api/admin/models/{id}` |
+| Admin 性能与兼容规则 | `PUT /api/admin/hardware/{id}/performance`、`/api/admin/compatibility-rules/**` |
 | Admin 报价维护 | `/api/admin/products/{id}/offers`、`/api/admin/offers/**` |
 | Admin 价格概览 | `GET /api/admin/price-dashboard` |
 | Admin AI 概览 | `GET /api/admin/ai/dashboard` |
@@ -162,7 +179,7 @@ pnpm start
 
 ```powershell
 pnpm verify
-pnpm backend:test
+mvn -f backend/pom.xml test
 ```
 
 生产构建：

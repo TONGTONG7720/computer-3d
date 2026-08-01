@@ -9,7 +9,8 @@
   --border-strong: #343434;
   --text-primary: #f5f5f5;
   --text-secondary: #a3a3a3;
-  --text-muted: #737373;
+  --text-muted: #8a8a8a;
+  --text-placeholder: #858585;
   --text-disabled: #525252;
   --primary: #3b82f6;
   --primary-hover: #60a5fa;
@@ -50,7 +51,8 @@
   --radius-medium: 12px;
   --radius-large: 20px;
   --shadow-overlay: 0 16px 40px rgba(0, 0, 0, 0.36);
-  --font-ui: "Geist Variable", "Space Grotesk Variable", "Segoe UI", sans-serif;
+  --font-ui:
+    "Geist Variable", "Space Grotesk Variable", "Noto Sans SC Variable", "Segoe UI", sans-serif;
   --font-body-v3: "Noto Sans SC Variable", "PingFang SC", "Microsoft YaHei", sans-serif;
   --type-page-size: 32px;
   --type-page-line: 38px;

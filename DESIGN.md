@@ -59,7 +59,8 @@ The visual hierarchy is fixed:
 | `--border-strong` | `#343434` | Focused separation |
 | `--text-primary` | `#f5f5f5` | Primary copy |
 | `--text-secondary` | `#a3a3a3` | Body/metadata |
-| `--text-muted` | `#737373` | Quiet metadata |
+| `--text-muted` | `#8a8a8a` | Quiet metadata with compact-text contrast |
+| `--text-placeholder` | `#858585` | Form placeholder text |
 | `--text-disabled` | `#525252` | Unavailable state |
 | `--primary` | `#3b82f6` | Selection/focus |
 | `--primary-hover` | `#60a5fa` | Hover emphasis |

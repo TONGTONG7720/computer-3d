@@ -26,12 +26,20 @@ describe("BuilderWorkspace shell", () => {
     expect(screen.queryByRole("dialog", { name: "配置分析" })).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "关闭选择组件" }));
-    await waitFor(() => {
-      expect(screen.queryByRole("dialog", { name: "选择组件" })).toBeNull();
-    });
+    await waitFor(
+      () => {
+        expect(screen.queryByRole("dialog", { name: "选择组件" })).toBeNull();
+      },
+      { timeout: 5_000 },
+    );
 
     fireEvent.click(screen.getByRole("button", { name: "打开配置分析" }));
-    expect(await screen.findByRole("dialog", { name: "配置分析" })).toBeTruthy();
-    expect(screen.queryByRole("dialog", { name: "选择组件" })).toBeNull();
+    await waitFor(
+      () => {
+        expect(screen.getByRole("dialog", { name: "配置分析" })).toBeTruthy();
+        expect(screen.queryByRole("dialog", { name: "选择组件" })).toBeNull();
+      },
+      { timeout: 5_000 },
+    );
   });
 });

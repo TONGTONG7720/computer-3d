@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { readHardwareSearch, writeHardwareSearch } from "./explorerSearch";
+import {
+  mergeHardwareSearchDraft,
+  readHardwareSearch,
+  writeHardwareSearch,
+} from "./explorerSearch";
 
 describe("hardware explorer URL state", () => {
   it("restores a shareable technical query", () => {
@@ -33,5 +37,21 @@ describe("hardware explorer URL state", () => {
     expect(filters.page).toBe(1);
     expect(filters.sort).toBe("relevance");
     expect(written.toString()).toBe("");
+  });
+
+  it("preserves an unsent keyword when another control updates the URL", () => {
+    const filters = readHardwareSearch(new URLSearchParams("category=GPU&brand=NVIDIA"));
+    const merged = mergeHardwareSearchDraft(filters, {
+      keyword: "RTX 5080",
+      brand: "NVIDIA",
+      minPrice: "",
+      maxPrice: "",
+      minPerformance: "",
+      maxPower: "",
+    });
+
+    expect(writeHardwareSearch({ ...merged, sort: "performance_desc", page: 1 }).toString()).toBe(
+      "q=RTX+5080&category=GPU&brand=NVIDIA&sort=performance_desc",
+    );
   });
 });

@@ -13,7 +13,14 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, type KeyboardEvent, useCallback, useEffect, useState } from "react";
+import {
+  type FormEvent,
+  type KeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { AdminHardwareAccess } from "./AdminHardwareAccess";
 import {
   fetchAdminHardware,
@@ -50,6 +57,11 @@ export function HardwareAdminWorkspace() {
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [detailStatus, setDetailStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [error, setError] = useState("");
+  const tabRefs = useRef<Record<AdminTab, HTMLButtonElement | null>>({
+    catalogue: null,
+    models: null,
+    rules: null,
+  });
 
   const loadOverview = useCallback(
     async (nextSelectedId?: number | null) => {
@@ -140,7 +152,9 @@ export function HardwareAdminWorkspace() {
     event.preventDefault();
     const index = tabs.indexOf(activeTab);
     const offset = event.key === "ArrowRight" ? 1 : -1;
-    setActiveTab(tabs[(index + offset + tabs.length) % tabs.length] ?? "catalogue");
+    const nextTab = tabs[(index + offset + tabs.length) % tabs.length] ?? "catalogue";
+    setActiveTab(nextTab);
+    tabRefs.current[nextTab]?.focus();
   };
 
   if (!unlocked) {
@@ -185,6 +199,9 @@ export function HardwareAdminWorkspace() {
                 aria-selected={activeTab === tab}
                 key={tab}
                 onClick={() => setActiveTab(tab)}
+                ref={(node) => {
+                  tabRefs.current[tab] = node;
+                }}
                 role="tab"
                 tabIndex={activeTab === tab ? 0 : -1}
                 type="button"
