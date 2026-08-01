@@ -56,6 +56,7 @@ export const aiBuildSchema = z
     configId: z.string().min(1),
     components: componentIdsSchema,
     totalPrice: z.number().nonnegative(),
+    budgetShortfall: z.number().nonnegative(),
     performanceScore: z.number().int().min(0).max(100),
     powerUsageWatt: z.number().int().nonnegative(),
     compatibilityStatus: z.enum(["SUCCESS", "WARNING", "ERROR"]),

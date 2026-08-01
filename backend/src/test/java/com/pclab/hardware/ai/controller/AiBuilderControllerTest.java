@@ -69,6 +69,7 @@ class AiBuilderControllerTest {
                 .andExpect(jsonPath("$.data.route").value("RULE"))
                 .andExpect(jsonPath("$.data.configId").value("build-1"))
                 .andExpect(jsonPath("$.data.components.gpu").value("gpu-rtx5070"))
+                .andExpect(jsonPath("$.data.budgetShortfall").value(1))
                 .andExpect(jsonPath("$.data.componentReasons.gpu").isNotEmpty())
                 .andExpect(jsonPath("$.data.knowledgeSources").isArray());
     }
@@ -89,7 +90,8 @@ class AiBuilderControllerTest {
                 ),
                 "build-1",
                 Map.of("gpu", "gpu-rtx5070"),
-                new BigDecimal("7999"),
+                new BigDecimal("8001"),
+                BigDecimal.ONE,
                 88,
                 620,
                 "SUCCESS",

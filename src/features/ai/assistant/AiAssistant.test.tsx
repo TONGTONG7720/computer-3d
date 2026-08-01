@@ -40,6 +40,7 @@ const proposal: AiBuild = {
     case: "case-compact-lab",
   },
   totalPrice: 7992,
+  budgetShortfall: 0,
   performanceScore: 76,
   powerUsageWatt: 443,
   compatibilityStatus: "SUCCESS",
@@ -87,6 +88,21 @@ describe("AiAssistant", () => {
       selectedComponents: defaultSelectedComponents,
     });
     engineStore.setState({ replacementRequest: null, replacementQueue: [] });
+  });
+
+  it("shows the explicit shortfall when no compatible build fits the budget", async () => {
+    vi.mocked(requestAiBuild).mockResolvedValue({
+      ...proposal,
+      budgetShortfall: 1400,
+      requiresConfirmation: true,
+    });
+    render(<AiAssistant />);
+
+    fireEvent.click(screen.getByRole("button", { name: "打开 AI 装机顾问" }));
+    fireEvent.click(screen.getByRole("button", { name: "8000 游戏主机" }));
+    fireEvent.click(screen.getByRole("button", { name: "生成配置" }));
+
+    expect(await screen.findByText("预算缺口 ¥1,400")).toBeTruthy();
   });
 
   afterEach(() => cleanup());

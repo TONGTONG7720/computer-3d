@@ -13,6 +13,7 @@ public record AiBuildView(
         String configId,
         Map<String, String> components,
         BigDecimal totalPrice,
+        BigDecimal budgetShortfall,
         int performanceScore,
         int powerUsageWatt,
         String compatibilityStatus,

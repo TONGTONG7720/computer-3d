@@ -122,6 +122,12 @@ export function AiProposalCard({
         <div className={styles["preferenceNote"]}>{proposal.unfulfilledPreferences.join("；")}</div>
       ) : null}
 
+      {proposal.budgetShortfall > 0 ? (
+        <div className={styles["preferenceNote"]}>
+          预算缺口 ¥{proposal.budgetShortfall.toLocaleString("zh-CN")}
+        </div>
+      ) : null}
+
       {proposal.requiresConfirmation && !applied ? (
         <button
           className={styles["applyButton"]}

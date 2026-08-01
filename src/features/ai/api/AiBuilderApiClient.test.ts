@@ -29,6 +29,7 @@ const validPayload = {
       case: "case-future-glass",
     },
     totalPrice: 7999,
+    budgetShortfall: 0,
     performanceScore: 82,
     powerUsageWatt: 520,
     compatibilityStatus: "SUCCESS",
@@ -57,6 +58,7 @@ describe("AiBuilderApiClient", () => {
 
     expect(result.components.gpu).toBe("gpu-nvidia-rtx5070");
     expect(result.knowledgeSources[0]?.sourceKey).toBe("WORKLOAD_GAMING_V1");
+    expect(result.budgetShortfall).toBe(0);
     expect(result.requiresConfirmation).toBe(false);
   });
 
