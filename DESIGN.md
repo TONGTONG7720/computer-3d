@@ -282,7 +282,75 @@ Responsive behavior:
 - Search, filter, error, budget, compatibility, and optimization feedback use text plus iconography;
   none depend on color alone.
 
-## V3.8 — Accepted debt and deferred capability
+## V3.8 — Price Intelligence surfaces
+
+Price Intelligence is a diagnostic layer inside the Builder, not a shop. It answers three distinct
+questions without promotional language: what the configured parts cost internally, what the lowest
+verified combined purchase costs now, and which merchant is the safer recommendation after price,
+seller trust, sales, rating, and logistics are considered. `最低购买` and `推荐购买` are never
+collapsed into one badge or one number.
+
+### Builder composition
+
+- The persistent Build Panel owns one compact `BuildPriceSummary` below the existing internal total.
+  It shows `内部参考`, `最低购买`, and `可节省` as aligned tabular values, followed by a single
+  `查看购买方案` action. It does not show platform logos, product photography, countdowns, coupon
+  urgency, cart language, or a grid of offers.
+- Loading preserves the summary height. A partial response keeps the internal reference value and
+  states `平台报价暂不可用`; the Builder, hardware selection, and 3D stage remain fully usable.
+- Opening the comparison uses a lazy-loaded dialog on desktop and a full-height sheet on mobile.
+  The selected hardware switcher stays compact and defaults to the configured GPU when available.
+- The comparison header gives equal semantic weight to `最低到手` and `可靠推荐`. Offer records are
+  evidence rows: platform, seller, final price, match confidence, rating/sales, logistics evidence,
+  freshness, and provenance. External actions are labelled `查看购买` and always route through the
+  controlled redirect endpoint.
+
+### Trust and recommendation language
+
+- Ranking disclosure states the exact contract: price 40%, seller trust 25%, sales 15%, rating 10%,
+  logistics 10%. The interface never implies that lowest price is automatically recommended.
+- `推荐购买` uses the primary selection language; `最低到手` uses neutral price emphasis. A record may
+  carry both labels, but neither uses celebratory animation.
+- `待核验`, stale, manual demo, and manual verified records include text plus an icon. Demo quotes are
+  explicitly labelled `人工演示数据`; they never masquerade as live marketplace data.
+- Logistics copy is evidence entered by an operator. The UI does not synthesize arrival promises.
+- Price drops use the success token only beside the measured delta. There are no red sale banners,
+  strike-through theatre, timers, stock pressure, or checkout affordances.
+
+### Trend and alert instruments
+
+- `PriceTrend` offers exact `7D`, `30D`, and `90D` ranges. The SVG line is paired with a textual low,
+  high, latest, change, and data-freshness summary so meaning does not depend on the chart.
+- Range controls are a compact segmented control with 44px mobile targets. Empty, loading, partial,
+  and error states retain chart geometry and provide the next useful action.
+- `PriceAlertControl` uses one visibly labelled target-price field. Anonymous ownership is local to
+  the browser; the interface never exposes the owner token in a URL or editable field.
+- Alert states are `empty`, `updating`, `active`, `triggered`, and `error`. Triggered state describes
+  the measured current price and target; it does not simulate push delivery that V1 does not provide.
+
+### Component state contract
+
+| Primitive/component | Required states |
+|---|---|
+| `BuildPriceSummary` | idle, loading, ready, partial, price-drop, error |
+| `PriceComparisonDialog` | loading, ready, partial, empty, stale, error |
+| `PriceOfferCard` | default, recommended, lowest, recommended-and-lowest, pending-review, stale |
+| `PriceTrend` | loading, 7D, 30D, 90D, empty, error |
+| `PriceAlertControl` | empty, updating, active, triggered, error |
+| `SavingIndicator` | neutral, saving, saved, price-drop |
+| `PriceAdminWorkspace` | locked, loading, ready, filtered, empty, stale, saving, conflict, error |
+
+### Responsive geometry
+
+- Desktop 1440: comparison is a maximum 960px dialog with a 360px evidence/trend column and a fluid
+  offer column; content height is capped at 82dvh and each region scrolls only when necessary.
+- Tablet 1024: comparison remains a centered dialog up to calc(100vw - 48px); offers stack above the
+  trend and alert instruments. The Builder summary keeps its compact panel position.
+- Mobile 390: comparison becomes a full-height sheet. A 56px sticky header, sticky hardware
+  switcher, one-column offer records, trend, and alert control preserve a single reading direction.
+  The close and external actions are at least 44px tall, and no horizontal page overflow is allowed.
+
+## V3.9 — Accepted debt and deferred capability
 
 | Item | Location | Reason | Exit |
 |---|---|---|---|
