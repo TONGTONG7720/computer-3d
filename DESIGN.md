@@ -169,6 +169,11 @@ The visual hierarchy is fixed:
 | `PriceCard` | internal, updating, up, down |
 | `CompatibilityCard` | success, warning, error, rechecking |
 | `BottomSheet` | opening, open, closing; focus managed |
+| `BudgetControl` | within, near limit, over budget, editing, invalid |
+| `OptimizationPanel` | idle, analysing, proposal, applying, applied, error |
+| `HardwareExplorer` | loading, ready, filtered empty, error, retrying |
+| `HardwareResult` | default, hover, focus, selected in Builder, model unavailable |
+| `HardwareAdminWorkspace` | locked, loading, catalogue, model manager, rule manager, conflict |
 
 Composition rules:
 
@@ -247,14 +252,41 @@ a material/accent event rather than filling the entire scene.
 - The Canvas remains a dynamically imported client leaf. Model cache entries are reference-counted;
   geometries, materials, and textures are explicitly disposed after the final release.
 
-## V3.7 — Accepted debt and deferred capability
+## V3.7 — Hardware Intelligence surfaces
+
+Hardware Intelligence extends the calibrated workstation language without turning hardware into a
+storefront. `/hardware` uses a data-led explorer: a compact filter rail, quiet result rows, decisive
+specification, three workload scores, power, model readiness, and internal reference price. Product
+imagery is subordinate to technical identity. Cards never use lifestyle copy, discount language,
+ratings, or oversized buy actions.
+
+The Builder budget is an editable instrument value. Remaining budget, overage, and server-analysis
+freshness appear beside total price without moving the 3D stage. The non-chat optimizer is a named
+tool action; its proposal explains replacements and projected consequences before the user applies
+the complete selection.
+
+Hardware Admin reuses the V3 opaque graphite panel, 1px divider, compact technical typography, and
+blue selection language. Catalogue, Model Manager, and Compatibility Manager are stable workspace
+tabs rather than floating dashboard cards. Loading preserves table geometry, validation sits beside
+the affected field, and optimistic-version conflicts retain operator input.
+
+Responsive behavior:
+
+- Explorer desktop: 248px filter rail plus a fluid result workspace; tablet moves filters into one
+  dismissible sheet; mobile keeps category and sort controls sticky above one-column rows.
+- Admin desktop: persistent 216px workspace navigation and contextual editor; tablet/mobile use one
+  workspace at a time with a full-height editor sheet.
+- Every interactive target remains at least 44px on touch layouts. At 200% zoom, the result row
+  becomes a stacked record without horizontal page overflow.
+- Search, filter, error, budget, compatibility, and optimization feedback use text plus iconography;
+  none depend on color alone.
+
+## V3.8 — Accepted debt and deferred capability
 
 | Item | Location | Reason | Exit |
 |---|---|---|---|
 | Procedural model set | `/builder` stage | Licensed production GLB binaries are not in the repository | Drop optimized assets into the documented registry paths; the slot and animation contracts remain unchanged |
-| Local hardware fixtures | Builder-scoped store | This phase validates UI and selection flow independently | Reconnect the Hardware API without changing component geometry |
 | Disabled Share | Toolbar | Public Build sharing is deferred | Enable after versioned Build API/public route returns |
-| No Optimize action | Build Panel | AI chat and optimization are out of scope | Add the approved non-chat Optimize Build flow later |
 
 ---
 
