@@ -182,7 +182,9 @@ export function PriceAlertControl({ hardwareKey, hardwareName }: PriceAlertContr
 
       {alert ? (
         <div aria-live="polite" className={styles["alertSummary"]} role="status">
-          <strong>{triggered ? "已达目标价" : "目标价监测中"}</strong>
+          <strong>
+            {status === "deleting" ? "正在取消提醒" : triggered ? "已达目标价" : "目标价监测中"}
+          </strong>
           <span>
             {alert.currentBestPrice === null
               ? "当前最低价待补充"
