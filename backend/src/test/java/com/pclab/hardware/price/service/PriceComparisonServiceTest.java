@@ -10,6 +10,7 @@ import com.pclab.hardware.mapper.ProductPriceMapper;
 import com.pclab.hardware.price.algorithm.BestPriceAlgorithm;
 import com.pclab.hardware.price.entity.ProductEntity;
 import com.pclab.hardware.price.mapper.ProductMapper;
+import com.pclab.hardware.price.vo.BuildQuoteView;
 import com.pclab.hardware.price.vo.PriceComparisonView;
 import com.pclab.hardware.service.HardwareQueryService;
 import java.math.BigDecimal;
@@ -19,6 +20,62 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class PriceComparisonServiceTest {
+
+    @Test
+    void reportsInternalTotalAndSavingsForABuildQuote() {
+        HardwareQueryService hardwareService = mock(HardwareQueryService.class);
+        ProductMapper productMapper = mock(ProductMapper.class);
+        ProductPriceMapper priceMapper = mock(ProductPriceMapper.class);
+        when(hardwareService.requireHardware("gpu-nvidia-rtx5090")).thenReturn(hardware());
+        when(productMapper.selectActiveByHardwareId(1L)).thenReturn(List.of(
+                product(10L, "MANUAL", "0.99"),
+                product(12L, "INTERNAL", "1.00")
+        ));
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        when(priceMapper.selectByHardwareId(1L)).thenReturn(List.of(
+                offer(101L, 10L, "JD", "SELF_OPERATED", "8799", 12000, "4.9", "98", now),
+                offer(103L, 12L, "INTERNAL", "INTERNAL", "13999", 0, "0", "100", now)
+        ));
+        PriceComparisonService service = new PriceComparisonService(
+                hardwareService,
+                productMapper,
+                priceMapper,
+                new BestPriceAlgorithm()
+        );
+
+        BuildQuoteView result = service.quote(List.of("gpu-nvidia-rtx5090"));
+
+        assertThat(result.internalTotal()).isEqualByComparingTo("13999");
+        assertThat(result.lowestTotal()).isEqualByComparingTo("8799");
+        assertThat(result.savings()).isEqualByComparingTo("5200");
+    }
+
+    @Test
+    void neverReportsNegativeBuildSavings() {
+        HardwareQueryService hardwareService = mock(HardwareQueryService.class);
+        ProductMapper productMapper = mock(ProductMapper.class);
+        ProductPriceMapper priceMapper = mock(ProductPriceMapper.class);
+        when(hardwareService.requireHardware("gpu-nvidia-rtx5090")).thenReturn(hardware());
+        when(productMapper.selectActiveByHardwareId(1L)).thenReturn(List.of(
+                product(10L, "MANUAL", "0.99"),
+                product(12L, "INTERNAL", "1.00")
+        ));
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        when(priceMapper.selectByHardwareId(1L)).thenReturn(List.of(
+                offer(101L, 10L, "JD", "SELF_OPERATED", "14999", 12000, "4.9", "98", now),
+                offer(103L, 12L, "INTERNAL", "INTERNAL", "13999", 0, "0", "100", now)
+        ));
+        PriceComparisonService service = new PriceComparisonService(
+                hardwareService,
+                productMapper,
+                priceMapper,
+                new BestPriceAlgorithm()
+        );
+
+        BuildQuoteView result = service.quote(List.of("gpu-nvidia-rtx5090"));
+
+        assertThat(result.savings()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
 
     @Test
     void separatesInternalReferenceFromMarketplaceRanking() {

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.pclab.hardware.entity.HardwareEntity;
 import com.pclab.hardware.mapper.HardwareMapper;
 import com.pclab.hardware.price.service.PriceComparisonService;
+import com.pclab.hardware.price.service.PriceAlertService;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +24,16 @@ public class PriceRefreshScheduler {
 
     private final HardwareMapper hardwareMapper;
     private final PriceComparisonService comparisonService;
+    private final PriceAlertService alertService;
 
     public PriceRefreshScheduler(
             HardwareMapper hardwareMapper,
-            PriceComparisonService comparisonService
+            PriceComparisonService comparisonService,
+            PriceAlertService alertService
     ) {
         this.hardwareMapper = hardwareMapper;
         this.comparisonService = comparisonService;
+        this.alertService = alertService;
     }
 
     @Scheduled(cron = "${app.price.hot-refresh-cron}")
@@ -61,5 +65,6 @@ public class PriceRefreshScheduler {
                     hardware.size()
             );
         }
+        alertService.reevaluateActiveAlerts();
     }
 }

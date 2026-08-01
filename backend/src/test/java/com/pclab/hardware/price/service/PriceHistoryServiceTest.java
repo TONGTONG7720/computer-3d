@@ -19,6 +19,12 @@ import org.junit.jupiter.api.Test;
 class PriceHistoryServiceTest {
 
     @Test
+    void supportsTheExactNinetyDayApiRange() {
+        assertThat(HistoryRange.from("90D")).isEqualTo(HistoryRange.NINETY_DAYS);
+        assertThat(HistoryRange.from("90D").days()).isEqualTo(90);
+    }
+
+    @Test
     void aggregatesDailyMinimumAcrossMarketplaceOffers() {
         HardwareQueryService hardwareService = mock(HardwareQueryService.class);
         PriceHistoryMapper historyMapper = mock(PriceHistoryMapper.class);

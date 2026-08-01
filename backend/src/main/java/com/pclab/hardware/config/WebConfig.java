@@ -61,7 +61,12 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 .allowedOrigins(origins.toArray(String[]::new))
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("Content-Type", "X-Admin-Key", RequestTraceFilter.TRACE_HEADER)
+                .allowedHeaders(
+                        "Content-Type",
+                        "X-Admin-Key",
+                        "X-Price-Alert-Owner",
+                        RequestTraceFilter.TRACE_HEADER
+                )
                 .exposedHeaders(RequestTraceFilter.TRACE_HEADER)
                 .maxAge(3600);
     }

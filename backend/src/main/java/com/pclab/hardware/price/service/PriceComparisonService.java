@@ -77,6 +77,9 @@ public class PriceComparisonService {
                 .map(this::compareHardware)
                 .map(this::toComponentQuote)
                 .toList();
+        BigDecimal internalTotal = components.stream()
+                .map(component -> valueOrZero(component.internalReferencePrice()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal lowestTotal = components.stream()
                 .map(component -> preferred(component.lowestPrice(), component.internalReferencePrice()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -86,10 +89,13 @@ public class PriceComparisonService {
         int priced = (int) components.stream()
                 .filter(component -> component.lowestPrice() != null)
                 .count();
+        BigDecimal savings = internalTotal.subtract(lowestTotal).max(BigDecimal.ZERO);
         return new BuildQuoteView(
                 components,
+                internalTotal,
                 lowestTotal,
                 recommendedTotal,
+                savings,
                 priced,
                 components.size(),
                 priced == components.size(),
@@ -263,5 +269,9 @@ public class PriceComparisonService {
             return marketPrice;
         }
         return internalPrice == null ? BigDecimal.ZERO : internalPrice;
+    }
+
+    private static BigDecimal valueOrZero(BigDecimal value) {
+        return value == null ? BigDecimal.ZERO : value;
     }
 }

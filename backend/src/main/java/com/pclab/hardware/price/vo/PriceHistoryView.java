@@ -28,7 +28,8 @@ public record PriceHistoryView(
 
     public enum HistoryRange {
         SEVEN_DAYS("7D", 7),
-        THIRTY_DAYS("30D", 30);
+        THIRTY_DAYS("30D", 30),
+        NINETY_DAYS("90D", 90);
 
         private final String apiValue;
         private final int days;

@@ -4,13 +4,16 @@ import com.pclab.hardware.exception.DomainException;
 import com.pclab.hardware.exception.ErrorCode;
 import com.pclab.hardware.price.domain.PlatformCode;
 import com.pclab.hardware.price.dto.BuildQuoteRequest;
+import com.pclab.hardware.price.dto.PriceAlertRequest;
 import com.pclab.hardware.price.dto.PriceSearchEventRequest;
 import com.pclab.hardware.price.service.ClickRedirectService;
 import com.pclab.hardware.price.service.ClickRedirectService.ClickContext;
+import com.pclab.hardware.price.service.PriceAlertService;
 import com.pclab.hardware.price.service.PriceComparisonService;
 import com.pclab.hardware.price.service.PriceEventService;
 import com.pclab.hardware.price.service.PriceHistoryService;
 import com.pclab.hardware.price.vo.BuildQuoteView;
+import com.pclab.hardware.price.vo.PriceAlertView;
 import com.pclab.hardware.price.vo.PriceComparisonView;
 import com.pclab.hardware.price.vo.PriceHistoryView;
 import com.pclab.hardware.price.vo.PriceHistoryView.HistoryRange;
@@ -20,7 +23,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.net.URI;
+import java.util.List;
 import java.util.Locale;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +33,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,21 +45,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/price-intelligence")
 public class PriceIntelligenceController {
 
+    private static final String ALERT_OWNER_HEADER = "X-Price-Alert-Owner";
+    private static final String UUID_PATTERN = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-"
+            + "[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
+
     private final PriceComparisonService comparisonService;
     private final PriceHistoryService historyService;
     private final ClickRedirectService redirectService;
     private final PriceEventService eventService;
+    private final PriceAlertService alertService;
 
     public PriceIntelligenceController(
             PriceComparisonService comparisonService,
             PriceHistoryService historyService,
             ClickRedirectService redirectService,
-            PriceEventService eventService
+            PriceEventService eventService,
+            PriceAlertService alertService
     ) {
         this.comparisonService = comparisonService;
         this.historyService = historyService;
         this.redirectService = redirectService;
         this.eventService = eventService;
+        this.alertService = alertService;
     }
 
     @GetMapping("/hardware/{idOrKey}")
@@ -94,6 +107,36 @@ public class PriceIntelligenceController {
     @PostMapping("/search-events")
     ApiResponse<Void> searchEvent(@Valid @RequestBody PriceSearchEventRequest request) {
         eventService.recordSearch(request);
+        return ApiResponse.success(null);
+    }
+
+    @PutMapping("/alerts/{hardwareKey}")
+    ApiResponse<PriceAlertView> upsertAlert(
+            @PathVariable @Size(max = 160) String hardwareKey,
+            @RequestHeader(value = ALERT_OWNER_HEADER, defaultValue = "")
+            @Pattern(regexp = UUID_PATTERN) String ownerToken,
+            @Valid @RequestBody PriceAlertRequest request
+    ) {
+        return ApiResponse.success(
+                alertService.upsert(ownerToken, hardwareKey, request.targetPrice())
+        );
+    }
+
+    @GetMapping("/alerts")
+    ApiResponse<List<PriceAlertView>> alerts(
+            @RequestHeader(value = ALERT_OWNER_HEADER, defaultValue = "")
+            @Pattern(regexp = UUID_PATTERN) String ownerToken
+    ) {
+        return ApiResponse.success(alertService.list(ownerToken));
+    }
+
+    @DeleteMapping("/alerts/{publicId}")
+    ApiResponse<Void> cancelAlert(
+            @PathVariable @Pattern(regexp = UUID_PATTERN) String publicId,
+            @RequestHeader(value = ALERT_OWNER_HEADER, defaultValue = "")
+            @Pattern(regexp = UUID_PATTERN) String ownerToken
+    ) {
+        alertService.cancel(ownerToken, publicId);
         return ApiResponse.success(null);
     }
 

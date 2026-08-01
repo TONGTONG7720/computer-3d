@@ -7,8 +7,10 @@ import java.util.List;
 
 public record BuildQuoteView(
         List<ComponentQuote> components,
+        BigDecimal internalTotal,
         BigDecimal lowestTotal,
         BigDecimal recommendedTotal,
+        BigDecimal savings,
         int pricedComponentCount,
         int componentCount,
         boolean complete,
