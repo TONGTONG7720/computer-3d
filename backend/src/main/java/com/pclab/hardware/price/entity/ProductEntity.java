@@ -22,6 +22,7 @@ public class ProductEntity {
     private String model;
     private String category;
     private String imageUrl;
+    private String imageFingerprint;
     private String description;
     private String normalizedTitle;
     private String specJson;

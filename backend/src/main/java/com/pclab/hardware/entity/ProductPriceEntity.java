@@ -28,6 +28,8 @@ public class ProductPriceEntity {
     private Integer salesCount;
     private BigDecimal rating;
     private BigDecimal sellerScore;
+    private BigDecimal deliveryScore;
+    private String deliveryNote;
     private String currency;
     private String stockStatus;
     private String promotionJson;
