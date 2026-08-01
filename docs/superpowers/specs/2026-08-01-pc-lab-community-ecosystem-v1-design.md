@@ -597,4 +597,4 @@ The ecosystem V1 is accepted when:
 | 4 | Ranking + challenges | Trending, monthly/category rankings, challenge submission and progression ledger |
 | 5 | AI community capability | Evidence-backed review, explicit optimization, moderation pipeline and Admin operations |
 
-Each Sprint ends with a tagged, independently deployable vertical slice. Community work begins on `codex/community-ecosystem-v1`; completed AI Builder V1 remains frozen at `ai-builder-v1.0.0`.
+Each Sprint ends with a tagged, independently deployable vertical slice. Community work begins on `codex/community-ecosystem-v1`; its baseline is the immutable AI Builder patch release `ai-builder-v1.0.1`.
