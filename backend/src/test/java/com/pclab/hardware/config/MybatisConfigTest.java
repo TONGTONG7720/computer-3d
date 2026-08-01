@@ -23,7 +23,8 @@ class MybatisConfigTest {
         assertThat(mapperScan.value()).contains(
                 "com.pclab.hardware.mapper",
                 "com.pclab.hardware.price.mapper",
-                "com.pclab.hardware.ai.mapper"
+                "com.pclab.hardware.ai.mapper",
+                "com.pclab.hardware.intelligence.mapper"
         );
     }
 }

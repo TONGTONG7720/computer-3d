@@ -12,7 +12,8 @@ import org.springframework.context.annotation.Configuration;
 @MapperScan({
         "com.pclab.hardware.mapper",
         "com.pclab.hardware.price.mapper",
-        "com.pclab.hardware.ai.mapper"
+        "com.pclab.hardware.ai.mapper",
+        "com.pclab.hardware.intelligence.mapper"
 })
 public class MybatisConfig {
 

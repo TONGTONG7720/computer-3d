@@ -194,6 +194,9 @@ public class HardwareQueryService {
         if (query.getMinPerformance() != null) {
             wrapper.ge(HardwareEntity::getPerformanceScore, query.getMinPerformance());
         }
+        if (query.getMaxPower() != null) {
+            wrapper.le(HardwareEntity::getPowerWatt, query.getMaxPower());
+        }
         applySort(wrapper, query.getSort());
         return wrapper;
     }
@@ -212,6 +215,10 @@ public class HardwareQueryService {
             case "newest" -> wrapper.orderByDesc(HardwareEntity::getCreatedAt);
             case "performance_desc" ->
                     wrapper.orderByDesc(HardwareEntity::getPerformanceScore)
+                            .orderByAsc(HardwareEntity::getBasePrice);
+            case "popularity_desc" ->
+                    wrapper.orderByDesc(HardwareEntity::getPopularityScore)
+                            .orderByDesc(HardwareEntity::getPerformanceScore)
                             .orderByAsc(HardwareEntity::getBasePrice);
             case "relevance" ->
                     wrapper.orderByAsc(HardwareEntity::getSortOrder)

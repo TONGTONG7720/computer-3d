@@ -40,6 +40,9 @@ public class HardwareQuery implements Serializable {
     @Max(100)
     private Integer minPerformance;
 
+    @Min(0)
+    private Integer maxPower;
+
     @Min(1)
     private Integer page = 1;
 
@@ -47,7 +50,7 @@ public class HardwareQuery implements Serializable {
     @Max(100)
     private Integer size = 24;
 
-    @Pattern(regexp = "relevance|price_asc|price_desc|performance_desc|newest")
+    @Pattern(regexp = "relevance|price_asc|price_desc|performance_desc|popularity_desc|newest")
     private String sort = "relevance";
 
     public String normalizedKeyword() {
@@ -70,6 +73,7 @@ public class HardwareQuery implements Serializable {
                 decimalValue(minPrice),
                 decimalValue(maxPrice),
                 value(minPerformance),
+                value(maxPower),
                 value(page),
                 value(size),
                 value(sort)
