@@ -49,7 +49,7 @@ public class BestPriceAlgorithm {
                 lowest,
                 recommended,
                 ordered,
-                recommendedReason(lowest, recommended)
+                recommendedReason(lowest, ordered.getFirst())
         );
     }
 
@@ -102,7 +102,7 @@ public class BestPriceAlgorithm {
 
     private static BigDecimal normalized(BigDecimal value) {
         if (value == null) {
-            return new BigDecimal("50");
+            return BigDecimal.ZERO;
         }
         return value.max(BigDecimal.ZERO).min(new BigDecimal("100"));
     }
@@ -115,19 +115,22 @@ public class BestPriceAlgorithm {
         };
     }
 
-    private static String recommendedReason(RankableOffer lowest, RankableOffer recommended) {
-        if (lowest.id().equals(recommended.id())) {
-            return "综合评分最高，同时也是当前最低价";
+    private static String recommendedReason(RankableOffer lowest, ScoredOffer recommended) {
+        RankableOffer recommendedOffer = recommended.offer();
+        String deliveryReason = "；配送评分贡献 " + recommended.deliveryScore() + " 分";
+        if (lowest.id().equals(recommendedOffer.id())) {
+            return "综合评分最高，同时也是当前最低价" + deliveryReason;
         }
-        BigDecimal difference = recommended.finalPrice().subtract(lowest.finalPrice());
+        BigDecimal difference = recommendedOffer.finalPrice().subtract(lowest.finalPrice());
         BigDecimal percentage = difference
                 .divide(lowest.finalPrice(), 4, RoundingMode.HALF_UP)
                 .multiply(new BigDecimal("100"));
-        String channel = "SELF_OPERATED".equals(recommended.shopType()) ? "自营" : "高信誉";
-        return "推荐" + recommended.platform().label() + channel
+        String channel = "SELF_OPERATED".equals(recommendedOffer.shopType()) ? "自营" : "高信誉";
+        return "推荐" + recommendedOffer.platform().label() + channel
                 + "：商家信誉与评价更稳，较最低价价差 ¥"
                 + difference.setScale(0, RoundingMode.HALF_UP)
-                + "（" + percentage.setScale(1, RoundingMode.HALF_UP) + "%）";
+                + "（" + percentage.setScale(1, RoundingMode.HALF_UP) + "%）"
+                + deliveryReason;
     }
 
     private static BigDecimal scaled(BigDecimal value) {

@@ -58,8 +58,8 @@ public class ProductMatchingEngine {
         BigDecimal keyword = model.signum() > 0 && brand.signum() > 0
                 ? BigDecimal.ONE
                 : new BigDecimal("0.40");
-        BigDecimal image = imageScore(imageFingerprint, candidate);
-        boolean hasImageEvidence = image.signum() > 0;
+        boolean hasImageEvidence = hasImageEvidence(imageFingerprint);
+        BigDecimal image = imageMatchScore(imageFingerprint, candidate);
 
         Map<String, BigDecimal> dimensions = new LinkedHashMap<>();
         dimensions.put("model", model);
@@ -73,7 +73,7 @@ public class ProductMatchingEngine {
         explanations.add("型号匹配 " + percentage(model));
         explanations.add("品牌匹配 " + percentage(brand));
         explanations.add(spec.explanation());
-        explanations.add(hasImageEvidence ? "图片指纹与候选型号一致" : "无可核验的图片指纹证据");
+        explanations.add(imageExplanation(hasImageEvidence, image));
         if (spec.conflict()) {
             confidence = confidence.multiply(new BigDecimal("0.50"));
             explanations.add("检测到显式规格冲突");
@@ -150,8 +150,12 @@ public class ProductMatchingEngine {
         );
     }
 
-    private static BigDecimal imageScore(String imageFingerprint, HardwareView candidate) {
-        if (imageFingerprint == null || imageFingerprint.isBlank()) {
+    private static boolean hasImageEvidence(String imageFingerprint) {
+        return imageFingerprint != null && !imageFingerprint.isBlank();
+    }
+
+    private static BigDecimal imageMatchScore(String imageFingerprint, HardwareView candidate) {
+        if (!hasImageEvidence(imageFingerprint)) {
             return BigDecimal.ZERO;
         }
         String candidateModel = extractModel(normalize(candidate.name() + " " + candidate.id()));
@@ -159,6 +163,15 @@ public class ProductMatchingEngine {
         return !candidateModel.isBlank() && compactFingerprint.contains(compact(candidateModel))
                 ? BigDecimal.ONE
                 : BigDecimal.ZERO;
+    }
+
+    private static String imageExplanation(boolean hasImageEvidence, BigDecimal imageScore) {
+        if (!hasImageEvidence) {
+            return "无可核验的图片指纹证据";
+        }
+        return imageScore.signum() > 0
+                ? "图片指纹与候选型号一致"
+                : "图片指纹与候选型号不匹配";
     }
 
     private static MatchDecision decision(BigDecimal confidence, boolean conflict) {

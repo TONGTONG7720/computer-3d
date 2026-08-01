@@ -70,7 +70,11 @@ public class AdminProductMatchService {
             throw new DomainException(ErrorCode.VALIDATION_FAILED, "确认匹配必须提交 version");
         }
         HardwareView hardware = hardwareService.findDetail(request.hardwareId().toString());
-        ProductMatch match = matchingEngine.match(product.getTitle(), hardware);
+        ProductMatch match = matchingEngine.match(
+                product.getTitle(),
+                product.getImageFingerprint(),
+                hardware
+        );
         product.setHardwareId(request.hardwareId());
         product.setMatchConfidence(match.confidence());
         product.setMatchStatus("CONFIRMED");
@@ -91,7 +95,11 @@ public class AdminProductMatchService {
             return null;
         }
         HardwareView hardware = hardwareService.findDetail(hardwareId.toString());
-        ProductMatch match = matchingEngine.match(product.getTitle(), hardware);
+        ProductMatch match = matchingEngine.match(
+                product.getTitle(),
+                product.getImageFingerprint(),
+                hardware
+        );
         product.setHardwareId(hardwareId);
         product.setMatchConfidence(match.confidence());
         product.setMatchStatus(match.decision().name());

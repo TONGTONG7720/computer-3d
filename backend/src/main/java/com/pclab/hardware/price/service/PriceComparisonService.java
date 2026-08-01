@@ -170,6 +170,7 @@ public class PriceComparisonService {
                 offer.getSalesCount(),
                 offer.getRating(),
                 offer.getSellerScore(),
+                offer.getDeliveryScore(),
                 offer.getCheckedAt(),
                 offer.getRecordSource()
         );

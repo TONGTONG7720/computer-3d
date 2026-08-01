@@ -86,6 +86,37 @@ class PriceComparisonServiceTest {
                 .containsExactly(101L);
     }
 
+    @Test
+    void usesPersistedDeliveryScoreWhenRecommendingAnOffer() {
+        HardwareQueryService hardwareService = mock(HardwareQueryService.class);
+        ProductMapper productMapper = mock(ProductMapper.class);
+        ProductPriceMapper priceMapper = mock(ProductPriceMapper.class);
+        when(hardwareService.requireHardware("gpu-nvidia-rtx5090")).thenReturn(hardware());
+        when(productMapper.selectActiveByHardwareId(1L)).thenReturn(List.of(
+                product(10L, "MANUAL", "0.99"),
+                product(11L, "MANUAL", "0.99")
+        ));
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        when(priceMapper.selectByHardwareId(1L)).thenReturn(List.of(
+                offer(101L, 10L, "JD", "MARKETPLACE", "1000", 1000, "4.5", "90", "100", now),
+                offer(102L, 11L, "PDD", "MARKETPLACE", "990", 1000, "4.5", "90", "0", now)
+        ));
+        PriceComparisonService service = new PriceComparisonService(
+                hardwareService,
+                productMapper,
+                priceMapper,
+                new BestPriceAlgorithm()
+        );
+
+        PriceComparisonView result = service.compareHardware("gpu-nvidia-rtx5090");
+
+        assertThat(result.recommendedOfferId()).isEqualTo(101L);
+        assertThat(result.recommendedReason()).contains("配送");
+        assertThat(result.offers()).filteredOn(offer -> offer.id().equals(101L))
+                .extracting(PriceComparisonView.OfferView::rankingScore)
+                .containsExactly(new BigDecimal("96.10"));
+    }
+
     private static HardwareEntity hardware() {
         HardwareEntity hardware = new HardwareEntity();
         hardware.setId(1L);
@@ -117,6 +148,21 @@ class PriceComparisonServiceTest {
             String sellerScore,
             LocalDateTime checkedAt
     ) {
+        return offer(id, productId, platform, shopType, price, sales, rating, sellerScore, "50", checkedAt);
+    }
+
+    private static ProductPriceEntity offer(
+            Long id,
+            Long productId,
+            String platform,
+            String shopType,
+            String price,
+            int sales,
+            String rating,
+            String sellerScore,
+            String deliveryScore,
+            LocalDateTime checkedAt
+    ) {
         ProductPriceEntity offer = new ProductPriceEntity();
         offer.setId(id);
         offer.setProductId(productId);
@@ -133,6 +179,7 @@ class PriceComparisonServiceTest {
         offer.setSalesCount(sales);
         offer.setRating(new BigDecimal(rating));
         offer.setSellerScore(new BigDecimal(sellerScore));
+        offer.setDeliveryScore(new BigDecimal(deliveryScore));
         offer.setStockStatus("IN_STOCK");
         offer.setRecordSource("MANUAL");
         offer.setIsEnabled(1);

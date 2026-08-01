@@ -32,7 +32,7 @@ class BestPriceAlgorithmTest {
 
         assertThat(result.lowest().platform()).isEqualTo(PlatformCode.PDD);
         assertThat(result.recommended().platform()).isEqualTo(PlatformCode.JD);
-        assertThat(result.recommendedReason()).contains("自营", "价差");
+        assertThat(result.recommendedReason()).contains("自营", "价差", "配送");
         assertThat(result.orderedOffers().getFirst().deliveryScore()).isEqualByComparingTo("10.00");
     }
 

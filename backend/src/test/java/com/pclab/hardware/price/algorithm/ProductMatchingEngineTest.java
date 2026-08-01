@@ -44,4 +44,21 @@ class ProductMatchingEngineTest {
         assertThat(result.decision()).isEqualTo(ProductMatch.MatchDecision.REJECTED);
         assertThat(result.explanations()).anyMatch(item -> item.contains("配件"));
     }
+
+    @Test
+    void keepsNonMatchingImageEvidenceInTheWeightedScore() {
+        HardwareView candidate = HardwareView.builder()
+                .id("gpu-nvidia-rtx5090")
+                .name("NVIDIA GeForce RTX 5090")
+                .brand("ASUS")
+                .category("GPU")
+                .vram(32)
+                .build();
+
+        ProductMatch result = engine.match("华硕 RTX5090 OC 32G", "other-product-image", candidate);
+
+        assertThat(result.dimensionScores().get("image")).isEqualByComparingTo("0");
+        assertThat(result.confidence()).isEqualByComparingTo("0.9500");
+        assertThat(result.explanations()).anyMatch(item -> item.contains("不匹配"));
+    }
 }
