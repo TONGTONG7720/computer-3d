@@ -22,6 +22,7 @@ public record ModelTransformRequest(
         @NotNull BigDecimal rotationZ,
         @NotNull @Min(0) Integer lodLevel,
         @NotNull Boolean primary,
-        @NotBlank @Pattern(regexp = "PROCESSING|READY|FAILED") String status
+        @NotBlank @Pattern(regexp = "PROCESSING|READY|FAILED") String status,
+        @Size(max = 4000) String animationConfig
 ) {
 }

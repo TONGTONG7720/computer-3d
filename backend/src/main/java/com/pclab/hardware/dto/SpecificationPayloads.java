@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -21,7 +22,8 @@ public final class SpecificationPayloads {
             @NotNull @Min(1) Integer threads,
             @NotNull @DecimalMin("0.1") BigDecimal baseClockGhz,
             @NotNull @DecimalMin("0.1") BigDecimal boostClockGhz,
-            @NotNull @Min(1) Integer tdp
+            @NotNull @Min(1) Integer tdp,
+            @Size(max = 48) String generation
     ) {
     }
 
@@ -30,7 +32,9 @@ public final class SpecificationPayloads {
             @NotNull @Min(1) Integer vram,
             @NotBlank String vramType,
             @NotNull @Min(1) Integer length,
-            @NotNull @Min(1) Integer tdp
+            @NotNull @Min(1) Integer tdp,
+            @Size(max = 32) String interfaceType,
+            List<@NotBlank String> resolutionSupport
     ) {
     }
 
@@ -40,7 +44,8 @@ public final class SpecificationPayloads {
             @NotBlank String formFactor,
             @NotNull @Min(1) @Max(16) Integer memorySlots,
             @NotNull @Min(1) Integer maxMemoryGb,
-            @NotBlank String pcieVersion
+            @NotBlank String pcieVersion,
+            @Size(max = 48) String chipset
     ) {
     }
 
@@ -73,7 +78,8 @@ public final class SpecificationPayloads {
     public record Psu(
             @NotNull @Min(100) Integer wattage,
             @NotBlank String certification,
-            @NotBlank @Pattern(regexp = "FULL|SEMI|NON") String modularType
+            @NotBlank @Pattern(regexp = "FULL|SEMI|NON") String modularType,
+            List<@NotBlank String> connectors
     ) {
     }
 

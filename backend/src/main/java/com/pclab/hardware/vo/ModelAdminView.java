@@ -2,11 +2,23 @@ package com.pclab.hardware.vo;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 public record ModelAdminView(
         Long id,
         Long hardwareId,
+        String name,
         String glbUrl,
+        BigDecimal scaleX,
+        BigDecimal scaleY,
+        BigDecimal scaleZ,
+        BigDecimal positionX,
+        BigDecimal positionY,
+        BigDecimal positionZ,
+        BigDecimal rotationX,
+        BigDecimal rotationY,
+        BigDecimal rotationZ,
+        String animationConfig,
         int lodLevel,
         boolean primary,
         String status,

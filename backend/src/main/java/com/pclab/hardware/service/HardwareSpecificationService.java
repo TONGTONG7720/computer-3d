@@ -24,6 +24,8 @@ import com.pclab.hardware.mapper.PsuSpecMapper;
 import com.pclab.hardware.mapper.StorageSpecMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
@@ -115,6 +117,21 @@ public class HardwareSpecificationService {
         }
     }
 
+    public JsonNode read(String category, Long hardwareId) {
+        Object payload = switch (category) {
+            case "CPU" -> toCpuPayload(cpuMapper.selectById(hardwareId));
+            case "GPU" -> toGpuPayload(gpuMapper.selectById(hardwareId));
+            case "MOTHERBOARD" -> toMotherboardPayload(motherboardMapper.selectById(hardwareId));
+            case "RAM" -> toMemoryPayload(memoryMapper.selectById(hardwareId));
+            case "SSD", "HDD" -> toStoragePayload(storageMapper.selectById(hardwareId));
+            case "COOLING" -> toCoolingPayload(coolingMapper.selectById(hardwareId));
+            case "PSU" -> toPsuPayload(psuMapper.selectById(hardwareId));
+            case "CASE" -> toCasePayload(caseMapper.selectById(hardwareId));
+            default -> objectMapper.createObjectNode();
+        };
+        return objectMapper.valueToTree(payload);
+    }
+
     private void insertCpu(Long hardwareId, SpecificationPayloads.Cpu payload) {
         CpuSpecEntity entity = new CpuSpecEntity();
         entity.setHardwareId(hardwareId);
@@ -124,6 +141,7 @@ public class HardwareSpecificationService {
         entity.setBaseClockGhz(payload.baseClockGhz());
         entity.setBoostClockGhz(payload.boostClockGhz());
         entity.setTdpWatt(payload.tdp());
+        entity.setGeneration(payload.generation());
         cpuMapper.insert(entity);
     }
 
@@ -135,6 +153,8 @@ public class HardwareSpecificationService {
         entity.setVramType(payload.vramType());
         entity.setLengthMm(payload.length());
         entity.setTdpWatt(payload.tdp());
+        entity.setInterfaceType(payload.interfaceType());
+        entity.setResolutionSupport(writeJson(Objects.requireNonNullElse(payload.resolutionSupport(), List.of())));
         gpuMapper.insert(entity);
     }
 
@@ -150,6 +170,7 @@ public class HardwareSpecificationService {
         entity.setMemorySlots(payload.memorySlots());
         entity.setMaxMemoryGb(payload.maxMemoryGb());
         entity.setPcieVersion(payload.pcieVersion());
+        entity.setChipset(payload.chipset());
         motherboardMapper.insert(entity);
     }
 
@@ -191,6 +212,7 @@ public class HardwareSpecificationService {
         entity.setWattage(payload.wattage());
         entity.setCertification(payload.certification());
         entity.setModularType(payload.modularType());
+        entity.setConnectors(writeJson(Objects.requireNonNullElse(payload.connectors(), List.of())));
         psuMapper.insert(entity);
     }
 
@@ -234,6 +256,116 @@ public class HardwareSpecificationService {
             return objectMapper.writeValueAsString(value);
         } catch (JsonProcessingException exception) {
             throw new IllegalStateException("Hardware specification could not be serialized", exception);
+        }
+    }
+
+    private SpecificationPayloads.Cpu toCpuPayload(CpuSpecEntity spec) {
+        requireStoredSpec(spec, "CPU");
+        return new SpecificationPayloads.Cpu(
+                spec.getSocket(),
+                spec.getCores(),
+                spec.getThreads(),
+                spec.getBaseClockGhz(),
+                spec.getBoostClockGhz(),
+                spec.getTdpWatt(),
+                spec.getGeneration()
+        );
+    }
+
+    private SpecificationPayloads.Gpu toGpuPayload(GpuSpecEntity spec) {
+        requireStoredSpec(spec, "GPU");
+        return new SpecificationPayloads.Gpu(
+                spec.getChipset(),
+                spec.getVramGb(),
+                spec.getVramType(),
+                spec.getLengthMm(),
+                spec.getTdpWatt(),
+                spec.getInterfaceType(),
+                parseOptionalStringList(spec.getResolutionSupport())
+        );
+    }
+
+    private SpecificationPayloads.Motherboard toMotherboardPayload(MotherboardSpecEntity spec) {
+        requireStoredSpec(spec, "MOTHERBOARD");
+        return new SpecificationPayloads.Motherboard(
+                spec.getSocket(),
+                spec.getRamType(),
+                spec.getFormFactor(),
+                spec.getMemorySlots(),
+                spec.getMaxMemoryGb(),
+                spec.getPcieVersion(),
+                spec.getChipset()
+        );
+    }
+
+    private static SpecificationPayloads.Memory toMemoryPayload(MemorySpecEntity spec) {
+        requireStoredSpec(spec, "RAM");
+        return new SpecificationPayloads.Memory(
+                spec.getCapacityGb(),
+                spec.getGeneration(),
+                spec.getFrequencyMhz(),
+                spec.getModuleCount(),
+                spec.getLatency()
+        );
+    }
+
+    private static SpecificationPayloads.Storage toStoragePayload(StorageSpecEntity spec) {
+        requireStoredSpec(spec, "STORAGE");
+        return new SpecificationPayloads.Storage(
+                spec.getStorageType(),
+                spec.getCapacityGb(),
+                spec.getInterfaceType(),
+                spec.getReadSpeedMbps(),
+                spec.getWriteSpeedMbps()
+        );
+    }
+
+    private SpecificationPayloads.Cooling toCoolingPayload(CoolingSpecEntity spec) {
+        requireStoredSpec(spec, "COOLING");
+        return new SpecificationPayloads.Cooling(
+                spec.getCoolingType(),
+                spec.getMaxTdpWatt(),
+                spec.getRadiatorSizeMm(),
+                parseStringList(spec.getSupportedSockets())
+        );
+    }
+
+    private SpecificationPayloads.Psu toPsuPayload(PsuSpecEntity spec) {
+        requireStoredSpec(spec, "PSU");
+        return new SpecificationPayloads.Psu(
+                spec.getWattage(),
+                spec.getCertification(),
+                spec.getModularType(),
+                parseOptionalStringList(spec.getConnectors())
+        );
+    }
+
+    private SpecificationPayloads.PcCase toCasePayload(CaseSpecEntity spec) {
+        requireStoredSpec(spec, "CASE");
+        return new SpecificationPayloads.PcCase(
+                spec.getGpuMaxLengthMm(),
+                parseStringList(spec.getMotherboardSizes()),
+                spec.getRadiatorMaxSizeMm(),
+                spec.getCoolerMaxHeightMm()
+        );
+    }
+
+    private List<String> parseStringList(String json) {
+        try {
+            return List.copyOf(objectMapper.readValue(json, objectMapper.getTypeFactory()
+                    .constructCollectionType(List.class, String.class)));
+        } catch (JsonProcessingException exception) {
+            throw new IllegalStateException("Stored hardware specification JSON is invalid", exception);
+        }
+    }
+
+    private List<String> parseOptionalStringList(String json) {
+        return json == null || json.isBlank() ? List.of() : parseStringList(json);
+    }
+
+    private static void requireStoredSpec(Object spec, String category) {
+        if (spec == null) {
+            throw new DomainException(ErrorCode.VALIDATION_FAILED, category + " 规格不存在");
         }
     }
 }

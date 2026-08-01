@@ -1,7 +1,9 @@
+import ky from "ky";
 import { describe, expect, it } from "vitest";
-import { parseHardwareCatalogue } from "./HardwareApiClient";
+import { fetchHardwarePage, parseHardwareCatalogue } from "./HardwareApiClient";
 
 const baseHardware = {
+  databaseId: 1,
   id: "cpu-intel-i9-14900k",
   name: "Intel Core i9-14900K",
   brand: "Intel",
@@ -107,5 +109,45 @@ describe("HardwareApiClient", () => {
         },
       }),
     ).toThrow();
+  });
+
+  it("sends technical search, filter, and sort parameters", async () => {
+    let requestedUrl = "";
+    const client = ky.create({
+      prefix: "https://pc-lab.test/api",
+      fetch: async (input, init) => {
+        requestedUrl = new Request(input, init).url;
+        return new Response(
+          JSON.stringify({
+            code: "OK",
+            data: { page: 2, size: 24, total: 0, pages: 0, items: [] },
+          }),
+          { headers: { "Content-Type": "application/json" } },
+        );
+      },
+    });
+
+    const page = await fetchHardwarePage(
+      {
+        keyword: "RTX 5090",
+        category: "GPU",
+        brands: ["NVIDIA"],
+        minPrice: 5000,
+        maxPrice: 20000,
+        minPerformance: 90,
+        maxPower: 600,
+        page: 2,
+        size: 24,
+        sort: "performance_desc",
+      },
+      client,
+    );
+
+    expect(page.page).toBe(2);
+    expect(requestedUrl).toContain("keyword=RTX+5090");
+    expect(requestedUrl).toContain("category=GPU");
+    expect(requestedUrl).toContain("brand=NVIDIA");
+    expect(requestedUrl).toContain("maxPower=600");
+    expect(requestedUrl).toContain("sort=performance_desc");
   });
 });

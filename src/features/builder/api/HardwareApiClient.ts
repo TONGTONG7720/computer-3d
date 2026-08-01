@@ -55,6 +55,7 @@ const performanceProfileSchema = z.object({
 });
 
 const baseHardwareShape = {
+  databaseId: z.number().int().positive(),
   id: hardwareIdSchema,
   name: z.string().min(1),
   brand: z.string().min(1),
@@ -158,6 +159,7 @@ const toHardwareModel = (
 
 const toHardware = (server: ServerHardware, apiUrl: string): Hardware => {
   const common = {
+    databaseId: server.databaseId,
     id: server.id,
     name: server.name,
     brand: server.brand,
@@ -253,6 +255,96 @@ export const parseHardwareCatalogue = (
 ): readonly Hardware[] => {
   const response = hardwareCatalogueResponseSchema.parse(payload);
   return response.data.items.map((hardware) => toHardware(hardware, apiUrl));
+};
+
+export const hardwareSearchCategories = [
+  "CPU",
+  "GPU",
+  "MOTHERBOARD",
+  "RAM",
+  "SSD",
+  "COOLING",
+  "PSU",
+  "CASE",
+] as const;
+
+export const hardwareSearchSorts = [
+  "relevance",
+  "performance_desc",
+  "price_asc",
+  "price_desc",
+  "popularity_desc",
+  "newest",
+] as const;
+
+export type HardwareSearchCategory = (typeof hardwareSearchCategories)[number];
+export type HardwareSearchSort = (typeof hardwareSearchSorts)[number];
+
+export type HardwareSearchFilters = {
+  readonly keyword?: string;
+  readonly category?: HardwareSearchCategory;
+  readonly brands?: readonly string[];
+  readonly minPrice?: number;
+  readonly maxPrice?: number;
+  readonly minPerformance?: number;
+  readonly maxPower?: number;
+  readonly page?: number;
+  readonly size?: number;
+  readonly sort?: HardwareSearchSort;
+};
+
+export type HardwarePage = {
+  readonly page: number;
+  readonly size: number;
+  readonly total: number;
+  readonly pages: number;
+  readonly items: readonly Hardware[];
+};
+
+export const parseHardwarePage = (
+  payload: unknown,
+  apiUrl: string = hardwarePlatformApiUrl,
+): HardwarePage => {
+  const response = hardwareCatalogueResponseSchema.parse(payload);
+  return {
+    ...response.data,
+    items: response.data.items.map((hardware) => toHardware(hardware, apiUrl)),
+  };
+};
+
+const toSearchParams = (filters: HardwareSearchFilters): URLSearchParams => {
+  const params = new URLSearchParams();
+  const append = (key: string, value: string | number | undefined): void => {
+    if (value !== undefined && value !== "") {
+      params.set(key, String(value));
+    }
+  };
+  append("keyword", filters.keyword?.trim());
+  append("category", filters.category);
+  filters.brands?.forEach((brand) => {
+    if (brand.trim() !== "") {
+      params.append("brand", brand.trim());
+    }
+  });
+  append("minPrice", filters.minPrice);
+  append("maxPrice", filters.maxPrice);
+  append("minPerformance", filters.minPerformance);
+  append("maxPower", filters.maxPower);
+  append("page", filters.page ?? 1);
+  append("size", filters.size ?? 24);
+  append("sort", filters.sort ?? "relevance");
+  return params;
+};
+
+export const fetchHardwarePage = async (
+  filters: HardwareSearchFilters,
+  client: KyInstance = hardwarePlatformClient,
+  apiUrl: string = hardwarePlatformApiUrl,
+): Promise<HardwarePage> => {
+  const payload: unknown = await client
+    .get("hardware", { searchParams: toSearchParams(filters) })
+    .json();
+  return parseHardwarePage(payload, apiUrl);
 };
 
 export const fetchHardwareCatalogue = async (

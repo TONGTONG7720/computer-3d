@@ -46,6 +46,7 @@ export type HardwareModelDescriptor = {
 };
 
 type HardwareBase<Category extends HardwareCategory> = {
+  readonly databaseId?: number;
   readonly id: HardwareId;
   readonly name: string;
   readonly brand: string;

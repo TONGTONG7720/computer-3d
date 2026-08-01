@@ -1,5 +1,6 @@
 package com.pclab.hardware.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.pclab.hardware.dto.CategoryMutationRequest;
 import com.pclab.hardware.dto.HardwareMutationRequest;
@@ -12,6 +13,9 @@ import com.pclab.hardware.entity.HardwareModelEntity;
 import com.pclab.hardware.entity.ProductPriceEntity;
 import com.pclab.hardware.exception.DomainException;
 import com.pclab.hardware.exception.ErrorCode;
+import com.pclab.hardware.intelligence.entity.HardwarePerformanceEntity;
+import com.pclab.hardware.intelligence.mapper.HardwarePerformanceMapper;
+import com.pclab.hardware.intelligence.vo.HardwarePerformanceView;
 import com.pclab.hardware.mapper.HardwareCategoryMapper;
 import com.pclab.hardware.mapper.HardwareMapper;
 import com.pclab.hardware.mapper.HardwareModelMapper;
@@ -22,6 +26,7 @@ import com.pclab.hardware.storage.ModelStorageService;
 import com.pclab.hardware.storage.ModelStorageService.StoredModel;
 import com.pclab.hardware.utils.SearchNormalizer;
 import com.pclab.hardware.vo.CategoryView;
+import com.pclab.hardware.vo.HardwareAdminDetailView;
 import com.pclab.hardware.vo.HardwareAdminView;
 import com.pclab.hardware.vo.ModelAdminView;
 import com.pclab.hardware.vo.PriceView;
@@ -29,9 +34,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
@@ -46,6 +52,7 @@ public class AdminHardwareService {
     private final HardwareModelMapper modelMapper;
     private final ProductPriceMapper priceMapper;
     private final ProductMapper productMapper;
+    private final HardwarePerformanceMapper performanceMapper;
     private final HardwareSpecificationService specificationService;
     private final ModelStorageService modelStorageService;
 
@@ -55,6 +62,7 @@ public class AdminHardwareService {
             HardwareModelMapper modelMapper,
             ProductPriceMapper priceMapper,
             ProductMapper productMapper,
+            HardwarePerformanceMapper performanceMapper,
             HardwareSpecificationService specificationService,
             ModelStorageService modelStorageService
     ) {
@@ -63,8 +71,58 @@ public class AdminHardwareService {
         this.modelMapper = modelMapper;
         this.priceMapper = priceMapper;
         this.productMapper = productMapper;
+        this.performanceMapper = performanceMapper;
         this.specificationService = specificationService;
         this.modelStorageService = modelStorageService;
+    }
+
+    @Transactional(readOnly = true)
+    public HardwareAdminDetailView findDetail(Long id) {
+        HardwareEntity hardware = requireHardware(id);
+        HardwarePerformanceEntity performance = performanceMapper.selectById(id);
+        List<ModelAdminView> models = modelMapper.selectList(
+                        Wrappers.<HardwareModelEntity>lambdaQuery()
+                                .eq(HardwareModelEntity::getHardwareId, id)
+                                .orderByAsc(HardwareModelEntity::getLodLevel)
+                ).stream()
+                .map(AdminHardwareService::toModelView)
+                .toList();
+        return new HardwareAdminDetailView(
+                hardware.getId(),
+                hardware.getHardwareKey(),
+                hardware.getName(),
+                hardware.getBrand(),
+                hardware.getCategoryCode(),
+                hardware.getDescription(),
+                hardware.getBasePrice(),
+                hardware.getPerformanceScore(),
+                hardware.getPowerWatt(),
+                hardware.getModelUrl(),
+                hardware.getModelVariant(),
+                hardware.getCoverUrl(),
+                hardware.getSortOrder(),
+                hardware.getStatus(),
+                hardware.getVersion(),
+                specificationService.read(hardware.getCategoryCode(), id),
+                performance == null ? null : toPerformanceView(performance),
+                models
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<HardwareAdminView> findAll(String keyword, String category) {
+        LambdaQueryWrapper<HardwareEntity> query = Wrappers.lambdaQuery();
+        if (keyword != null && !keyword.isBlank()) {
+            query.like(HardwareEntity::getSearchKey, SearchNormalizer.normalize(keyword));
+        }
+        if (category != null && !category.isBlank()) {
+            query.eq(HardwareEntity::getCategoryCode, category.trim().toUpperCase());
+        }
+        query.orderByAsc(HardwareEntity::getSortOrder)
+                .orderByDesc(HardwareEntity::getUpdatedAt);
+        return hardwareMapper.selectList(query).stream()
+                .map(AdminHardwareService::toAdminView)
+                .toList();
     }
 
     @Transactional
@@ -189,6 +247,7 @@ public class AdminHardwareService {
         model.setRotationX(request.getRotationX());
         model.setRotationY(request.getRotationY());
         model.setRotationZ(request.getRotationZ());
+        model.setAnimationConfig(Objects.requireNonNullElse(request.getAnimationConfig(), "{}"));
         model.setFileSizeBytes(stored.fileSizeBytes());
         model.setChecksumSha256(stored.checksumSha256());
         model.setIsPrimary(Boolean.TRUE.equals(request.getPrimary()) ? 1 : 0);
@@ -226,6 +285,9 @@ public class AdminHardwareService {
         model.setLodLevel(request.lodLevel());
         model.setIsPrimary(request.primary() ? 1 : 0);
         model.setStatus(request.status());
+        if (request.animationConfig() != null) {
+            model.setAnimationConfig(request.animationConfig());
+        }
         modelMapper.updateById(model);
         if (model.getIsPrimary() == 1) {
             clearOtherPrimaryModels(model.getHardwareId(), model.getId());
@@ -381,12 +443,35 @@ public class AdminHardwareService {
         return new ModelAdminView(
                 model.getId(),
                 model.getHardwareId(),
+                model.getName(),
                 model.getGlbUrl(),
+                model.getScaleX(),
+                model.getScaleY(),
+                model.getScaleZ(),
+                model.getPositionX(),
+                model.getPositionY(),
+                model.getPositionZ(),
+                model.getRotationX(),
+                model.getRotationY(),
+                model.getRotationZ(),
+                model.getAnimationConfig(),
                 model.getLodLevel(),
                 model.getIsPrimary() == 1,
                 model.getStatus(),
                 model.getFileSizeBytes(),
                 model.getChecksumSha256()
+        );
+    }
+
+    private static HardwarePerformanceView toPerformanceView(HardwarePerformanceEntity performance) {
+        return new HardwarePerformanceView(
+                performance.getHardwareId(),
+                performance.getGamingScore(),
+                performance.getCreatorScore(),
+                performance.getAiScore(),
+                performance.getSource(),
+                performance.getProfileVersion(),
+                performance.getMeasuredAt()
         );
     }
 

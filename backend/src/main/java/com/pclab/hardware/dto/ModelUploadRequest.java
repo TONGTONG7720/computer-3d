@@ -55,4 +55,7 @@ public class ModelUploadRequest {
 
     @NotNull
     private BigDecimal rotationZ = BigDecimal.ZERO;
+
+    @Size(max = 4000)
+    private String animationConfig = "{}";
 }

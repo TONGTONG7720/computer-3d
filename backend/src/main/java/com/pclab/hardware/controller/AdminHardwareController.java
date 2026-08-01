@@ -8,19 +8,23 @@ import com.pclab.hardware.dto.PriceUpdateRequest;
 import com.pclab.hardware.service.AdminHardwareService;
 import com.pclab.hardware.vo.ApiResponse;
 import com.pclab.hardware.vo.CategoryView;
+import com.pclab.hardware.vo.HardwareAdminDetailView;
 import com.pclab.hardware.vo.HardwareAdminView;
 import com.pclab.hardware.vo.ModelAdminView;
 import com.pclab.hardware.vo.PriceView;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,6 +36,19 @@ public class AdminHardwareController {
 
     public AdminHardwareController(AdminHardwareService adminHardwareService) {
         this.adminHardwareService = adminHardwareService;
+    }
+
+    @GetMapping("/hardware")
+    ApiResponse<List<HardwareAdminView>> list(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category
+    ) {
+        return ApiResponse.success(adminHardwareService.findAll(keyword, category));
+    }
+
+    @GetMapping("/hardware/{id}")
+    ApiResponse<HardwareAdminDetailView> detail(@PathVariable Long id) {
+        return ApiResponse.success(adminHardwareService.findDetail(id));
     }
 
     @PostMapping("/hardware")
