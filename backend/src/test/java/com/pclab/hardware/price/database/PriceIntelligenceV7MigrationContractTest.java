@@ -25,4 +25,19 @@ class PriceIntelligenceV7MigrationContractTest {
         );
         assertThat(sql).doesNotContain("DROP TABLE product", "DROP TABLE product_price");
     }
+
+    @Test
+    void renamesLegacySessionColumnsToRequiredHashesWithoutBlankDefaults() throws IOException {
+        String sql = Files.readString(Path.of(
+                "src/main/resources/db/migration/V7__complete_price_intelligence.sql"
+        ));
+
+        assertThat(sql).contains(
+                "CHANGE COLUMN session_id session_hash CHAR(64) NOT NULL"
+        );
+        assertThat(sql).doesNotContain(
+                "ADD COLUMN session_hash",
+                "session_hash CHAR(64) NOT NULL DEFAULT ''"
+        );
+    }
 }

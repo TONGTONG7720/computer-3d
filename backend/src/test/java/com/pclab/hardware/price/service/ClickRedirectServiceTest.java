@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 class ClickRedirectServiceTest {
 
@@ -36,6 +37,30 @@ class ClickRedirectServiceTest {
 
         assertThat(result).isEqualTo(URI.create("https://item.jd.com/100.html"));
         verify(fixture.eventMapper()).insert(any(PriceClickEventEntity.class));
+    }
+
+    @Test
+    void recordsSessionOnlyInTheSaltedSessionHashField() {
+        Fixture fixture = fixture("https://item.jd.com/100.html", true, "IN_STOCK");
+
+        fixture.service().redirect(
+                7L,
+                new ClickContext("session-1", null, "BUILDER", "127.0.0.1", "test-agent")
+        );
+
+        ArgumentCaptor<PriceClickEventEntity> event = ArgumentCaptor.forClass(PriceClickEventEntity.class);
+        verify(fixture.eventMapper()).insert(event.capture());
+        assertThat(event.getValue())
+                .hasFieldOrPropertyWithValue("sessionHash", fixture.hasher().hash("session-1"));
+        assertThat(event.getValue().getClass().getDeclaredFields())
+                .extracting(java.lang.reflect.Field::getName)
+                .contains("eventId")
+                .doesNotContain("sessionId");
+        Object eventId = new org.springframework.beans.BeanWrapperImpl(event.getValue())
+                .getPropertyValue("eventId");
+        assertThat(eventId).isInstanceOf(String.class)
+                .asString()
+                .matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
     }
 
     @Test
@@ -80,19 +105,21 @@ class ClickRedirectServiceTest {
         PriceProperties properties = new PriceProperties();
         properties.setAnalyticsHashKey("test-hash-key");
         properties.setRedirectHosts(Map.of("JD", List.of("jd.com")));
+        AnalyticsHasher hasher = new AnalyticsHasher(properties);
         ClickRedirectService service = new ClickRedirectService(
                 priceMapper,
                 productMapper,
                 eventMapper,
-                new AnalyticsHasher(properties),
+                hasher,
                 new PriceLinkPolicy(properties)
         );
-        return new Fixture(service, eventMapper);
+        return new Fixture(service, eventMapper, hasher);
     }
 
     private record Fixture(
             ClickRedirectService service,
-            PriceClickEventMapper eventMapper
+            PriceClickEventMapper eventMapper,
+            AnalyticsHasher hasher
     ) {
     }
 }

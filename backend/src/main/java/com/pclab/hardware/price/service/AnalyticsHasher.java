@@ -17,15 +17,12 @@ public class AnalyticsHasher {
     }
 
     public String hash(String value) {
-        if (value == null || value.isBlank()) {
-            return "";
-        }
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             digest.update(salt);
             digest.update((byte) 0);
             return HexFormat.of().formatHex(
-                    digest.digest(value.getBytes(StandardCharsets.UTF_8))
+                    digest.digest((value == null ? "" : value).getBytes(StandardCharsets.UTF_8))
             );
         } catch (NoSuchAlgorithmException exception) {
             throw new IllegalStateException("SHA-256 is unavailable", exception);

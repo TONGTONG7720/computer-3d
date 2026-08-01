@@ -6,6 +6,7 @@ import com.pclab.hardware.price.mapper.PriceSearchEventMapper;
 import com.pclab.hardware.utils.SearchNormalizer;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,11 +25,12 @@ public class PriceEventService {
 
     public void recordSearch(PriceSearchEventRequest request) {
         PriceSearchEventEntity event = new PriceSearchEventEntity();
+        event.setEventId(UUID.randomUUID().toString());
         event.setKeyword(request.keyword().trim());
         event.setNormalizedKeyword(SearchNormalizer.normalize(request.keyword()));
         event.setCategoryCode(request.categoryCode());
         event.setResultCount(request.resultCount());
-        event.setSessionId(hasher.hash(request.sessionId()));
+        event.setSessionHash(hasher.hash(request.sessionId()));
         event.setSourceSurface(request.sourceSurface());
         event.setSearchedAt(LocalDateTime.now(ZoneOffset.UTC));
         eventMapper.insert(event);

@@ -12,10 +12,11 @@ public class PriceClickEventEntity {
 
     @TableId(type = IdType.AUTO)
     private Long id;
+    private String eventId;
     private Long offerId;
     private Long hardwareId;
     private String platform;
-    private String sessionId;
+    private String sessionHash;
     private String buildPublicId;
     private String sourceSurface;
     private String redirectHost;

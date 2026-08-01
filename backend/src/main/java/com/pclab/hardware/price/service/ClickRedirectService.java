@@ -11,6 +11,7 @@ import com.pclab.hardware.price.mapper.ProductMapper;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,10 +52,11 @@ public class ClickRedirectService {
                 offer.getProductUrl()
         );
         PriceClickEventEntity event = new PriceClickEventEntity();
+        event.setEventId(UUID.randomUUID().toString());
         event.setOfferId(offer.getId());
         event.setHardwareId(product.getHardwareId());
         event.setPlatform(offer.getPlatform());
-        event.setSessionId(hasher.hash(context.sessionId()));
+        event.setSessionHash(hasher.hash(context.sessionId()));
         event.setBuildPublicId(context.buildPublicId());
         event.setSourceSurface(context.sourceSurface());
         event.setRedirectHost(target.getHost().toLowerCase(java.util.Locale.ROOT));

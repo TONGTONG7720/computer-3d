@@ -12,11 +12,12 @@ public class PriceSearchEventEntity {
 
     @TableId(type = IdType.AUTO)
     private Long id;
+    private String eventId;
     private String keyword;
     private String normalizedKeyword;
     private String categoryCode;
     private Integer resultCount;
-    private String sessionId;
+    private String sessionHash;
     private String sourceSurface;
     private LocalDateTime searchedAt;
 }
