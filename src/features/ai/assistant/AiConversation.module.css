@@ -1,0 +1,202 @@
+.welcome {
+  display: grid;
+  min-height: 260px;
+  padding: var(--space-5) var(--space-2);
+  place-items: center;
+  align-content: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.welcome > svg {
+  margin-bottom: var(--space-2);
+  color: var(--color-ai-text-muted);
+}
+
+.welcome > strong {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 560;
+}
+
+.welcome > p {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.quickPrompts {
+  display: grid;
+  width: 100%;
+  margin-top: var(--space-4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.quickPrompts button {
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  color: var(--color-text-secondary);
+  background: var(--color-surface-ai-soft);
+  cursor: pointer;
+  font-size: var(--font-size-micro);
+  transition:
+    border-color 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.quickPrompts button:hover {
+  border-color: var(--color-ai-border);
+  color: var(--color-ai-text-strong);
+  transform: translateY(-1px);
+}
+
+.userMessage {
+  max-width: 86%;
+  padding: 10px var(--space-3);
+  align-self: flex-end;
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-medium) var(--radius-small) var(--radius-medium) var(--radius-medium);
+  color: var(--color-text-secondary);
+  background: var(--color-primary-subtle);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.assistantMessage {
+  padding: 0 var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.analysisState {
+  position: relative;
+  display: grid;
+  min-height: 96px;
+  padding: var(--space-4);
+  align-items: center;
+  grid-template-columns: 28px 1fr;
+  gap: var(--space-3);
+  overflow: hidden;
+  border: 1px solid var(--color-ai-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-ai-subtle);
+}
+
+.analysisState > svg {
+  color: var(--color-ai-text-muted);
+  animation: ai-spin 1.25s linear infinite;
+}
+
+.analysisState > div {
+  display: grid;
+  gap: 3px;
+}
+
+.analysisState strong {
+  font-size: 12px;
+  font-weight: 560;
+}
+
+.analysisState span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-micro);
+}
+
+.analysisState > i {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-accent-ai),
+    var(--color-primary),
+    transparent
+  );
+  animation: ai-scan 1.7s ease-in-out infinite;
+  transform-origin: left;
+}
+
+.appliedState {
+  display: flex;
+  padding: var(--space-3);
+  align-items: center;
+  gap: var(--space-3);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-success-subtle);
+}
+
+.appliedState > span {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--color-success);
+  background: var(--color-success-highlight);
+}
+
+.appliedState > div {
+  display: grid;
+  gap: 2px;
+}
+
+.appliedState strong {
+  font-size: var(--font-size-micro);
+  font-weight: 560;
+}
+
+.appliedState small {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-micro);
+}
+
+.errorState {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-small);
+  color: var(--color-danger);
+  background: var(--color-danger-subtle);
+  font-size: var(--font-size-micro);
+  line-height: 1.5;
+}
+
+@keyframes ai-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ai-scan {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scaleX(0.15);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quickPrompts button {
+    transition: none;
+  }
+
+  .analysisState > svg,
+  .analysisState > i {
+    animation: none;
+  }
+}

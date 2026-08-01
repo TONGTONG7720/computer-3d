@@ -1,0 +1,241 @@
+.workspaceHeader {
+  position: sticky;
+  z-index: 30;
+  top: 0;
+  display: flex;
+  min-height: 64px;
+  padding: 0 var(--space-8);
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-admin-header);
+  backdrop-filter: blur(24px);
+}
+
+.brand,
+.brand > span:first-child,
+.headerStatus,
+.headerStatus > span {
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  gap: var(--space-3);
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand > span:first-child {
+  width: 36px;
+  height: 36px;
+  justify-content: center;
+  border: 1px solid var(--color-ai-border);
+  border-radius: var(--radius-small);
+  color: var(--color-ai-text);
+  background: var(--color-ai-subtle);
+}
+
+.brand > span:last-child {
+  display: grid;
+}
+
+.brand strong {
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+
+.brand small {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  letter-spacing: 0.12em;
+}
+
+.headerStatus {
+  gap: var(--space-3);
+}
+
+.headerStatus > span {
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  letter-spacing: 0.08em;
+}
+
+.headerStatus i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 9px var(--color-success);
+}
+
+.headerStatus a {
+  display: flex;
+  min-height: var(--size-touch-target);
+  padding: 6px var(--space-2);
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-micro);
+  text-decoration: none;
+}
+
+.headerStatus button {
+  display: grid;
+  width: var(--size-touch-target);
+  height: var(--size-touch-target);
+  padding: 0;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+  color: var(--color-text-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.telemetry {
+  display: grid;
+  width: min(1320px, calc(100% - 64px));
+  margin: var(--space-8) auto 0;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: var(--color-surface-admin-telemetry);
+}
+
+.telemetry > div {
+  display: grid;
+  min-height: 82px;
+  padding: var(--space-3);
+  grid-template-columns: 18px 1fr;
+  align-content: center;
+  gap: var(--space-1);
+  border-right: 1px solid var(--color-border);
+}
+
+.telemetry > div:last-child {
+  border-right: 0;
+}
+
+.telemetry svg {
+  grid-row: 1 / 3;
+  color: var(--color-ai-text-muted);
+}
+
+.telemetry span {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  letter-spacing: 0.08em;
+}
+
+.telemetry strong {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+
+.workspaceTabs {
+  display: flex;
+  width: min(1320px, calc(100% - 64px));
+  margin: var(--space-5) auto 0;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.workspaceTabs button {
+  position: relative;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  letter-spacing: 0.04em;
+}
+
+.workspaceTabs button::after {
+  position: absolute;
+  right: var(--space-4);
+  bottom: -1px;
+  left: var(--space-4);
+  height: 1px;
+  background: transparent;
+  content: "";
+}
+
+.workspaceTabs button[data-active="true"] {
+  color: var(--color-ai-text-strong);
+}
+
+.workspaceTabs button[data-active="true"]::after {
+  background: linear-gradient(90deg, var(--color-accent-ai), var(--color-primary));
+}
+
+@media (max-width: 1000px) {
+  .telemetry {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .telemetry > div:nth-child(3) {
+    border-right: 0;
+  }
+
+  .telemetry > div:nth-child(-n + 3) {
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+@media (max-width: 767px) {
+  .workspaceHeader {
+    min-height: 56px;
+    padding: 0 var(--space-3);
+  }
+
+  .headerStatus > span,
+  .headerStatus a {
+    display: none;
+  }
+
+  .telemetry,
+  .workspaceTabs {
+    width: calc(100% - 24px);
+  }
+
+  .telemetry {
+    margin-top: var(--space-4);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .telemetry > div,
+  .telemetry > div:nth-child(3) {
+    min-height: 68px;
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .telemetry > div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .workspaceTabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .workspaceTabs button {
+    min-width: 0;
+    padding: 0 var(--space-2);
+    text-align: center;
+  }
+}

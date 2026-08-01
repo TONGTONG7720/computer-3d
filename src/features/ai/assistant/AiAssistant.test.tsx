@@ -3,6 +3,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultSelectedComponents, mockHardware } from "@/features/builder/data/mockHardware";
+import { hardwareCategories } from "@/features/builder/domain/hardware";
 import { builderStore } from "@/store/builderStore";
 import { engineStore } from "@/store/engineStore";
 import { requestAiBuild } from "../api/AiBuilderApiClient";
@@ -34,13 +35,13 @@ const proposal: AiBuild = {
     motherboard: "motherboard-b650-lab",
     ram: "ram-ddr5-32gb",
     storage: "storage-nvme-1tb",
-    cooling: "cooling-aio-240",
-    power_supply: "psu-850w-gold",
-    case: "case-future-glass",
+    cooling: "cooling-tower-160",
+    power_supply: "psu-1200w-platinum",
+    case: "case-compact-lab",
   },
-  totalPrice: 8039,
-  performanceScore: 81,
-  powerUsageWatt: 464,
+  totalPrice: 7992,
+  performanceScore: 76,
+  powerUsageWatt: 443,
   compatibilityStatus: "SUCCESS",
   requiresConfirmation: true,
   assistantMessage: "已找到兼容方案，应用前请确认整套调整。",
@@ -58,6 +59,18 @@ const proposal: AiBuild = {
       sourceKey: "WORKLOAD_GAMING_V1",
       title: "游戏装机预算分配",
       score: 1,
+      revision: 1,
+    },
+    {
+      sourceKey: "COMPAT_SOCKET_V1",
+      title: "CPU 与主板插槽规则",
+      score: 0.96,
+      revision: 1,
+    },
+    {
+      sourceKey: "POWER_HEADROOM_V1",
+      title: "整机功耗与电源余量",
+      score: 0.93,
       revision: 1,
     },
   ],
@@ -87,14 +100,45 @@ describe("AiAssistant", () => {
 
     expect(await screen.findByText("已找到兼容方案，应用前请确认整套调整。")).toBeTruthy();
     expect(screen.getByText("游戏装机预算分配")).toBeTruthy();
+    expect(screen.getByText("CPU 与主板插槽规则")).toBeTruthy();
+    expect(screen.getByText("整机功耗与电源余量")).toBeTruthy();
     expect(screen.getByText("RTX 5070", { exact: false })).toBeTruthy();
+    expect(screen.getByText("¥7,992")).toBeTruthy();
+    expect(screen.getByText("76")).toBeTruthy();
+    expect(screen.getByText("443W")).toBeTruthy();
+    expect(screen.getByText("SUCCESS")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "应用整套调整" }));
 
     await waitFor(() => {
-      expect(builderStore.getState().selectedComponents.gpu?.id).toBe("gpu-nvidia-rtx5070");
+      const builder = builderStore.getState();
+      expect(
+        Object.fromEntries(
+          hardwareCategories.map((category) => [
+            category,
+            builder.selectedComponents[category]?.id,
+          ]),
+        ),
+      ).toEqual(proposal.components);
+      expect(builder.totalPrice).toBe(7992);
+      expect(builder.powerUsage).toBe(443);
+      expect(builder.performanceScore.overall).toBe(76);
+      expect(builder.compatibilityStatus.status).toBe("success");
       expect(engineStore.getState().replacementRequest).not.toBeNull();
     });
+    const engine = engineStore.getState();
+    const installationQueue = [engine.replacementRequest, ...engine.replacementQueue].filter(
+      (command) => command !== null,
+    );
+    expect(installationQueue.map((command) => command.slot)).toEqual([
+      "cpu",
+      "gpu",
+      "motherboard",
+      "ram",
+      "storage",
+      "cooling",
+      "case",
+    ]);
     expect(screen.getByText("配置已送入 3D 安装队列")).toBeTruthy();
   });
 });

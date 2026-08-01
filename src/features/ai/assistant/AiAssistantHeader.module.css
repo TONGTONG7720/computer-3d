@@ -1,0 +1,90 @@
+.advisorHeader {
+  display: flex;
+  min-height: 66px;
+  padding: 0 var(--space-4);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-ai-header);
+}
+
+.advisorIdentity,
+.headerActions,
+.advisorIdentity > div {
+  display: flex;
+  align-items: center;
+}
+
+.advisorIdentity {
+  min-width: 0;
+  gap: var(--space-3);
+}
+
+.advisorIdentity > span {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--color-ai-border);
+  border-radius: 50%;
+  color: var(--color-ai-text);
+  background: var(--color-ai-subtle);
+}
+
+.advisorIdentity > div {
+  min-width: 0;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.advisorIdentity small {
+  color: var(--color-ai-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  font-weight: 600;
+  letter-spacing: 0.13em;
+}
+
+.advisorIdentity h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 560;
+  letter-spacing: 0.015em;
+}
+
+.headerActions {
+  flex: 0 0 auto;
+  gap: var(--space-2);
+}
+
+.headerActions > span {
+  padding: 4px 7px;
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  letter-spacing: 0.09em;
+}
+
+.headerActions button {
+  display: grid;
+  width: var(--size-touch-target);
+  height: var(--size-touch-target);
+  padding: 0;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+  color: var(--color-text-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.headerActions button:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}

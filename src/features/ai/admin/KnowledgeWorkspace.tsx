@@ -2,9 +2,16 @@
 
 import { BookMarked, Database, RefreshCw, Save } from "lucide-react";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
-import styles from "./AiAdmin.module.css";
+import editorStyles from "./AiAdminEditor.module.css";
+import registryStyles from "./AiAdminRegistry.module.css";
 import { saveKnowledge, syncKnowledgeVector } from "./api/AdminAiApiClient";
-import type { AiKnowledge } from "./domain/adminAi";
+import {
+  type AiKnowledge,
+  aiKnowledgeCategorySchema,
+  aiLifecycleStatusSchema,
+} from "./domain/adminAi";
+
+const styles = { ...registryStyles, ...editorStyles };
 
 type KnowledgeWorkspaceProps = {
   readonly adminKey: string;
@@ -135,7 +142,12 @@ export function KnowledgeWorkspace({ adminKey, documents, onChanged }: Knowledge
             <label>
               <span>分类</span>
               <select
-                onChange={(event) => setCategory(event.target.value as AiKnowledge["category"])}
+                onChange={(event) => {
+                  const result = aiKnowledgeCategorySchema.safeParse(event.currentTarget.value);
+                  if (result.success) {
+                    setCategory(result.data);
+                  }
+                }}
                 value={category}
               >
                 <option>COMPATIBILITY</option>
@@ -157,7 +169,12 @@ export function KnowledgeWorkspace({ adminKey, documents, onChanged }: Knowledge
             <label>
               <span>状态</span>
               <select
-                onChange={(event) => setStatus(event.target.value as AiKnowledge["status"])}
+                onChange={(event) => {
+                  const result = aiLifecycleStatusSchema.safeParse(event.currentTarget.value);
+                  if (result.success) {
+                    setStatus(result.data);
+                  }
+                }}
                 value={status}
               >
                 <option>ACTIVE</option>

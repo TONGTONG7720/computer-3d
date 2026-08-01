@@ -1,8 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp, Bot, Braces, LoaderCircle, Sparkles, X } from "lucide-react";
-import { type FormEvent, type KeyboardEvent, useRef, useState } from "react";
+import { Bot, Braces, LoaderCircle, Sparkles, X } from "lucide-react";
+import { useRef, useState } from "react";
 import { applyBuilderSelectionWithScene } from "@/features/builder/sync/BuilderEngineSync";
 import { useDialogFocus } from "@/hooks/useDialogFocus";
 import { useBuilderStore } from "@/store/builderStore";
@@ -10,6 +10,9 @@ import { requestAiBuild } from "../api/AiBuilderApiClient";
 import { resolveAiProposal } from "../domain/AiProposalResolver";
 import type { AiBuild } from "../domain/aiBuild";
 import styles from "./AiAssistant.module.css";
+import { AiAssistantComposer } from "./AiAssistantComposer";
+import headerStyles from "./AiAssistantHeader.module.css";
+import conversationStyles from "./AiConversation.module.css";
 import { AiProposalCard } from "./AiProposalCard";
 
 const quickPrompts = [
@@ -96,18 +99,6 @@ export function AiAssistant() {
     }
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    void submit();
-  };
-
-  const handleComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      void submit();
-    }
-  };
-
   return (
     <div className={styles["assistantRoot"]}>
       <button
@@ -142,8 +133,8 @@ export function AiAssistant() {
               tabIndex={-1}
               transition={{ duration: 0.24, ease: [0.2, 0.8, 0.2, 1] }}
             >
-              <header className={styles["advisorHeader"]}>
-                <div className={styles["advisorIdentity"]}>
+              <header className={headerStyles["advisorHeader"]}>
+                <div className={headerStyles["advisorIdentity"]}>
                   <span>
                     <Bot size={18} />
                   </span>
@@ -152,7 +143,7 @@ export function AiAssistant() {
                     <h2 id="ai-advisor-title">需求诊断端口</h2>
                   </div>
                 </div>
-                <div className={styles["headerActions"]}>
+                <div className={headerStyles["headerActions"]}>
                   <span>{proposal ? routeLabel(proposal.route) : "READY"}</span>
                   <button
                     aria-label="关闭 AI 装机顾问"
@@ -166,14 +157,16 @@ export function AiAssistant() {
               </header>
 
               <div className={styles["advisorBody"]}>
-                {lastMessage ? <div className={styles["userMessage"]}>{lastMessage}</div> : null}
+                {lastMessage ? (
+                  <div className={conversationStyles["userMessage"]}>{lastMessage}</div>
+                ) : null}
 
                 {status === "welcome" ? (
-                  <section className={styles["welcome"]}>
+                  <section className={conversationStyles["welcome"]}>
                     <Braces size={24} strokeWidth={1.35} />
                     <strong>描述预算、用途与偏好</strong>
                     <p>兼容性由本地规则裁决；模型只负责理解复杂表达，不直接编造硬件。</p>
-                    <div className={styles["quickPrompts"]}>
+                    <div className={conversationStyles["quickPrompts"]}>
                       {quickPrompts.map((prompt) => (
                         <button
                           key={prompt.label}
@@ -188,7 +181,11 @@ export function AiAssistant() {
                 ) : null}
 
                 {status === "analysing" ? (
-                  <div aria-live="polite" className={styles["analysisState"]} role="status">
+                  <div
+                    aria-live="polite"
+                    className={conversationStyles["analysisState"]}
+                    role="status"
+                  >
                     <LoaderCircle size={19} />
                     <div>
                       <strong>正在计算兼容组合</strong>
@@ -200,7 +197,9 @@ export function AiAssistant() {
 
                 {proposal && status !== "analysing" ? (
                   <>
-                    <div className={styles["assistantMessage"]}>{proposal.assistantMessage}</div>
+                    <div className={conversationStyles["assistantMessage"]}>
+                      {proposal.assistantMessage}
+                    </div>
                     <AiProposalCard
                       applied={status === "applied"}
                       applying={status === "applying"}
@@ -212,7 +211,7 @@ export function AiAssistant() {
                 ) : null}
 
                 {status === "applied" ? (
-                  <div aria-live="polite" className={styles["appliedState"]}>
+                  <div aria-live="polite" className={conversationStyles["appliedState"]}>
                     <span>
                       <Sparkles size={14} />
                     </span>
@@ -224,34 +223,18 @@ export function AiAssistant() {
                 ) : null}
 
                 {status === "error" ? (
-                  <div className={styles["errorState"]} role="alert">
+                  <div className={conversationStyles["errorState"]} role="alert">
                     {error}
                   </div>
                 ) : null}
               </div>
 
-              <form className={styles["composer"]} onSubmit={handleSubmit}>
-                <label htmlFor="ai-build-message">继续描述或修改配置</label>
-                <div>
-                  <textarea
-                    id="ai-build-message"
-                    maxLength={2000}
-                    onChange={(event) => setDraft(event.target.value)}
-                    onKeyDown={handleComposerKeyDown}
-                    placeholder="例如：显卡换成 RTX 5090，预算变化可以接受"
-                    rows={2}
-                    value={draft}
-                  />
-                  <button
-                    aria-label="生成配置"
-                    disabled={!draft.trim() || status === "analysing"}
-                    type="submit"
-                  >
-                    <ArrowUp size={16} />
-                  </button>
-                </div>
-                <small>携带当前配置上下文 · Enter 发送 / Shift+Enter 换行</small>
-              </form>
+              <AiAssistantComposer
+                busy={status === "analysing"}
+                draft={draft}
+                onDraftChange={setDraft}
+                onSubmit={() => void submit()}
+              />
             </motion.section>
           </motion.div>
         ) : null}

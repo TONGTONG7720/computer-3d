@@ -3,7 +3,7 @@
 import { ArrowLeft, KeyRound, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { FormEvent } from "react";
-import styles from "./AiAdmin.module.css";
+import styles from "./AiAdminAccessGate.module.css";
 
 type AiAdminAccessGateProps = {
   readonly adminKey: string;

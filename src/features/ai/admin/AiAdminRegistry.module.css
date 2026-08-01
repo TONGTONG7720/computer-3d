@@ -1,0 +1,137 @@
+/* biome-ignore-all lint/style/noDescendingSpecificity: selectors target independent registry regions */
+.workbench {
+  display: grid;
+  min-height: 560px;
+  grid-template-columns: 280px minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: var(--color-surface-admin);
+  box-shadow: var(--shadow-admin-panel);
+}
+
+.registry {
+  display: grid;
+  min-width: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  border-right: 1px solid var(--color-border);
+  background: var(--color-surface-admin-registry);
+}
+
+.registry > header {
+  display: flex;
+  min-height: 62px;
+  padding: 0 var(--space-4);
+  align-items: center;
+  gap: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-ai-text-muted);
+}
+
+.registry > header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.registry > header strong {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 560;
+}
+
+.registry > header span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-micro);
+}
+
+.registry > div {
+  display: flex;
+  padding: var(--space-2);
+  flex-direction: column;
+  gap: 2px;
+  overflow: auto;
+}
+
+.registry button {
+  display: grid;
+  min-height: 58px;
+  padding: var(--space-2) var(--space-3);
+  align-items: center;
+  grid-template-columns: 1fr auto;
+  gap: 2px var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+  color: var(--color-text-secondary);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.registry button:hover {
+  background: var(--color-surface-admin-hover);
+}
+
+.registry button[data-selected="true"] {
+  border-color: var(--color-ai-border);
+  background: var(--color-ai-subtle);
+  box-shadow: inset 2px 0 var(--color-ai-rail);
+}
+
+.registry button > span {
+  color: var(--color-ai-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  letter-spacing: 0.06em;
+}
+
+.registry button strong {
+  overflow: hidden;
+  grid-column: 1 / 3;
+  font-size: var(--font-size-micro);
+  font-weight: 520;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.registry button small {
+  grid-row: 1;
+  grid-column: 2;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-micro);
+}
+
+.registry button small[data-status="ACTIVE"],
+.registry button small[data-status="SYNCED"] {
+  color: var(--color-success);
+}
+
+.registry button small[data-status="FAILED"] {
+  color: var(--color-danger);
+}
+
+.emptyWorkspace {
+  display: grid;
+  min-height: 160px;
+  place-items: center;
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+@media (max-width: 1000px) {
+  .workbench {
+    grid-template-columns: 230px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .workbench {
+    grid-template-columns: 1fr;
+  }
+
+  .registry {
+    max-height: 220px;
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+}

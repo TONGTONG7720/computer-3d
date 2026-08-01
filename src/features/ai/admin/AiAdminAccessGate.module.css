@@ -1,0 +1,184 @@
+.accessPage {
+  position: relative;
+  display: grid;
+  min-height: 100dvh;
+  overflow: auto;
+  place-items: center;
+  color: var(--color-text-primary);
+  background:
+    linear-gradient(var(--color-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px),
+    radial-gradient(circle at 76% 12%, var(--color-ai-glow), transparent 28%),
+    var(--color-bg-canvas);
+  background-size: 48px 48px;
+}
+
+.accessGrid {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 46%, var(--color-primary-subtle), transparent 28%),
+    linear-gradient(115deg, transparent 40%, var(--color-ai-grid) 50%, transparent 60%);
+  pointer-events: none;
+}
+
+.backLink {
+  position: absolute;
+  top: var(--space-6);
+  left: var(--space-6);
+  display: flex;
+  min-height: var(--size-touch-target);
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: var(--color-primary);
+}
+
+.accessCard {
+  position: relative;
+  display: grid;
+  width: min(420px, calc(100% - 32px));
+  padding: var(--space-8);
+  gap: var(--space-3);
+  overflow: hidden;
+  border: 1px solid var(--color-ai-border);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface-admin-strong);
+  box-shadow: var(--shadow-depth);
+  backdrop-filter: blur(28px);
+}
+
+.accessCard::before {
+  position: absolute;
+  top: 0;
+  right: var(--space-6);
+  left: var(--space-6);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-accent-ai),
+    var(--color-primary),
+    transparent
+  );
+  content: "";
+}
+
+.accessSignal {
+  position: relative;
+  display: grid;
+  width: 46px;
+  height: 46px;
+  margin-bottom: var(--space-2);
+  place-items: center;
+  border: 1px solid var(--color-ai-border);
+  border-radius: 50%;
+  color: var(--color-ai-text);
+  background: var(--color-ai-subtle);
+}
+
+.accessSignal i {
+  position: absolute;
+  right: 3px;
+  bottom: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 10px var(--color-primary);
+}
+
+.accessCard > small {
+  color: var(--color-ai-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+.accessCard h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 540;
+  letter-spacing: -0.04em;
+}
+
+.accessCard > p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.accessCard form {
+  display: grid;
+  margin-top: var(--space-4);
+  gap: var(--space-3);
+}
+
+.accessCard label {
+  display: grid;
+  gap: 6px;
+}
+
+.accessCard label > span {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.accessCard label > div {
+  display: flex;
+  min-height: 46px;
+  padding: 0 var(--space-3);
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-small);
+  color: var(--color-text-muted);
+  background: var(--color-surface-admin-field);
+}
+
+.accessCard input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  color: var(--color-text-primary);
+  background: transparent;
+}
+
+.accessCard form > button {
+  display: inline-flex;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-ai-border);
+  border-radius: var(--radius-small);
+  color: var(--color-ai-text-strong);
+  background: var(--color-ai-action);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 560;
+}
+
+.accessCard form > button:hover {
+  background: var(--color-ai-action-hover);
+}
+
+.accessCard > em {
+  color: var(--color-text-disabled);
+  font-size: var(--font-size-micro);
+  font-style: normal;
+  line-height: 1.55;
+}

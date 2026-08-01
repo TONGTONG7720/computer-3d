@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+export const aiLifecycleStatusSchema = z.enum(["ACTIVE", "DRAFT", "ARCHIVED"]);
+export const aiKnowledgeCategorySchema = z.enum([
+  "COMPATIBILITY",
+  "POWER",
+  "WORKLOAD",
+  "PREFERENCE",
+  "PERFORMANCE",
+]);
+export const aiRuleStatusSchema = z.enum(["ACTIVE", "DRAFT", "DISABLED"]);
+
 export const aiDashboardSchema = z
   .object({
     activePrompts: z.number().int().nonnegative(),
@@ -21,7 +31,7 @@ export const aiPromptSchema = z
     name: z.string().min(1),
     content: z.string().min(1),
     version: z.number().int().positive(),
-    status: z.enum(["ACTIVE", "DRAFT", "ARCHIVED"]),
+    status: aiLifecycleStatusSchema,
     createdBy: z.string().min(1),
     updatedAt: z.string().min(1),
   })
@@ -32,13 +42,13 @@ export const aiKnowledgeSchema = z
     id: z.number().int().positive(),
     documentKey: z.string().min(1),
     title: z.string().min(1),
-    category: z.enum(["COMPATIBILITY", "POWER", "WORKLOAD", "PREFERENCE", "PERFORMANCE"]),
+    category: aiKnowledgeCategorySchema,
     content: z.string().min(1),
     tags: z.array(z.string().min(1)),
     sourceLabel: z.string().min(1),
     vectorStatus: z.enum(["PENDING", "SYNCED", "FAILED", "DISABLED"]),
     version: z.number().int().positive(),
-    status: z.enum(["ACTIVE", "DRAFT", "ARCHIVED"]),
+    status: aiLifecycleStatusSchema,
     updatedAt: z.string().min(1),
   })
   .strict();
@@ -53,7 +63,7 @@ export const aiRuleSchema = z
     action: z.record(z.string(), z.unknown()),
     explanation: z.string().min(1),
     version: z.number().int().positive(),
-    status: z.enum(["ACTIVE", "DRAFT", "DISABLED"]),
+    status: aiRuleStatusSchema,
     updatedAt: z.string().min(1),
   })
   .strict();

@@ -1,0 +1,195 @@
+/* biome-ignore-all lint/style/noDescendingSpecificity: selectors target independent editor regions */
+.editor {
+  display: grid;
+  min-width: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.editorHeader {
+  display: flex;
+  min-height: 62px;
+  padding: 0 var(--space-5);
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.editorHeader > div {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-ai-text-muted);
+}
+
+.editorHeader > div > span {
+  display: grid;
+  gap: 2px;
+}
+
+.editorHeader strong {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 560;
+}
+
+.editorHeader small {
+  color: var(--color-ai-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+.editorHeader em {
+  padding: 4px 7px;
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  font-style: normal;
+}
+
+.editorBody {
+  display: grid;
+  padding: var(--space-5);
+  align-content: start;
+  gap: var(--space-4);
+  overflow: auto;
+}
+
+.editorBody label {
+  display: grid;
+  gap: 6px;
+}
+
+.editorBody label > span {
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.editorBody input,
+.editorBody select,
+.editorBody textarea {
+  width: 100%;
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-small);
+  outline: 0;
+  color: var(--color-text-primary);
+  background: var(--color-surface-glass-strong);
+  font-size: 11px;
+}
+
+.editorBody textarea {
+  padding: var(--space-3);
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.editorBody input:focus,
+.editorBody select:focus,
+.editorBody textarea:focus {
+  border-color: var(--color-ai-border);
+  box-shadow: 0 0 0 2px var(--color-ai-focus-ring);
+}
+
+.codeField textarea {
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: var(--font-size-micro);
+}
+
+.editorNote {
+  display: flex;
+  padding: var(--space-3);
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-small);
+  color: var(--color-success);
+  background: var(--color-success-subtle);
+  font-size: var(--font-size-micro);
+}
+
+.knowledgeFields,
+.ruleFields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wideField {
+  grid-column: 1 / -1;
+}
+
+.editorFooter {
+  display: flex;
+  min-height: 62px;
+  padding: var(--space-2) var(--space-5);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-admin-muted);
+}
+
+.editorFooter > span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-micro);
+}
+
+.editorFooter > div {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.editorFooter button {
+  display: inline-flex;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-ai-border);
+  border-radius: var(--radius-small);
+  color: var(--color-ai-text-strong);
+  background: var(--color-ai-action);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 560;
+}
+
+.editorFooter button:hover:not(:disabled) {
+  background: var(--color-ai-action-hover);
+}
+
+.editorFooter button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.editorFooter .secondaryAction {
+  border-color: var(--color-border-strong);
+  color: var(--color-text-secondary);
+  background: transparent;
+}
+
+@media (max-width: 767px) {
+  .knowledgeFields,
+  .ruleFields {
+    grid-template-columns: 1fr;
+  }
+
+  .editorFooter {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .editorFooter > div,
+  .editorFooter button {
+    width: 100%;
+  }
+}

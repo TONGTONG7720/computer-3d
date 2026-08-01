@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { hardwareCategories, hardwareCategorySchema } from "@/features/builder/domain/hardware";
+import { hardwareCategorySchema } from "@/features/builder/domain/hardware";
 
 const routeSchema = z.enum(["RULE", "LLM", "LLM_FALLBACK"]);
 const purposeSchema = z.enum(["GAMING", "OFFICE", "DESIGN", "PROGRAMMING", "AI_TRAINING"]);
@@ -7,13 +7,7 @@ const prioritySchema = z.enum(["GPU", "CPU", "QUIET", "VALUE"]);
 const styleSchema = z.enum(["WHITE", "RGB"]);
 const componentTargetSchema = z.enum(["CPU", "GPU"]);
 
-const componentIdsSchema = z
-  .object(
-    Object.fromEntries(hardwareCategories.map((category) => [category, z.string().min(1)])) as {
-      [Category in (typeof hardwareCategories)[number]]: z.ZodString;
-    },
-  )
-  .strict();
+const componentIdsSchema = z.record(hardwareCategorySchema, z.string().min(1));
 
 const requirementSchema = z
   .object({

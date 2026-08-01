@@ -1,5 +1,5 @@
 import { Fingerprint, LockKeyhole, Route } from "lucide-react";
-import styles from "./AiAdmin.module.css";
+import styles from "./AiAdminLogs.module.css";
 import type { AiRequestLogPage } from "./domain/adminAi";
 
 type LogWorkspaceProps = {
@@ -35,21 +35,21 @@ export function LogWorkspace({ logs }: LogWorkspaceProps) {
         </div>
         {logs?.items.map((log) => (
           <div className={styles["logRow"]} key={log.requestId}>
-            <span>
+            <span data-label="REQUEST / TIME">
               <strong>{log.requestId.slice(0, 8).toUpperCase()}</strong>
               <small>{formatTime(log.createdAt)}</small>
             </span>
-            <span className={styles["routeCell"]}>
+            <span className={styles["routeCell"]} data-label="ROUTE">
               <Route size={12} />
               {log.route}
             </span>
-            <span>
+            <span data-label="INTENT">
               <strong>{log.purpose ?? "UNSPECIFIED"}</strong>
               <small>{log.budget ? `¥${log.budget.toLocaleString("zh-CN")}` : "NO BUDGET"}</small>
             </span>
-            <span>{log.latencyMillis}ms</span>
-            <span>{log.inputTokens + log.outputTokens}</span>
-            <span>
+            <span data-label="LATENCY">{log.latencyMillis}ms</span>
+            <span data-label="TOKENS">{log.inputTokens + log.outputTokens}</span>
+            <span data-label="OUTCOME">
               <em data-outcome={log.outcome}>{log.outcome}</em>
               {log.failureCode ? <small>{log.failureCode}</small> : null}
             </span>

@@ -2,9 +2,12 @@
 
 import { CheckCircle2, FileCode2, GitBranch, Upload } from "lucide-react";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
-import styles from "./AiAdmin.module.css";
+import editorStyles from "./AiAdminEditor.module.css";
+import registryStyles from "./AiAdminRegistry.module.css";
 import { createPromptVersion } from "./api/AdminAiApiClient";
 import type { AiPrompt } from "./domain/adminAi";
+
+const styles = { ...registryStyles, ...editorStyles };
 
 type PromptWorkspaceProps = {
   readonly adminKey: string;

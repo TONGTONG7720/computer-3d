@@ -1,0 +1,193 @@
+/* biome-ignore-all lint/style/noDescendingSpecificity: selectors target independent log regions */
+.emptyWorkspace {
+  display: grid;
+  min-height: 160px;
+  place-items: center;
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.logWorkspace {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: var(--color-surface-admin);
+}
+
+.logHeader {
+  display: flex;
+  min-height: 62px;
+  padding: 0 var(--space-4);
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.logHeader > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-ai-text-muted);
+}
+
+.logHeader > div:first-child > span {
+  display: grid;
+}
+
+.logHeader strong {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 11px;
+}
+
+.logHeader small {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-micro);
+}
+
+.logHeader > div:last-child {
+  display: flex;
+  padding: 5px var(--space-2);
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--color-success-border);
+  border-radius: 99px;
+  color: var(--color-success);
+  background: var(--color-success-subtle);
+  font-size: var(--font-size-micro);
+}
+
+.logTable {
+  overflow-x: auto;
+}
+
+.logTableHeader,
+.logRow {
+  display: grid;
+  min-width: 900px;
+  grid-template-columns: 1.5fr 1fr 1.25fr 0.7fr 0.6fr 1fr;
+}
+
+.logTableHeader {
+  min-height: 36px;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  background: var(--color-surface-admin-table);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  letter-spacing: 0.08em;
+}
+
+.logTableHeader span,
+.logRow > span {
+  padding: 0 var(--space-3);
+  border-right: 1px solid var(--color-border);
+}
+
+.logRow {
+  min-height: 58px;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-micro);
+}
+
+.logRow:last-child {
+  border-bottom: 0;
+}
+
+.logRow > span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.logRow strong {
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: var(--font-size-micro);
+  font-weight: 550;
+  text-overflow: ellipsis;
+}
+
+.logRow small {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-micro);
+  text-overflow: ellipsis;
+}
+
+.logRow > .routeCell {
+  display: flex;
+  align-items: center;
+  grid-template-columns: 14px 1fr;
+  color: var(--color-ai-text-muted);
+}
+
+.logRow em {
+  width: fit-content;
+  padding: 3px 5px;
+  border-radius: 99px;
+  color: var(--color-success);
+  background: var(--color-success-subtle);
+  font-size: var(--font-size-micro);
+  font-style: normal;
+}
+
+.logRow em[data-outcome="REJECTED"],
+.logRow em[data-outcome="FAILED"] {
+  color: var(--color-danger);
+  background: var(--color-danger-subtle);
+}
+
+@media (max-width: 767px) {
+  .logTable {
+    overflow: visible;
+  }
+
+  .logTableHeader {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .logRow {
+    min-width: 0;
+    min-height: 0;
+    padding: var(--space-3);
+    align-items: start;
+    gap: var(--space-3);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .logRow > span {
+    padding: 0;
+    border-right: 0;
+  }
+
+  .logRow > span::before {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--color-text-muted);
+    content: attr(data-label);
+    font-family: var(--font-display);
+    font-size: var(--font-size-micro);
+    letter-spacing: 0.08em;
+  }
+
+  .logRow > .routeCell {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .logRow > .routeCell::before {
+    flex-basis: 100%;
+  }
+}

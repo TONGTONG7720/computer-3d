@@ -1,6 +1,6 @@
 import { Activity, BookOpen, BrainCircuit, Clock3, Cpu, LogOut, Route } from "lucide-react";
 import Link from "next/link";
-import styles from "./AiAdmin.module.css";
+import styles from "./AiAdminOverview.module.css";
 import type { AiDashboard } from "./domain/adminAi";
 
 export const aiAdminTabs = ["prompts", "knowledge", "rules", "logs"] as const;

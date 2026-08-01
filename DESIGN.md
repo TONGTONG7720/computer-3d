@@ -49,6 +49,21 @@ PC LAB 3D feels like a precision computing laboratory rather than a store. The s
 | AI border | `--color-ai-border` | `rgba(140, 123, 255, 0.28)` | Recommendation boundary |
 | Backdrop | `--color-backdrop` | `rgba(2, 5, 9, 0.76)` | Modal stage dimming |
 
+### AI Semantic Extension
+
+AI surfaces never declare raw color literals inside component modules. They use
+semantic variables from `globals.css` so the Builder advisor and Operations
+workspace can evolve without drifting from the core palette.
+
+| Group | Tokens | Usage |
+|---|---|---|
+| AI text | `--color-ai-text-muted`, `--color-ai-text`, `--color-ai-text-strong`, `--color-ai-text-pale` | Metadata, icons, selected text and primary AI actions |
+| AI state | `--color-ai-subtle`, `--color-ai-action`, `--color-ai-action-hover`, `--color-ai-border`, `--color-ai-border-strong` | Recommendation, hover, focus and confirmation states |
+| Advisor surfaces | `--color-surface-ai-launcher`, `--color-surface-ai-panel`, `--color-surface-ai-proposal`, `--color-surface-ai-composer`, `--color-surface-ai-input` | Floating advisor depth layers |
+| Operations surfaces | `--color-surface-admin`, `--color-surface-admin-strong`, `--color-surface-admin-registry`, `--color-surface-admin-table`, `--color-surface-admin-field` | Admin access, registry, table and editor layers |
+| AI depth | `--shadow-ai-launcher`, `--shadow-ai-panel`, `--shadow-admin-panel` | Elevation recipes for the three AI surface classes |
+| Accessibility | `--font-size-micro`, `--size-touch-target` | 11px minimum metadata and 44px minimum interactive target |
+
 ### Rules
 
 - Cyan is reserved for action, selection, and active telemetry.

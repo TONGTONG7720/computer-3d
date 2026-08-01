@@ -1,7 +1,11 @@
 import { Check, ChevronRight, Gauge, ShieldCheck, Zap } from "lucide-react";
-import type { Hardware, HardwareCategory } from "@/features/builder/domain/hardware";
+import {
+  type Hardware,
+  type HardwareCategory,
+  hardwareCategories,
+} from "@/features/builder/domain/hardware";
 import type { AiBuild } from "../domain/aiBuild";
-import styles from "./AiAssistant.module.css";
+import styles from "./AiProposalCard.module.css";
 
 const categoryLabels: Readonly<Record<HardwareCategory, string>> = {
   cpu: "CPU",
@@ -29,11 +33,14 @@ export function AiProposalCard({
   onApply,
   proposal,
 }: AiProposalCardProps) {
-  const componentRows = Object.entries(proposal.components).map(([category, id]) => ({
-    category: category as HardwareCategory,
-    hardware: catalogue.find((candidate) => candidate.id === id),
-    id,
-  }));
+  const componentRows = hardwareCategories.map((category) => {
+    const id = proposal.components[category];
+    return {
+      category,
+      hardware: catalogue.find((candidate) => candidate.id === id),
+      id,
+    };
+  });
 
   return (
     <article className={styles["proposal"]}>

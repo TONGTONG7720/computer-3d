@@ -2,9 +2,9 @@
 
 import { RefreshCw, TriangleAlert } from "lucide-react";
 import { type FormEvent, useCallback, useEffect, useState } from "react";
-import styles from "./AiAdmin.module.css";
 import { AiAdminAccessGate } from "./AiAdminAccessGate";
 import { AiAdminOverview, type AiAdminTab } from "./AiAdminOverview";
+import styles from "./AiAdminWorkspace.module.css";
 import {
   fetchAiDashboard,
   fetchAiKnowledge,

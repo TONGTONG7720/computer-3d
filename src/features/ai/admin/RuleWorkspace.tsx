@@ -2,9 +2,12 @@
 
 import { Braces, Network, Save } from "lucide-react";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
-import styles from "./AiAdmin.module.css";
+import editorStyles from "./AiAdminEditor.module.css";
+import registryStyles from "./AiAdminRegistry.module.css";
 import { saveRule } from "./api/AdminAiApiClient";
-import type { AiRule } from "./domain/adminAi";
+import { type AiRule, aiRuleStatusSchema } from "./domain/adminAi";
+
+const styles = { ...registryStyles, ...editorStyles };
 
 type RuleWorkspaceProps = {
   readonly adminKey: string;
@@ -133,7 +136,12 @@ export function RuleWorkspace({ adminKey, onChanged, rules }: RuleWorkspaceProps
             <label>
               <span>状态</span>
               <select
-                onChange={(event) => setStatus(event.target.value as AiRule["status"])}
+                onChange={(event) => {
+                  const result = aiRuleStatusSchema.safeParse(event.currentTarget.value);
+                  if (result.success) {
+                    setStatus(result.data);
+                  }
+                }}
                 value={status}
               >
                 <option>ACTIVE</option>
