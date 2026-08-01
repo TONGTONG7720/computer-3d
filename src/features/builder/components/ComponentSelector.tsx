@@ -113,6 +113,7 @@ function HardwareCard({
   );
 }
 
+/** @deprecated V3 uses `features/hardware/HardwareLibrary`. */
 export function ComponentSelector({ onOpenPrices }: ComponentSelectorProps) {
   const [recommendationOpen, setRecommendationOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);

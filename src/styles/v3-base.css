@@ -1,0 +1,47 @@
+[data-ui-version="v3"] {
+  min-height: 100dvh;
+  color: var(--text-primary);
+  background: var(--bg-app);
+  font-family: var(--font-body-v3);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+[data-ui-version="v3"] button,
+[data-ui-version="v3"] input {
+  color: inherit;
+  font: inherit;
+}
+
+[data-ui-version="v3"] button {
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+}
+
+[data-ui-version="v3"] :focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--v3-focus-offset);
+}
+
+[data-ui-version="v3"] ::selection {
+  color: var(--v3-white);
+  background: var(--primary-pressed);
+}
+
+[data-ui-version="v3"] [data-numeric="true"] {
+  font-family: var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui-version="v3"],
+  [data-ui-version="v3"] *,
+  [data-ui-version="v3"] *::before,
+  [data-ui-version="v3"] *::after {
+    scroll-behavior: auto;
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+    transition-duration: 1ms;
+  }
+}

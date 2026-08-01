@@ -27,6 +27,7 @@ const scoreRows = [
   { key: "ai", label: "AI COMPUTE" },
 ] as const;
 
+/** @deprecated V3 uses `features/build/BuildPanel`. */
 export function BuildSummary({ onOpenPrices }: BuildSummaryProps) {
   const [saveOpen, setSaveOpen] = useState(false);
   const selected = useBuilderStore((state) => state.selectedComponents);

@@ -44,6 +44,7 @@ function ToolButton({ active = false, icon: Icon, label, onClick }: ToolButtonPr
   );
 }
 
+/** @deprecated Retained for the later Three.js migration into the V3 viewport contract. */
 export function EngineDemo() {
   const [priceOpen, setPriceOpen] = useState(false);
   const exploded = useEngineStore((state) => state.exploded);

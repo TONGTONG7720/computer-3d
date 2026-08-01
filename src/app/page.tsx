@@ -1,5 +1,5 @@
-import { EnginePageClient } from "@/features/engine/EnginePageClient";
+import { redirect } from "next/navigation";
 
 export default function HomePage() {
-  return <EnginePageClient />;
+  redirect("/builder");
 }

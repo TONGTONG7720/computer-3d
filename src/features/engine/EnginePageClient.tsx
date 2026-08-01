@@ -15,6 +15,7 @@ const EngineDemo = dynamic(() => import("./EngineDemo").then((module) => module.
   ),
 });
 
+/** @deprecated V3 public runtime uses `/builder` and `BuilderWorkspace`. */
 export function EnginePageClient() {
   return <EngineDemo />;
 }

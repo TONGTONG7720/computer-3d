@@ -35,6 +35,7 @@ const routeLabel = (route: AiBuild["route"]): string => {
   }
 };
 
+/** @deprecated AI chat is deferred and is not part of the V3 Builder runtime. */
 export function AiAssistant() {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");

@@ -1,0 +1,98 @@
+.shell {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  min-height: 640px;
+  overflow: hidden;
+  background: var(--bg-app);
+}
+
+.skipLink {
+  position: fixed;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: calc(var(--z-toolbar) + 1);
+  padding: var(--space-2) var(--space-3);
+  color: var(--v3-white);
+  background: var(--primary-pressed);
+  border-radius: var(--radius-small);
+  transform: translateY(-160%);
+  transition: transform var(--duration-feedback) ease-out;
+}
+
+.skipLink:focus {
+  transform: translateY(0);
+}
+
+.toolbar {
+  position: relative;
+  z-index: var(--z-toolbar);
+  height: var(--toolbar-height);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 720px) 360px;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 1440px;
+  height: calc(100dvh - var(--toolbar-height));
+  min-height: 0;
+  padding: var(--space-2) var(--space-8);
+  margin: 0 auto;
+}
+
+.leftPanel,
+.rightPanel,
+.viewport {
+  min-width: 0;
+  min-height: 0;
+}
+
+.viewport {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-stage);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-medium);
+}
+
+@media (min-width: 1200px) and (max-width: 1279px) {
+  .workspace {
+    grid-template-columns: 248px minmax(0, 1fr) 320px;
+    padding-inline: var(--space-4);
+  }
+}
+
+@media (max-width: 1199px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--space-2);
+  }
+
+  .leftPanel,
+  .rightPanel {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .shell {
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
+
+  .workspace {
+    height: auto;
+    min-height: calc(100dvh - var(--toolbar-height));
+    padding: 0;
+  }
+
+  .viewport {
+    min-height: calc(100dvh - var(--toolbar-height));
+    border: 0;
+    border-radius: 0;
+  }
+}

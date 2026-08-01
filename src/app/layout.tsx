@@ -4,10 +4,12 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import "./globals.css";
+import "../styles/tokens.css";
+import "../styles/v3-base.css";
 
 export const metadata: Metadata = {
   title: "PC LAB 3D",
-  description: "Immersive real-time PC assembly engine.",
+  description: "专业级 3D 电脑设计工作台。",
 };
 
 type RootLayoutProps = {
