@@ -94,6 +94,28 @@ public class ManualCatalogAdapter implements PlatformAdapter {
         );
     }
 
+    @Override
+    public String getSeller(PlatformProductRef reference) {
+        return requireOffer(reference).getSeller();
+    }
+
+    @Override
+    public String getLink(PlatformProductRef reference) {
+        ProductPriceEntity offer = requireOffer(reference);
+        if (offer.getAffiliateUrl() != null && !offer.getAffiliateUrl().isBlank()) {
+            return offer.getAffiliateUrl();
+        }
+        return offer.getProductUrl();
+    }
+
+    private ProductPriceEntity requireOffer(PlatformProductRef reference) {
+        ProductPriceEntity offer = priceMapper.selectById(reference.offerId());
+        if (offer == null || !offer.getProductId().equals(reference.productId())) {
+            throw new DomainException(ErrorCode.PRICE_OFFER_NOT_FOUND);
+        }
+        return offer;
+    }
+
     private PlatformProductCandidate toCandidate(ProductEntity product) {
         return new PlatformProductCandidate(
                 product.getId(),

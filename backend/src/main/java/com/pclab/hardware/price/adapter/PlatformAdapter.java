@@ -20,6 +20,10 @@ public interface PlatformAdapter {
 
     PlatformProductDetail getDetail(PlatformProductRef reference);
 
+    String getSeller(PlatformProductRef reference);
+
+    String getLink(PlatformProductRef reference);
+
     record PlatformSearchRequest(String keyword, String category, Long hardwareId) {
     }
 

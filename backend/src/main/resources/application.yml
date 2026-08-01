@@ -67,6 +67,18 @@ app:
   price:
     mode: ${PC_LAB_PRICE_MODE:MANUAL}
     manual-adapter-enabled: ${PC_LAB_MANUAL_ADAPTER_ENABLED:true}
+    jd:
+      enabled: ${PC_LAB_JD_ALLIANCE_ENABLED:false}
+      app-key: ${PC_LAB_JD_ALLIANCE_APP_KEY:}
+      app-secret: ${PC_LAB_JD_ALLIANCE_APP_SECRET:}
+    taobao:
+      enabled: ${PC_LAB_TAOBAO_ALLIANCE_ENABLED:false}
+      app-key: ${PC_LAB_TAOBAO_ALLIANCE_APP_KEY:}
+      app-secret: ${PC_LAB_TAOBAO_ALLIANCE_APP_SECRET:}
+    pdd:
+      enabled: ${PC_LAB_PDD_OPEN_PLATFORM_ENABLED:false}
+      app-key: ${PC_LAB_PDD_OPEN_PLATFORM_APP_KEY:}
+      app-secret: ${PC_LAB_PDD_OPEN_PLATFORM_APP_SECRET:}
     scheduler-enabled: ${PC_LAB_PRICE_SCHEDULER_ENABLED:true}
     hot-refresh-cron: ${PC_LAB_PRICE_HOT_CRON:0 15 * * * *}
     normal-refresh-cron: ${PC_LAB_PRICE_NORMAL_CRON:0 30 3 * * *}

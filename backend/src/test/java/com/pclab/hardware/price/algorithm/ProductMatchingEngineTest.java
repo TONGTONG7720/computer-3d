@@ -21,11 +21,12 @@ class ProductMatchingEngineTest {
                 .vram(32)
                 .build();
 
-        ProductMatch result = engine.match("华硕 RTX5090 OC 32G", candidate);
+        ProductMatch result = engine.match("华硕 RTX5090 OC 32G", null, candidate);
 
         assertThat(result.confidence()).isGreaterThanOrEqualTo(new BigDecimal("0.8800"));
         assertThat(result.decision()).isEqualTo(ProductMatch.MatchDecision.CONFIRMED);
-        assertThat(result.dimensionScores()).containsKeys("brand", "model", "spec", "category");
+        assertThat(result.dimensionScores()).containsKeys("model", "brand", "spec", "keyword", "image");
+        assertThat(result.dimensionScores().get("image")).isEqualByComparingTo("0");
     }
 
     @Test
@@ -38,7 +39,7 @@ class ProductMatchingEngineTest {
                 .vram(32)
                 .build();
 
-        ProductMatch result = engine.match("RTX5090 显卡支架", candidate);
+        ProductMatch result = engine.match("RTX5090 显卡支架", "same-image", candidate);
 
         assertThat(result.decision()).isEqualTo(ProductMatch.MatchDecision.REJECTED);
         assertThat(result.explanations()).anyMatch(item -> item.contains("配件"));

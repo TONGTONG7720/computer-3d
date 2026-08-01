@@ -40,6 +40,10 @@ public class ProductMatchingEngine {
     );
 
     public ProductMatch match(String title, HardwareView candidate) {
+        return match(title, null, candidate);
+    }
+
+    public ProductMatch match(String title, String imageFingerprint, HardwareView candidate) {
         String normalizedTitle = normalize(title);
         if (containsAny(normalizedTitle, ACCESSORY_TERMS)) {
             return rejectedAccessory();
@@ -51,23 +55,25 @@ public class ProductMatchingEngine {
         BigDecimal brand = brandScore(normalizedTitle, candidate.brand());
         BigDecimal model = modelScore(normalizedTitle, normalizedCandidate);
         SpecScore spec = specificationScore(normalizedTitle, candidate);
-        BigDecimal category = categoryScore(normalizedTitle, candidate.category());
         BigDecimal keyword = model.signum() > 0 && brand.signum() > 0
                 ? BigDecimal.ONE
                 : new BigDecimal("0.40");
+        BigDecimal image = imageScore(imageFingerprint, candidate);
+        boolean hasImageEvidence = image.signum() > 0;
 
         Map<String, BigDecimal> dimensions = new LinkedHashMap<>();
-        dimensions.put("brand", brand);
         dimensions.put("model", model);
+        dimensions.put("brand", brand);
         dimensions.put("spec", spec.score());
-        dimensions.put("category", category);
         dimensions.put("keyword", keyword);
+        dimensions.put("image", image);
 
-        BigDecimal confidence = weightedConfidence(dimensions);
+        BigDecimal confidence = weightedConfidence(dimensions, hasImageEvidence);
         List<String> explanations = new ArrayList<>();
         explanations.add("型号匹配 " + percentage(model));
         explanations.add("品牌匹配 " + percentage(brand));
         explanations.add(spec.explanation());
+        explanations.add(hasImageEvidence ? "图片指纹与候选型号一致" : "无可核验的图片指纹证据");
         if (spec.conflict()) {
             confidence = confidence.multiply(new BigDecimal("0.50"));
             explanations.add("检测到显式规格冲突");
@@ -86,21 +92,30 @@ public class ProductMatchingEngine {
                 BigDecimal.ZERO.setScale(4),
                 MatchDecision.REJECTED,
                 Map.of(
-                        "brand", BigDecimal.ZERO,
                         "model", BigDecimal.ZERO,
+                        "brand", BigDecimal.ZERO,
                         "spec", BigDecimal.ZERO,
-                        "category", BigDecimal.ZERO
+                        "keyword", BigDecimal.ZERO,
+                        "image", BigDecimal.ZERO
                 ),
                 List.of("标题包含支架、线材或散热附件等配件关键词")
         );
     }
 
-    private static BigDecimal weightedConfidence(Map<String, BigDecimal> dimensions) {
-        return dimensions.get("model").multiply(new BigDecimal("0.45"))
-                .add(dimensions.get("brand").multiply(new BigDecimal("0.15")))
-                .add(dimensions.get("spec").multiply(new BigDecimal("0.25")))
-                .add(dimensions.get("category").multiply(new BigDecimal("0.10")))
-                .add(dimensions.get("keyword").multiply(new BigDecimal("0.05")));
+    private static BigDecimal weightedConfidence(
+            Map<String, BigDecimal> dimensions,
+            boolean hasImageEvidence
+    ) {
+        BigDecimal total = dimensions.get("model").multiply(new BigDecimal("0.45"))
+                .add(dimensions.get("brand").multiply(new BigDecimal("0.20")))
+                .add(dimensions.get("spec").multiply(new BigDecimal("0.20")))
+                .add(dimensions.get("keyword").multiply(new BigDecimal("0.10")));
+        BigDecimal weight = new BigDecimal("0.95");
+        if (hasImageEvidence) {
+            total = total.add(dimensions.get("image").multiply(new BigDecimal("0.05")));
+            weight = BigDecimal.ONE;
+        }
+        return total.divide(weight, 8, RoundingMode.HALF_UP);
     }
 
     private static BigDecimal brandScore(String title, String brand) {
@@ -135,16 +150,15 @@ public class ProductMatchingEngine {
         );
     }
 
-    private static BigDecimal categoryScore(String title, String category) {
-        return switch (category) {
-            case "GPU" -> containsAny(title, List.of("RTX", "GTX", "RX", "GPU", "显卡"))
-                    ? BigDecimal.ONE : BigDecimal.ZERO;
-            case "CPU" -> containsAny(title, List.of("CPU", "处理器", "INTEL", "RYZEN", "I9", "I7"))
-                    ? BigDecimal.ONE : BigDecimal.ZERO;
-            case "RAM" -> containsAny(title, List.of("RAM", "内存", "DDR"))
-                    ? BigDecimal.ONE : BigDecimal.ZERO;
-            default -> new BigDecimal("0.50");
-        };
+    private static BigDecimal imageScore(String imageFingerprint, HardwareView candidate) {
+        if (imageFingerprint == null || imageFingerprint.isBlank()) {
+            return BigDecimal.ZERO;
+        }
+        String candidateModel = extractModel(normalize(candidate.name() + " " + candidate.id()));
+        String compactFingerprint = compact(normalize(imageFingerprint));
+        return !candidateModel.isBlank() && compactFingerprint.contains(compact(candidateModel))
+                ? BigDecimal.ONE
+                : BigDecimal.ZERO;
     }
 
     private static MatchDecision decision(BigDecimal confidence, boolean conflict) {

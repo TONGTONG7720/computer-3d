@@ -22,17 +22,18 @@ class BestPriceAlgorithmTest {
     void separatesLowestPriceFromReliableRecommendation() {
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         RankableOffer jd = offer(1L, PlatformCode.JD, "京东自营", "SELF_OPERATED",
-                "9299", 12000, "4.90", "98", now);
+                "9299", 12000, "4.90", "98", "100", now);
         RankableOffer taobao = offer(2L, PlatformCode.TAOBAO, "品牌旗舰店", "BRAND_STORE",
-                "8999", 6500, "4.80", "91", now);
+                "8999", 6500, "4.80", "91", "70", now);
         RankableOffer pdd = offer(3L, PlatformCode.PDD, "平台补贴店", "MARKETPLACE",
-                "8799", 1800, "4.50", "80", now);
+                "8799", 1800, "4.50", "80", "40", now);
 
         PriceRanking result = algorithm.rank(List.of(jd, taobao, pdd), now);
 
         assertThat(result.lowest().platform()).isEqualTo(PlatformCode.PDD);
         assertThat(result.recommended().platform()).isEqualTo(PlatformCode.JD);
         assertThat(result.recommendedReason()).contains("自营", "价差");
+        assertThat(result.orderedOffers().getFirst().deliveryScore()).isEqualByComparingTo("10.00");
     }
 
     @Test
@@ -41,7 +42,7 @@ class BestPriceAlgorithmTest {
 
         assertThatThrownBy(() -> algorithm.rank(List.of(
                 offer(1L, PlatformCode.JD, "京东自营", "SELF_OPERATED",
-                        "0", 12000, "4.90", "98", now)
+                        "0", 12000, "4.90", "98", "100", now)
         ), now)).isInstanceOfSatisfying(DomainException.class, exception ->
                 assertThat(exception.errorCode()).isEqualTo(ErrorCode.PRICE_PROMOTION_INVALID)
         );
@@ -56,6 +57,7 @@ class BestPriceAlgorithmTest {
             int sales,
             String rating,
             String sellerScore,
+            String deliveryScore,
             LocalDateTime checkedAt
     ) {
         return new RankableOffer(
@@ -67,6 +69,7 @@ class BestPriceAlgorithmTest {
                 sales,
                 new BigDecimal(rating),
                 new BigDecimal(sellerScore),
+                new BigDecimal(deliveryScore),
                 checkedAt,
                 "MANUAL"
         );

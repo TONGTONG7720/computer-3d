@@ -24,9 +24,25 @@ public record PriceRanking(
             int salesCount,
             BigDecimal rating,
             BigDecimal sellerScore,
+            BigDecimal deliveryScore,
             LocalDateTime checkedAt,
             String recordSource
     ) {
+        public RankableOffer(
+                Long id,
+                PlatformCode platform,
+                String seller,
+                String shopType,
+                BigDecimal finalPrice,
+                int salesCount,
+                BigDecimal rating,
+                BigDecimal sellerScore,
+                LocalDateTime checkedAt,
+                String recordSource
+        ) {
+            this(id, platform, seller, shopType, finalPrice, salesCount, rating, sellerScore,
+                    new BigDecimal("50"), checkedAt, recordSource);
+        }
     }
 
     public record ScoredOffer(
@@ -36,6 +52,7 @@ public record PriceRanking(
             BigDecimal salesScore,
             BigDecimal ratingScore,
             BigDecimal trustScore,
+            BigDecimal deliveryScore,
             boolean stale
     ) {
     }

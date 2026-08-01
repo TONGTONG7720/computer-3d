@@ -15,10 +15,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class BestPriceAlgorithm {
 
-    private static final BigDecimal PRICE_WEIGHT = new BigDecimal("40");
-    private static final BigDecimal SALES_WEIGHT = new BigDecimal("20");
-    private static final BigDecimal RATING_WEIGHT = new BigDecimal("20");
-    private static final BigDecimal TRUST_WEIGHT = new BigDecimal("20");
+    private static final BigDecimal PRICE_WEIGHT = new BigDecimal("0.40");
+    private static final BigDecimal TRUST_WEIGHT = new BigDecimal("0.25");
+    private static final BigDecimal SALES_WEIGHT = new BigDecimal("0.15");
+    private static final BigDecimal RATING_WEIGHT = new BigDecimal("0.10");
+    private static final BigDecimal DELIVERY_WEIGHT = new BigDecimal("0.10");
 
     public PriceRanking rank(List<RankableOffer> offers, LocalDateTime now) {
         if (offers.isEmpty()) {
@@ -60,21 +61,30 @@ public class BestPriceAlgorithm {
     ) {
         BigDecimal priceScore = lowestPrice
                 .divide(offer.finalPrice(), 8, RoundingMode.HALF_UP)
+                .multiply(new BigDecimal("100"))
                 .multiply(PRICE_WEIGHT);
         BigDecimal salesScore = maxSales == 0
                 ? BigDecimal.ZERO
                 : BigDecimal.valueOf(Math.log1p(offer.salesCount()) / Math.log1p(maxSales))
+                        .multiply(new BigDecimal("100"))
                         .multiply(SALES_WEIGHT);
         BigDecimal ratingScore = offer.rating()
                 .divide(new BigDecimal("5"), 8, RoundingMode.HALF_UP)
+                .multiply(new BigDecimal("100"))
                 .multiply(RATING_WEIGHT);
         BigDecimal trust = offer.sellerScore().add(shopBonus(offer.shopType()))
                 .min(new BigDecimal("100"));
         BigDecimal trustScore = trust
                 .divide(new BigDecimal("100"), 8, RoundingMode.HALF_UP)
+                .multiply(new BigDecimal("100"))
                 .multiply(TRUST_WEIGHT);
+        BigDecimal deliveryScore = normalized(offer.deliveryScore()).multiply(DELIVERY_WEIGHT);
         boolean stale = offer.checkedAt().isBefore(now.minusHours(48));
-        BigDecimal total = priceScore.add(salesScore).add(ratingScore).add(trustScore);
+        BigDecimal total = priceScore
+                .add(trustScore)
+                .add(salesScore)
+                .add(ratingScore)
+                .add(deliveryScore);
         if (stale) {
             total = total.multiply(new BigDecimal("0.85"));
         }
@@ -85,8 +95,16 @@ public class BestPriceAlgorithm {
                 scaled(salesScore),
                 scaled(ratingScore),
                 scaled(trustScore),
+                scaled(deliveryScore),
                 stale
         );
+    }
+
+    private static BigDecimal normalized(BigDecimal value) {
+        if (value == null) {
+            return new BigDecimal("50");
+        }
+        return value.max(BigDecimal.ZERO).min(new BigDecimal("100"));
     }
 
     private static BigDecimal shopBonus(String shopType) {
