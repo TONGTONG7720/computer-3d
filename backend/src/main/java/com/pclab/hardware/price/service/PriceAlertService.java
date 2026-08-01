@@ -11,8 +11,10 @@ import com.pclab.hardware.service.HardwareQueryService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -86,7 +88,7 @@ public class PriceAlertService {
                         alert,
                         hardwareService.requireHardware(alert.getHardwareId().toString())
                 ))
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Transactional
