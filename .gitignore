@@ -14,5 +14,6 @@ Thumbs.db
 playwright-report/
 test-results/
 .qa/
+.superpowers/
 backend/target/
 backend/storage/
