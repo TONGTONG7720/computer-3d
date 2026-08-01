@@ -298,4 +298,3 @@ storage.
 - No community features, user accounts, or AI chat.
 - No crawler.
 - No licensed GLB creation; procedural fallback remains valid when a database model is unavailable.
-
