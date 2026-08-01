@@ -14,6 +14,7 @@ type PriceComparisonState = {
   readonly history: PriceHistory | null;
   readonly historyStatus: PriceLoadStatus;
   readonly retry: () => void;
+  readonly retryHistory: () => void;
 };
 
 const toMessage = (error: unknown): string =>
@@ -31,8 +32,6 @@ export function usePriceComparisonData(
   const [error, setError] = useState("");
   const comparisonRequest = useRef(0);
   const historyRequest = useRef(0);
-  const currentContext = useRef({ hardwareId, open, range });
-  currentContext.current = { hardwareId, open, range };
 
   const loadComparison = useCallback(async () => {
     const requestId = ++comparisonRequest.current;
@@ -47,23 +46,13 @@ export function usePriceComparisonData(
     setError("");
     try {
       const response = await getPriceComparison(hardwareId);
-      const context = currentContext.current;
-      if (
-        requestId !== comparisonRequest.current ||
-        !context.open ||
-        context.hardwareId !== hardwareId
-      ) {
+      if (requestId !== comparisonRequest.current) {
         return;
       }
       setComparison(response);
       setComparisonStatus("ready");
     } catch (caught) {
-      const context = currentContext.current;
-      if (
-        requestId !== comparisonRequest.current ||
-        !context.open ||
-        context.hardwareId !== hardwareId
-      ) {
+      if (requestId !== comparisonRequest.current) {
         return;
       }
       setError(toMessage(caught));
@@ -82,25 +71,13 @@ export function usePriceComparisonData(
     setHistoryStatus("loading");
     try {
       const response = await getPriceHistory(hardwareId, range);
-      const context = currentContext.current;
-      if (
-        requestId !== historyRequest.current ||
-        !context.open ||
-        context.hardwareId !== hardwareId ||
-        context.range !== range
-      ) {
+      if (requestId !== historyRequest.current) {
         return;
       }
       setHistory(response);
       setHistoryStatus("ready");
     } catch {
-      const context = currentContext.current;
-      if (
-        requestId !== historyRequest.current ||
-        !context.open ||
-        context.hardwareId !== hardwareId ||
-        context.range !== range
-      ) {
+      if (requestId !== historyRequest.current) {
         return;
       }
       setHistory(null);
@@ -110,10 +87,16 @@ export function usePriceComparisonData(
 
   useEffect(() => {
     void loadComparison();
+    return () => {
+      comparisonRequest.current += 1;
+    };
   }, [loadComparison]);
 
   useEffect(() => {
     void loadHistory();
+    return () => {
+      historyRequest.current += 1;
+    };
   }, [loadHistory]);
 
   return {
@@ -126,5 +109,6 @@ export function usePriceComparisonData(
       void loadComparison();
       void loadHistory();
     },
+    retryHistory: () => void loadHistory(),
   };
 }

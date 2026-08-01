@@ -1,4 +1,4 @@
-import { PackageSearch, ShieldCheck } from "lucide-react";
+import { PackageSearch, RefreshCw, ShieldCheck } from "lucide-react";
 import type { PriceComparison, PriceHistory, PriceRange } from "../domain/price";
 import { PriceAlertControl } from "./PriceAlertControl";
 import contentStyles from "./PriceComparisonContent.module.css";
@@ -12,6 +12,7 @@ type PriceComparisonContentProps = {
   readonly comparison: PriceComparison;
   readonly history: PriceHistory | null;
   readonly historyStatus: PriceLoadStatus;
+  readonly onHistoryRetry: () => void;
   readonly onRangeChange: (range: PriceRange) => void;
   readonly range: PriceRange;
 };
@@ -23,6 +24,7 @@ export function PriceComparisonContent({
   comparison,
   history,
   historyStatus,
+  onHistoryRetry,
   onRangeChange,
   range,
 }: PriceComparisonContentProps) {
@@ -104,7 +106,11 @@ export function PriceComparisonContent({
           <div className={historyStyles["chartLoading"]}>正在读取价格历史</div>
         ) : historyStatus === "error" ? (
           <div className={historyStyles["chartLoading"]} role="alert">
-            价格趋势暂不可用，请稍后重试。
+            <span>价格趋势暂不可用，请稍后重试。</span>
+            <button onClick={onHistoryRetry} type="button">
+              <RefreshCw aria-hidden="true" size={15} />
+              重试价格趋势
+            </button>
           </div>
         ) : history ? (
           <PriceTrendChart ariaLabel={chartLabel(comparison.hardwareName)} history={history} />

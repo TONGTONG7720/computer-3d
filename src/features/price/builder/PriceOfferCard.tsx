@@ -31,9 +31,9 @@ export function PriceOfferCard({ lowestOfferId, offer, recommendedOfferId }: Pri
       <div className={styles["offerPlatform"]}>
         <span>{offer.platformLabel}</span>
         <div>
-          {isLowest ? <strong>最低到手</strong> : null}
+          {isLowest ? <strong data-badge-tone="neutral">最低到手</strong> : null}
           {isRecommended ? <strong data-recommended>推荐购买</strong> : null}
-          {offer.stale ? <strong data-pending>待核验</strong> : null}
+          {offer.stale ? <strong data-badge-tone="warning">待核验</strong> : null}
         </div>
       </div>
       <div className={styles["offerSeller"]}>
@@ -61,7 +61,8 @@ export function PriceOfferCard({ lowestOfferId, offer, recommendedOfferId }: Pri
           {offer.deliveryNote || "物流证据待人工补充"}
         </span>
         <small>
-          履约评分 {offer.deliveryScore.toFixed(0)}/100 · {provenance}
+          <span>商品匹配 {Math.round(offer.matchConfidence * 100)}%</span> · 履约评分{" "}
+          {offer.deliveryScore.toFixed(0)}/100 · {provenance}
         </small>
       </div>
       <div className={styles["offerPrice"]}>

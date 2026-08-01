@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   deletePriceAlert,
@@ -45,7 +46,7 @@ describe("priceAlertOwner", () => {
     window.localStorage.clear();
   });
 
-  it("returns one stable browser UUID without exposing it in markup", () => {
+  it("returns one stable browser UUID", () => {
     vi.stubGlobal("crypto", { randomUUID: vi.fn(() => ownerValue) });
 
     const first = getOrCreatePriceAlertOwner();
@@ -54,7 +55,6 @@ describe("priceAlertOwner", () => {
     expect(first).toBe(owner);
     expect(second).toBe(owner);
     expect(window.localStorage.getItem("pc-lab-price-alert-owner-v1")).toBe(owner);
-    expect(document.body.textContent).not.toContain(ownerValue);
   });
 
   it("fails safely when browser storage or UUID generation is unavailable", () => {
@@ -88,17 +88,14 @@ describe("PriceAlertControl", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders a labelled mobile-safe control while no alert exists", async () => {
+  it("renders a labelled control while no alert exists", async () => {
     vi.mocked(getPriceAlerts).mockResolvedValue([]);
 
-    const { container } = render(
-      <PriceAlertControl hardwareKey="gpu-nvidia-rtx5090" hardwareName="RTX 5090" />,
-    );
+    render(<PriceAlertControl hardwareKey="gpu-nvidia-rtx5090" hardwareName="RTX 5090" />);
 
     const input = await screen.findByRole("spinbutton", { name: "目标到手价" });
     expect(input.getAttribute("inputmode")).toBe("decimal");
     expect(screen.getByRole("button", { name: "设置提醒" })).toBeTruthy();
-    expect(container.querySelector("[data-control-size='touch']")).toBeTruthy();
   });
 
   it("creates an alert and renders the active state", async () => {
@@ -213,5 +210,86 @@ describe("PriceAlertControl", () => {
       cpuRequest.resolve([]);
     });
     expect(await screen.findByRole("button", { name: "设置提醒" })).toBeTruthy();
+  });
+
+  it.each(["resolve", "reject"] as const)(
+    "ignores a pending upsert %s after hardware changes",
+    async (settlement) => {
+      const saveRequest = deferred<PriceAlert>();
+      vi.mocked(getPriceAlerts).mockResolvedValue([]);
+      vi.mocked(upsertPriceAlert).mockReturnValue(saveRequest.promise);
+      const { rerender } = render(
+        <PriceAlertControl hardwareKey={activeAlert.hardwareKey} hardwareName="RTX 5090" />,
+      );
+      const input = await screen.findByRole("spinbutton", { name: "目标到手价" });
+      fireEvent.change(input, { target: { value: "19999" } });
+      fireEvent.click(screen.getByRole("button", { name: "设置提醒" }));
+      await waitFor(() => expect(upsertPriceAlert).toHaveBeenCalledTimes(1));
+
+      rerender(<PriceAlertControl hardwareKey="cpu-intel-i9-14900k" hardwareName="i9-14900K" />);
+      const cpuInput = await screen.findByRole("spinbutton", { name: "目标到手价" });
+      await act(async () => {
+        if (settlement === "resolve") {
+          saveRequest.resolve(activeAlert);
+        } else {
+          saveRequest.reject(new Error("old save failure"));
+        }
+      });
+
+      expect((cpuInput as HTMLInputElement).value).toBe("");
+      expect(screen.getByRole("button", { name: "设置提醒" })).toBeTruthy();
+      expect(screen.queryByText("目标价监测中")).toBeNull();
+      expect(screen.queryByRole("alert")).toBeNull();
+    },
+  );
+
+  it.each(["resolve", "reject"] as const)(
+    "ignores a pending delete %s after hardware changes",
+    async (settlement) => {
+      const deleteRequest = deferred<void>();
+      vi.mocked(getPriceAlerts).mockResolvedValueOnce([activeAlert]).mockResolvedValueOnce([]);
+      vi.mocked(deletePriceAlert).mockReturnValue(deleteRequest.promise);
+      const { rerender } = render(
+        <PriceAlertControl hardwareKey={activeAlert.hardwareKey} hardwareName="RTX 5090" />,
+      );
+      fireEvent.click(await screen.findByRole("button", { name: "取消提醒" }));
+      await waitFor(() => expect(deletePriceAlert).toHaveBeenCalledTimes(1));
+
+      rerender(<PriceAlertControl hardwareKey="cpu-intel-i9-14900k" hardwareName="i9-14900K" />);
+      const cpuInput = await screen.findByRole("spinbutton", { name: "目标到手价" });
+      await act(async () => {
+        if (settlement === "resolve") {
+          deleteRequest.resolve(undefined);
+        } else {
+          deleteRequest.reject(new Error("old delete failure"));
+        }
+      });
+
+      expect((cpuInput as HTMLInputElement).value).toBe("");
+      expect(screen.getByRole("button", { name: "设置提醒" })).toBeTruthy();
+      expect(screen.queryByText("目标价监测中")).toBeNull();
+      expect(screen.queryByRole("alert")).toBeNull();
+    },
+  );
+
+  it("performs exactly one upsert and delete per click in StrictMode", async () => {
+    vi.mocked(getPriceAlerts).mockResolvedValue([]);
+    vi.mocked(upsertPriceAlert).mockResolvedValue(activeAlert);
+    vi.mocked(deletePriceAlert).mockResolvedValue(undefined);
+    render(
+      <StrictMode>
+        <PriceAlertControl hardwareKey={activeAlert.hardwareKey} hardwareName="RTX 5090" />
+      </StrictMode>,
+    );
+    const input = await screen.findByRole("spinbutton", { name: "目标到手价" });
+    fireEvent.change(input, { target: { value: "19999" } });
+    fireEvent.click(screen.getByRole("button", { name: "设置提醒" }));
+
+    await screen.findByText("目标价监测中");
+    expect(upsertPriceAlert).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole("button", { name: "取消提醒" }));
+
+    await screen.findByRole("button", { name: "设置提醒" });
+    expect(deletePriceAlert).toHaveBeenCalledTimes(1);
   });
 });

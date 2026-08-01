@@ -49,7 +49,7 @@ describe("PriceComparisonDialog", () => {
   });
 
   it("distinguishes the lowest offer from the reliable recommendation", async () => {
-    render(
+    const { container } = render(
       <PriceComparisonDialog onClose={vi.fn()} open selectedComponents={selectedComponents} />,
     );
 
@@ -57,6 +57,9 @@ describe("PriceComparisonDialog", () => {
     expect(screen.getAllByText("最低到手").length).toBeGreaterThan(0);
     expect(screen.getByText("推荐购买")).toBeTruthy();
     expect(screen.getByText("待核验")).toBeTruthy();
+    expect(screen.getByText("商品匹配 98%")).toBeTruthy();
+    expect(container.querySelector('[data-badge-tone="neutral"]')?.textContent).toBe("最低到手");
+    expect(container.querySelector('[data-badge-tone="warning"]')?.textContent).toBe("待核验");
     expect(screen.getAllByText(/免运费/).length).toBeGreaterThan(0);
     expect(screen.getByText(/销量 428/)).toBeTruthy();
     expect(screen.getByText("京东物流 · 次日达（人工核验）")).toBeTruthy();
@@ -87,6 +90,25 @@ describe("PriceComparisonDialog", () => {
     await waitFor(() => {
       expect(getPriceHistory).toHaveBeenLastCalledWith("gpu-nvidia-rtx5090", "90D");
     });
+  });
+
+  it("retries the failed current trend range without erasing the comparison", async () => {
+    vi.mocked(getPriceHistory)
+      .mockRejectedValueOnce(new Error("history unavailable"))
+      .mockResolvedValueOnce(history);
+
+    render(
+      <PriceComparisonDialog onClose={vi.fn()} open selectedComponents={selectedComponents} />,
+    );
+
+    expect(await screen.findByRole("heading", { name: "NVIDIA GeForce RTX 5090" })).toBeTruthy();
+    expect((await screen.findByRole("alert")).textContent).toContain("价格趋势暂不可用");
+    fireEvent.click(screen.getByRole("button", { name: "重试价格趋势" }));
+
+    expect(await screen.findByLabelText("RTX 5090 价格趋势")).toBeTruthy();
+    expect(getPriceHistory).toHaveBeenNthCalledWith(1, "gpu-nvidia-rtx5090", "30D");
+    expect(getPriceHistory).toHaveBeenNthCalledWith(2, "gpu-nvidia-rtx5090", "30D");
+    expect(getPriceComparison).toHaveBeenCalledTimes(1);
   });
 
   it("shows an explicit empty state when no reviewed offers exist", async () => {

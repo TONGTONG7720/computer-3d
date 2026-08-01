@@ -32,7 +32,6 @@ export function PriceAlertControl({ hardwareKey, hardwareName }: PriceAlertContr
     status: "loading",
   });
   const requestRevision = useRef(0);
-
   useEffect(() => {
     setOwner(getOrCreatePriceAlertOwner());
     setOwnerResolved(true);
@@ -152,7 +151,7 @@ export function PriceAlertControl({ hardwareKey, hardwareName }: PriceAlertContr
         <div className={styles["alertError"]} role="alert">
           <strong>价格提醒暂不可用</strong>
           <span>浏览器存储或价格服务暂时不可访问。</span>
-          <button data-control-size="touch" onClick={retry} type="button">
+          <button onClick={retry} type="button">
             <RefreshCw aria-hidden="true" size={15} />
             重试价格提醒
           </button>
@@ -208,7 +207,7 @@ export function PriceAlertControl({ hardwareKey, hardwareName }: PriceAlertContr
           目标到手价
           <span aria-hidden="true">人民币</span>
         </label>
-        <div className={styles["alertActions"]} data-control-size="touch">
+        <div className={styles["alertActions"]}>
           <input
             disabled={pending}
             id={`price-alert-target-${hardwareKey}`}

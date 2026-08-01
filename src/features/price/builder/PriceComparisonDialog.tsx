@@ -33,7 +33,7 @@ export function PriceComparisonDialog({
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
   const hardware = getSelectedHardware(selectedComponents, category);
-  const { comparison, comparisonStatus, error, history, historyStatus, retry } =
+  const { comparison, comparisonStatus, error, history, historyStatus, retry, retryHistory } =
     usePriceComparisonData(hardware?.id ?? null, open, range);
   const closeDialog = useCallback(() => {
     setCategory("gpu");
@@ -123,6 +123,7 @@ export function PriceComparisonDialog({
                   comparison={comparison}
                   history={history}
                   historyStatus={historyStatus}
+                  onHistoryRetry={retryHistory}
                   onRangeChange={setRange}
                   range={range}
                 />
