@@ -1,6 +1,6 @@
 "use client";
 
-import { animate, motion, useMotionValue, useTransform } from "framer-motion";
+import { animate, domAnimation, LazyMotion, m, useMotionValue, useTransform } from "framer-motion";
 import { useEffect } from "react";
 
 type AnimatedNumberProps = {
@@ -25,5 +25,9 @@ export function AnimatedNumber({ value, format = defaultFormat, className }: Ani
     };
   }, [animatedValue, value]);
 
-  return <motion.span className={className}>{displayValue}</motion.span>;
+  return (
+    <LazyMotion features={domAnimation} strict>
+      <m.span className={className}>{displayValue}</m.span>
+    </LazyMotion>
+  );
 }

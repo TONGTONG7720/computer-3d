@@ -110,11 +110,16 @@
 
 @media (max-width: 767px) {
   .panel {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
     padding-bottom: calc(var(--space-20) + env(safe-area-inset-bottom));
     overflow-y: auto;
   }
 
   .analysis {
+    flex: 0 0 auto;
     overflow: visible;
   }
 }

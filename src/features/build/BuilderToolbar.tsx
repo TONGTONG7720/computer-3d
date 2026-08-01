@@ -10,6 +10,7 @@ import {
   Save,
   Share2,
 } from "lucide-react";
+import Link from "next/link";
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import type { CompatibilityStatus } from "@/features/builder/domain/CompatibilityEngine";
 import styles from "./BuilderToolbar.module.css";
@@ -41,8 +42,8 @@ const compatibilityLabels = {
   error: "有冲突",
 } as const satisfies Readonly<Record<CompatibilityStatus, string>>;
 
-const formatCurrency = (value: number): string =>
-  new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 }).format(value);
+const currencyFormatter = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 });
+const formatCurrency = (value: number): string => currencyFormatter.format(value);
 
 export function BuilderToolbar({
   budget,
@@ -96,7 +97,7 @@ export function BuilderToolbar({
 
   return (
     <div className={styles["toolbar"]}>
-      <a aria-label="PC LAB Builder 首页" className={styles["brand"]} href="/builder">
+      <Link aria-label="PC LAB Builder 首页" className={styles["brand"]} href="/builder">
         <span aria-hidden="true" className={styles["brandMark"]}>
           <span />
         </span>
@@ -104,7 +105,7 @@ export function BuilderToolbar({
           <strong>PC LAB</strong>
           <small>3D BUILDER</small>
         </span>
-      </a>
+      </Link>
 
       <div className={styles["identity"]}>
         {editing ? (

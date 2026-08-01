@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
 import { Focus, Maximize2, MousePointer2, RotateCcw, ScanLine } from "lucide-react";
 import { useState } from "react";
 import styles from "./ThreeDViewport.module.css";
@@ -65,22 +65,24 @@ export function ThreeDViewport({ loading = false }: ThreeDViewportProps) {
         <span aria-hidden="true" className={styles["cameraFrame"]}>
           <span />
         </span>
-        <AnimatePresence mode="wait">
-          <motion.div
-            animate={{ opacity: 1, y: 0 }}
-            className={styles["placeholder"]}
-            exit={{ opacity: 0, y: -4 }}
-            initial={{ opacity: 0, y: 4 }}
-            key={mode}
-            transition={{ duration: 0.18, ease: [0.2, 0.8, 0.2, 1] }}
-          >
-            <ScanLine aria-hidden="true" size={28} strokeWidth={1.25} />
-            <small>3D VIEWPORT RESERVED</small>
-            <h1>{loading ? "正在准备视口" : content.title}</h1>
-            <p>{loading ? "独立视口模块正在载入，布局尺寸保持不变。" : content.description}</p>
-            <strong>真实模型将在下一阶段接入</strong>
-          </motion.div>
-        </AnimatePresence>
+        <LazyMotion features={domAnimation} strict>
+          <AnimatePresence mode="wait">
+            <m.div
+              animate={{ opacity: 1, y: 0 }}
+              className={styles["placeholder"]}
+              exit={{ opacity: 0, y: -4 }}
+              initial={{ opacity: 0, y: 4 }}
+              key={mode}
+              transition={{ duration: 0.18, ease: [0.2, 0.8, 0.2, 1] }}
+            >
+              <ScanLine aria-hidden="true" size={28} strokeWidth={1.25} />
+              <small>3D VIEWPORT RESERVED</small>
+              <h1>{loading ? "正在准备视口" : content.title}</h1>
+              <p>{loading ? "独立视口模块正在载入，布局尺寸保持不变。" : content.description}</p>
+              <strong>真实模型将在下一阶段接入</strong>
+            </m.div>
+          </AnimatePresence>
+        </LazyMotion>
       </section>
 
       <div aria-label="摄像机控制" className={styles["cameraControls"]} role="toolbar">

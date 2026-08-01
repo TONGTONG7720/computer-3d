@@ -30,8 +30,9 @@ export class UnsupportedHardwarePresentationError extends Error {
   }
 }
 
-export const formatCurrency = (value: number): string =>
-  new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 }).format(value);
+const currencyFormatter = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 });
+
+export const formatCurrency = (value: number): string => currencyFormatter.format(value);
 
 export const formatHardwareSpec = (hardware: Hardware): string => {
   switch (hardware.category) {

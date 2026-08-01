@@ -5,6 +5,7 @@ import { useStore } from "zustand";
 import type { StoreApi } from "zustand/vanilla";
 import { mockHardware } from "@/features/builder/data/mockHardware";
 import { type BuilderStore, createBuilderStore } from "@/store/builderStore";
+import { MissingBuilderStoreProviderError } from "./BuilderStoreErrors";
 
 const BuilderStoreContext = createContext<StoreApi<BuilderStore> | null>(null);
 
@@ -12,13 +13,6 @@ type BuilderStoreProviderProps = {
   readonly children: ReactNode;
   readonly store?: StoreApi<BuilderStore>;
 };
-
-export class MissingBuilderStoreProviderError extends Error {
-  constructor() {
-    super("Builder workspace components require BuilderStoreProvider");
-    this.name = "MissingBuilderStoreProviderError";
-  }
-}
 
 export function BuilderStoreProvider({ children, store }: BuilderStoreProviderProps) {
   const [workspaceStore] = useState(

@@ -10,8 +10,8 @@ type WorkspaceMobileControlsProps = {
   readonly onOpenSummary: () => void;
 };
 
-const formatCurrency = (value: number): string =>
-  new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 }).format(value);
+const currencyFormatter = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 });
+const formatCurrency = (value: number): string => currencyFormatter.format(value);
 
 export function WorkspaceMobileControls({
   onOpenComponents,
