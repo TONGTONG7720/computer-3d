@@ -15,8 +15,8 @@ technical component library, a dominant inspection stage, and a persistent build
 1. Choose one of eight component categories.
 2. Compare concise technical options without leaving the workspace.
 3. Select a part and immediately understand price, power, performance, and compatibility changes.
-4. Save the local Build. Sharing, marketplace comparison, AI optimization, and real 3D integration
-   remain separate later phases.
+4. Inspect the selected parts in the live 3D assembly, then save the local Build. Sharing,
+   marketplace comparison, and AI optimization remain separate later phases.
 
 ### Inclusive personas and stress conditions
 
@@ -163,7 +163,7 @@ The visual hierarchy is fixed:
 | `BuilderToolbar` | clean, dirty, saving, saved, error; inline name edit |
 | `ComponentSlotRail` | empty, active, installed, warning, conflict |
 | `HardwareItem` | default, hover, focus, selected, installed, conflict, loading, disabled |
-| `ThreeDViewport` | loading, placeholder, degraded; Build/Exploded/Airflow/Studio |
+| `ThreeDViewport` | loading, ready, replacing, degraded, WebGL error; Build/Exploded/Airflow/Studio |
 | `BuildConfigRow` | empty, installed, changed, conflict |
 | `PerformanceCard` | calculating, ready, incomplete |
 | `PriceCard` | internal, updating, up, down |
@@ -191,11 +191,67 @@ Composition rules:
 - Hardware fixtures are explicitly local UI data in this phase; live catalogue provenance returns
   with backend integration.
 
-## V3.6 — Accepted debt and deferred capability
+## V3.6 — Production 3D experience
+
+The Builder stage follows the same two-gear discipline visible in high-end product configurators:
+quiet utility chrome around a physically rendered focal object. Apple-inspired restraint keeps the
+controls subordinate to material finish; Porsche-style mode and camera continuity keeps the user
+oriented while the product changes. The ambient homepage particle language is prohibited here.
+
+### Coordinate and slot contract
+
+- World axis: +Y up, +Z toward the glass/front, meter-like authored units normalized at import.
+- `PC_CASE` is the assembly root. Replaceable mounts are `motherboard`, `cpu_socket`, `gpu_slot`,
+  `ram_slots`, `storage_slots`, `cooling_mount`, `fan_mount`, and `psu_area`.
+- Every mount owns position, rotation, scale, installation entry vector, exploded offset, and slotId.
+- A part's pivot sits at the mounting contact point. Geometry stays at local origin; slot data owns
+  placement so a new GLB never changes application or animation logic.
+
+### Physical material palette
+
+| Material token | Value / range | Use |
+|---|---|---|
+| Graphite metal | `#161d27`, metalness 0.88, roughness 0.28 | Case frame, GPU structure |
+| Dark anodized metal | `#080b10`, metalness 0.92, roughness 0.24 | Radiator, PSU, brackets |
+| Brushed aluminum | `#aeb8c5`, metalness 0.82, roughness 0.32 | CPU cap, heat spreaders |
+| Engineering plastic | `#11151c`, metalness 0.08, roughness 0.58 | Fan blades, GPU shroud |
+| PCB | `#123f32`, metalness 0.12, roughness 0.68 | Motherboard and modules |
+| Smoked glass | `#8fdcf2`, transmission 0.76, opacity 0.2 | Side and front panels |
+| RGB cyan | `#65e6ff` | Default fan/GPU/RAM emissive channel |
+
+No bloom or ambient glow is applied to interface chrome. The model receives a cool blue key, warm
+neutral fill, narrow cyan rim, soft environment cards, and one grounded contact shadow. Blue stays
+a material/accent event rather than filling the entire scene.
+
+### Camera, modes, and motion
+
+- Default: three-quarter exterior at `[8.2, 6.35, 9.4]`, targeting the assembly center.
+- Detail: tighter interior framing for motherboard, CPU, RAM, and GPU inspection.
+- Exploded: pulled back to preserve every displaced component and connection line.
+- Installation: tight slot framing while CPU/GPU removal and insertion runs.
+- Build: assembled machine; no ambient particles and demand-based frames while idle.
+- Exploded: GPU moves out, RAM fans open, cooling rises, PSU leaves the lower bay; quiet connection
+  lines appear after separation begins.
+- Airflow: deterministic blue intake and red exhaust particles only while the mode is active.
+- Studio: RGB color, brightness, static/pulse/wave effect, and speed control for fans, GPU, and RAM.
+- Camera and exploded transitions use `power3.out`; installation lasts 800–1500ms. Reduced motion
+  replaces travel with an immediate state update and at most 120ms opacity confirmation.
+
+### Asset and quality tiers
+
+- GLB naming: `/models/<category>/<category>_<model>.glb`; meshes use `CMP_*`, `GEO_*`, `RGB_*`.
+- Production geometry uses Draco or Meshopt. Textures use KTX2/Basis, power-of-two dimensions, and
+  2K maximum for desktop hero-visible surfaces; mobile starts at 1K equivalents.
+- Desktop: adaptive DPR up to 1.75, soft shadows, full airflow count, detailed GPU LOD.
+- Mobile: DPR up to 1.25, reduced shadow map, half airflow count, earlier LOD switch.
+- The Canvas remains a dynamically imported client leaf. Model cache entries are reference-counted;
+  geometries, materials, and textures are explicitly disposed after the final release.
+
+## V3.7 — Accepted debt and deferred capability
 
 | Item | Location | Reason | Exit |
 |---|---|---|---|
-| Placeholder viewer | `/builder` stage | Real Three.js integration is the next approved phase | Mount one Canvas behind the stable Viewer contract |
+| Procedural model set | `/builder` stage | Licensed production GLB binaries are not in the repository | Drop optimized assets into the documented registry paths; the slot and animation contracts remain unchanged |
 | Local hardware fixtures | Builder-scoped store | This phase validates UI and selection flow independently | Reconnect the Hardware API without changing component geometry |
 | Disabled Share | Toolbar | Public Build sharing is deferred | Enable after versioned Build API/public route returns |
 | No Optimize action | Build Panel | AI chat and optimization are out of scope | Add the approved non-chat Optimize Build flow later |
