@@ -14,6 +14,8 @@ public class GpuSpecEntity {
     private String chipset;
     private Integer vramGb;
     private String vramType;
+    private String interfaceType;
+    private String resolutionSupport;
     private Integer lengthMm;
     private Integer tdpWatt;
 }

@@ -14,4 +14,5 @@ public class PsuSpecEntity {
     private Integer wattage;
     private String certification;
     private String modularType;
+    private String connectors;
 }

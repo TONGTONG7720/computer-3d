@@ -13,7 +13,10 @@ import com.pclab.hardware.entity.MemorySpecEntity;
 import com.pclab.hardware.entity.MotherboardSpecEntity;
 import com.pclab.hardware.entity.PsuSpecEntity;
 import com.pclab.hardware.entity.StorageSpecEntity;
+import com.pclab.hardware.intelligence.domain.PerformanceProfile;
+import com.pclab.hardware.intelligence.entity.HardwarePerformanceEntity;
 import com.pclab.hardware.vo.HardwareView;
+import com.pclab.hardware.vo.HardwareModelView;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -36,6 +39,25 @@ public class HardwareViewAssembler {
             HardwareCategoryEntity category,
             Object specification
     ) {
+        return toView(hardware, category, specification, null);
+    }
+
+    public HardwareView toView(
+            HardwareEntity hardware,
+            HardwareCategoryEntity category,
+            Object specification,
+            HardwarePerformanceEntity performance
+    ) {
+        return toView(hardware, category, specification, performance, null);
+    }
+
+    public HardwareView toView(
+            HardwareEntity hardware,
+            HardwareCategoryEntity category,
+            Object specification,
+            HardwarePerformanceEntity performance,
+            HardwareModelView primaryModel
+    ) {
         HardwareView.HardwareViewBuilder builder = HardwareView.builder()
                 .databaseId(hardware.getId())
                 .id(hardware.getHardwareKey())
@@ -46,10 +68,13 @@ public class HardwareViewAssembler {
                 .description(hardware.getDescription())
                 .price(hardware.getBasePrice())
                 .performance(hardware.getPerformanceScore())
+                .popularity(hardware.getPopularityScore() == null ? 0 : hardware.getPopularityScore())
+                .performanceProfile(toPerformanceProfile(hardware, performance))
                 .power(hardware.getPowerWatt())
                 .modelUrl(hardware.getModelUrl())
                 .modelVariant(hardware.getModelVariant())
-                .coverUrl(hardware.getCoverUrl());
+                .coverUrl(hardware.getCoverUrl())
+                .primaryModel(primaryModel);
 
         switch (category.getCode()) {
             case "CPU" -> applyCpu(builder, requireSpec(specification, CpuSpecEntity.class));
@@ -72,14 +97,17 @@ public class HardwareViewAssembler {
 
     private static void applyCpu(HardwareView.HardwareViewBuilder builder, CpuSpecEntity spec) {
         builder.socket(spec.getSocket())
+                .cpuGeneration(spec.getGeneration())
                 .cores(spec.getCores())
                 .threads(spec.getThreads())
                 .tdp(spec.getTdpWatt());
     }
 
-    private static void applyGpu(HardwareView.HardwareViewBuilder builder, GpuSpecEntity spec) {
+    private void applyGpu(HardwareView.HardwareViewBuilder builder, GpuSpecEntity spec) {
         builder.vram(spec.getVramGb())
                 .length(spec.getLengthMm())
+                .interfaceType(spec.getInterfaceType())
+                .resolutionSupport(parseOptionalStringList(spec.getResolutionSupport()))
                 .tdp(spec.getTdpWatt());
     }
 
@@ -88,6 +116,7 @@ public class HardwareViewAssembler {
             MotherboardSpecEntity spec
     ) {
         builder.socket(spec.getSocket())
+                .chipset(spec.getChipset())
                 .ramType(spec.getRamType())
                 .formFactor(spec.getFormFactor());
     }
@@ -120,9 +149,10 @@ public class HardwareViewAssembler {
                 .supportedSockets(parseStringList(spec.getSupportedSockets()));
     }
 
-    private static void applyPsu(HardwareView.HardwareViewBuilder builder, PsuSpecEntity spec) {
+    private void applyPsu(HardwareView.HardwareViewBuilder builder, PsuSpecEntity spec) {
         builder.wattage(spec.getWattage())
-                .certification(spec.getCertification());
+                .certification(spec.getCertification())
+                .connectors(parseOptionalStringList(spec.getConnectors()));
     }
 
     private void applyCase(HardwareView.HardwareViewBuilder builder, CaseSpecEntity spec) {
@@ -137,6 +167,26 @@ public class HardwareViewAssembler {
         } catch (JsonProcessingException exception) {
             throw new IllegalStateException("Stored hardware specification JSON is invalid", exception);
         }
+    }
+
+    private List<String> parseOptionalStringList(String json) {
+        return json == null || json.isBlank() ? List.of() : parseStringList(json);
+    }
+
+    private static PerformanceProfile toPerformanceProfile(
+            HardwareEntity hardware,
+            HardwarePerformanceEntity performance
+    ) {
+        if (performance == null) {
+            return PerformanceProfile.baseline(hardware.getPerformanceScore());
+        }
+        return new PerformanceProfile(
+                performance.getGamingScore(),
+                performance.getCreatorScore(),
+                performance.getAiScore(),
+                performance.getSource(),
+                performance.getProfileVersion()
+        );
     }
 
     private static <T> T requireSpec(Object specification, Class<T> expectedType) {

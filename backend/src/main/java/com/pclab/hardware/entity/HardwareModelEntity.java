@@ -27,6 +27,7 @@ public class HardwareModelEntity {
     private BigDecimal rotationX;
     private BigDecimal rotationY;
     private BigDecimal rotationZ;
+    private String animationConfig;
     private Integer lodLevel;
     private Long fileSizeBytes;
     private String checksumSha256;

@@ -12,6 +12,7 @@ public class MotherboardSpecEntity {
     @TableId(value = "hardware_id", type = IdType.INPUT)
     private Long hardwareId;
     private String socket;
+    private String chipset;
     private String ramType;
     private String formFactor;
     private Integer memorySlots;

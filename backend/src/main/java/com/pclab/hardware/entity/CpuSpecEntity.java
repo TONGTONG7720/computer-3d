@@ -13,6 +13,7 @@ public class CpuSpecEntity {
     @TableId(value = "hardware_id", type = IdType.INPUT)
     private Long hardwareId;
     private String socket;
+    private String generation;
     private Integer cores;
     private Integer threads;
     private BigDecimal baseClockGhz;

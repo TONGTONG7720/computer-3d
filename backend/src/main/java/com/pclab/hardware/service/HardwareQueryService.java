@@ -30,6 +30,7 @@ import com.pclab.hardware.mapper.MotherboardSpecMapper;
 import com.pclab.hardware.mapper.ProductPriceMapper;
 import com.pclab.hardware.mapper.PsuSpecMapper;
 import com.pclab.hardware.mapper.StorageSpecMapper;
+import com.pclab.hardware.intelligence.mapper.HardwarePerformanceMapper;
 import com.pclab.hardware.vo.CategoryView;
 import com.pclab.hardware.vo.HardwareModelView;
 import com.pclab.hardware.vo.HardwareView;
@@ -59,6 +60,7 @@ public class HardwareQueryService {
     private final CaseSpecMapper caseSpecMapper;
     private final HardwareModelMapper modelMapper;
     private final ProductPriceMapper priceMapper;
+    private final HardwarePerformanceMapper performanceMapper;
     private final HardwareViewAssembler viewAssembler;
 
     public HardwareQueryService(
@@ -74,6 +76,7 @@ public class HardwareQueryService {
             CaseSpecMapper caseSpecMapper,
             HardwareModelMapper modelMapper,
             ProductPriceMapper priceMapper,
+            HardwarePerformanceMapper performanceMapper,
             HardwareViewAssembler viewAssembler
     ) {
         this.hardwareMapper = hardwareMapper;
@@ -88,6 +91,7 @@ public class HardwareQueryService {
         this.caseSpecMapper = caseSpecMapper;
         this.modelMapper = modelMapper;
         this.priceMapper = priceMapper;
+        this.performanceMapper = performanceMapper;
         this.viewAssembler = viewAssembler;
     }
 
@@ -232,7 +236,26 @@ public class HardwareQueryService {
         if (category == null) {
             throw new DomainException(ErrorCode.CATEGORY_NOT_FOUND);
         }
-        return viewAssembler.toView(hardware, category, findSpecification(hardware));
+        return viewAssembler.toView(
+                hardware,
+                category,
+                findSpecification(hardware),
+                performanceMapper.selectById(hardware.getId()),
+                findPrimaryModel(hardware.getId())
+        );
+    }
+
+    private HardwareModelView findPrimaryModel(Long hardwareId) {
+        return modelMapper.selectList(
+                        Wrappers.<HardwareModelEntity>lambdaQuery()
+                                .eq(HardwareModelEntity::getHardwareId, hardwareId)
+                                .eq(HardwareModelEntity::getIsPrimary, 1)
+                                .eq(HardwareModelEntity::getStatus, "READY")
+                                .orderByAsc(HardwareModelEntity::getLodLevel)
+                ).stream()
+                .findFirst()
+                .map(this::toModelView)
+                .orElse(null);
     }
 
     private Object findSpecification(HardwareEntity hardware) {
@@ -267,6 +290,7 @@ public class HardwareQueryService {
                         model.getRotationY(),
                         model.getRotationZ()
                 ),
+                model.getAnimationConfig(),
                 model.getLodLevel(),
                 model.getFileSizeBytes(),
                 model.getChecksumSha256(),

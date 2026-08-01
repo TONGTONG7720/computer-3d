@@ -22,6 +22,7 @@ public class HardwareEntity {
     private String description;
     private BigDecimal basePrice;
     private Integer performanceScore;
+    private Integer popularityScore;
     private Integer powerWatt;
     private String modelUrl;
     private String modelVariant;
