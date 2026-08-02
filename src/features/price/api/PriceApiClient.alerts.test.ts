@@ -43,9 +43,17 @@ describe("PriceApiClient alerts", () => {
           owner: request.headers.get("X-Price-Alert-Owner"),
           url: request.url,
         });
-        const data =
-          request.method === "GET" ? [alert] : request.method === "DELETE" ? null : alert;
-        return new Response(envelope(data), {
+        const data = request.method === "GET" ? [alert] : alert;
+        const responseBody =
+          request.method === "DELETE"
+            ? JSON.stringify({
+                code: "OK",
+                message: "success",
+                traceId: "trace-alert",
+                timestamp: "2026-08-02T08:30:01Z",
+              })
+            : envelope(data);
+        return new Response(responseBody, {
           headers: { "Content-Type": "application/json" },
         });
       },

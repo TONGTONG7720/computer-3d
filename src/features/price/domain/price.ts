@@ -132,7 +132,7 @@ export const priceHistoryResponseSchema = apiEnvelope(historyDataSchema);
 export const buildQuoteResponseSchema = apiEnvelope(buildQuoteDataSchema);
 export const priceAlertResponseSchema = apiEnvelope(priceAlertSchema);
 export const priceAlertListResponseSchema = apiEnvelope(z.array(priceAlertSchema));
-export const emptyPriceAlertResponseSchema = apiEnvelope(z.null());
+export const emptyPriceAlertResponseSchema = apiEnvelope(z.null().optional().default(null));
 
 export type PricePlatform = z.infer<typeof pricePlatformSchema>;
 export type PriceRange = z.infer<typeof priceRangeSchema>;
