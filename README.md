@@ -1,10 +1,11 @@
 # PC LAB 3D
 
 PC LAB 3D 是一个汽车配置器式的沉浸式电脑装机平台。当前产品基线为
-`Builder UI V3.0 + Three.js Engine V2.0 + Hardware Intelligence V1.0`：Builder
-从真实硬件 API 读取目录，硬件选择会同时驱动模块化 PC 场景、服务端兼容检测、
-性能评分、预算状态与可解释优化建议。仓库既有价格与 AI 模块继续保留；本次硬件
-智能分支没有扩展电商、AI 聊天或社区能力。
+`Builder UI V3.0 + Three.js Engine V2.0 + Hardware Intelligence V1.0 + Price Intelligence V1.0`：
+Builder 从真实硬件 API 读取目录，硬件选择会同时驱动模块化 PC 场景、服务端兼容
+检测、性能评分、预算状态、可解释优化建议与人工审核的购买情报。PC LAB 不销售商品；
+价格能力只帮助用户比较到手价、可信度和购买时机。本阶段没有开发商城、社区或新的
+AI 交互能力。
 
 ## 当前能力
 
@@ -25,7 +26,7 @@ PC LAB 3D 是一个汽车配置器式的沉浸式电脑装机平台。当前产�
 - 商品标题标准化、硬件匹配置信度与可解释结果
 - 优惠券、满减、会员优惠、平台补贴、运费的到手价计算
 - 最低价与可靠商家分离排序，并显示价差与推荐理由
-- Builder 比价面板、7/30 天 SVG 趋势图和购买跳转记录
+- Builder 比价面板、7/30/90 天 SVG 趋势图、浏览器匿名目标价提醒和购买跳转记录
 - `/admin/prices` 商品、报价、匹配与价格运营控制台
 - 自然语言需求解析、预算优化、依赖升级与逐组件推荐理由
 - 规则优先的 AI 成本路由、MySQL 知识检索与可选 Chroma 向量检索
@@ -86,7 +87,8 @@ flowchart LR
    $env:PC_LAB_DB_USERNAME = "root"
    $env:PC_LAB_DB_PASSWORD = "replace-with-your-local-db-password"
    $env:PC_LAB_ADMIN_KEY = "change-this-local-key"
-   $env:PC_LAB_AI_ANALYTICS_HASH_KEY = "change-this-local-hmac-key"
+   $env:PC_LAB_ANALYTICS_HASH_KEY = "change-this-price-hmac-key"
+   $env:PC_LAB_AI_ANALYTICS_HASH_KEY = "change-this-ai-hmac-key"
    mvn -f backend/pom.xml spring-boot:run
    ```
 
@@ -148,8 +150,9 @@ pnpm start
 | 配置保存/读取 | `POST /api/build`、`GET /api/build/{publicId}` |
 | AI 生成装机方案 | `POST /api/ai/build` |
 | 硬件价格摘要 | `GET /api/price-intelligence/hardware/{idOrKey}` |
-| 7/30 天趋势与报价变更明细 | `GET /api/price-intelligence/hardware/{idOrKey}/history` |
+| 7/30/90 天趋势与报价变更明细 | `GET /api/price-intelligence/hardware/{idOrKey}/history` |
 | 整机报价 | `POST /api/price-intelligence/build/quote` |
+| 目标价提醒 | `GET /api/price-intelligence/alerts`、`PUT /api/price-intelligence/alerts/{hardwareKey}`、`DELETE /api/price-intelligence/alerts/{publicId}` |
 | 搜索事件 | `POST /api/price-intelligence/search-events` |
 | 受控购买跳转 | `GET /api/price-intelligence/offers/{offerId}/go` |
 | Admin 商品 CRUD | `/api/admin/products/**` |
@@ -174,6 +177,9 @@ pnpm start
 - `LIVE`：为后续联盟开放平台预留；V1 没有启用任何真实平台适配器。
 - 最低价只表示满足库存、匹配、时效和链接安全门槛后的最低到手价。
 - 可靠推荐综合价格、销量、评价和店铺信誉，不以最低价冒充最佳选择。
+- 目标价提醒使用浏览器生成的匿名 owner，仅通过 `X-Price-Alert-Owner` 请求头传递；
+  V1 只在 Builder 内显示监测中/已达标，不承诺邮件、短信或系统推送。
+- 定时任务只处理已审核的人工报价、历史快照与提醒状态，不访问或抓取电商网页。
 
 ## 验证命令
 

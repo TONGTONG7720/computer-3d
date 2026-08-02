@@ -563,7 +563,7 @@ All UI spacing derives from 4px.
 
 - Structure: eight-category selected-hardware switcher, selected hardware
   header, lowest-price signal, reliable-merchant recommendation, offer rows,
-  7/30-day trend, update time, shipping and sales details, and manual/affiliate
+  7/30/90-day trend, update time, shipping and sales details, and manual/affiliate
   disclosure.
 - States: loading, ready, no offers, stale data, history loading, history empty,
   error.
@@ -579,9 +579,18 @@ All UI spacing derives from 4px.
 
 - Structure: minimum-price line, date endpoints, low/high values, and percent
   movement.
-- States: 7-day, 30-day, empty, loading.
+- States: 7-day, 30-day, 90-day, empty, loading.
 - The chart uses a semantic SVG title/description and retains a textual price
   summary for non-visual access.
+
+### Price Alert Control
+
+- Structure: browser-owned target price, measured current best price, state label,
+  update action, and explicit cancellation action.
+- States: empty, updating, active, triggered, deleting, and recoverable error.
+- V1 reports state inside the Builder only; it never implies email, SMS, or system
+  push delivery. Owner identifiers remain in the request header and never appear
+  in routes or editable UI.
 
 ### AI Diagnostic Port
 
