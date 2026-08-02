@@ -102,7 +102,7 @@
 .alertActions input {
   width: 100%;
   min-width: 0;
-  min-height: var(--touch-target);
+  min-height: calc(var(--touch-target) + 1px);
   padding: 0 var(--space-3);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-small);
@@ -116,7 +116,7 @@
 .alertActions button,
 .alertError button {
   display: inline-flex;
-  min-height: var(--touch-target);
+  min-height: calc(var(--touch-target) + 1px);
   padding: 0 var(--space-3);
   align-items: center;
   justify-content: center;
@@ -133,7 +133,7 @@
 }
 
 .alertActions .deleteButton {
-  width: var(--touch-target);
+  width: calc(var(--touch-target) + 1px);
   padding: 0;
   color: var(--danger);
   background: var(--danger-soft);
